@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Main-Class: AliasDarteFeautrierGonnordSAS2010while2

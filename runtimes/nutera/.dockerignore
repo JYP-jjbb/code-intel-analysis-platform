@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+__pycache__
+*.pyc
+*.pyo
+*.log
+venv
+.venv
+libs/linux-x64/cmake
+libs/linux-x64/pkgconfig
+libs/z3-z3-4.11.0/build

@@ -1,0 +1,4 @@
+**/CMakeFiles/**
+**/_deps/**
+**/cmake-build-debug/**
+Makefile

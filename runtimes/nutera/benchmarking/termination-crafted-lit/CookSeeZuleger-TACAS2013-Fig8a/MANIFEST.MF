@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Main-Class: CookSeeZulegerTACAS2013Fig8a

@@ -1,0 +1,1262 @@
+program_name,attempt_number,provider,model,start_time,end_time,duration_seconds,prompt_summary,llm_output,parsed_rf,check_status,counterexample,tokens_used,empty_output_reason
+DynExUpTo2VarsConj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:04:49.832077,2026-03-15T20:05:27.079203,37.247126,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*n+1*m+1-1*a)],[ReLU(1*n+1*m+1-1*a)],YES,,3800,
+DynExUpTo2VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:05:30.684707,2026-03-15T20:06:20.612720,49.928013,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a) + ReLU(m - 4*a), ReLU(2 - a)]","[ReLU(n - 4*a) + ReLU(m - 4*a), ReLU(2 - a)]",YES,,4735,
+DynExUpTo3VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:06:23.605394,2026-03-15T20:07:18.734838,55.129444,"vars=['n', 'm', 'o'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a + 1), ReLU(m - 4*a + 1), ReLU(o - 4*a + 1)]","[ReLU(n - 4*a + 1), ReLU(m - 4*a + 1), ReLU(o - 4*a + 1)]",YES,,4864,
+DynExUpTo4VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:07:21.935288,2026-03-15T20:07:57.232007,35.296719,"vars=['n', 'm', 'o', 'p'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(23171 - a)],[ReLU(23171 - a)],ERROR,,3374,
+DynExUpTo4VarsDisj,2,openrouter,openai/gpt-5-mini,2026-03-15T20:08:00.648779,2026-03-15T20:08:20.492236,19.843457,"vars=['n', 'm', 'o', 'p'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n), ReLU(m), ReLU(o), ReLU(p)]","[ReLU(n), ReLU(m), ReLU(o), ReLU(p)]",NO,"{
+  ""p"": 2,
+  ""m"": 4,
+  ""n"": 4,
+  ""o"": 0
+}",2736,
+DynExUpTo4VarsDisj,3,openrouter,openai/gpt-5-mini,2026-03-15T20:08:23.790430,2026-03-15T20:08:51.814240,28.02381,"vars=['n', 'm', 'o', 'p'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n + m + o + p + 1 - a)],[ReLU(n + m + o + p + 1 - a)],YES,,3837,
+DynamiteEx2Vars,1,openrouter,openai/gpt-5-mini,2026-03-15T20:08:56.901470,2026-03-15T20:09:36.756557,39.855087,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1*n - 4*a), ReLU(1*m - 4*b)]","[ReLU(1*n - 4*a), ReLU(1*m - 4*b)]",NO,"{
+  ""m"": 0,
+  ""n"": 2
+}",3945,
+DynamiteEx2Vars,2,openrouter,openai/gpt-5-mini,2026-03-15T20:09:40.619565,2026-03-15T20:10:32.694152,52.074587,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a) + ReLU(m - 4*b), ReLU(2 - a) + ReLU(2 - b)]","[ReLU(n - 4*a) + ReLU(m - 4*b), ReLU(2 - a) + ReLU(2 - b)]",YES,,5367,
+DynamiteExample,1,openrouter,openai/gpt-5-mini,2026-03-15T20:10:36.169547,2026-03-15T20:10:57.650972,21.481425,"vars=['n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a)],[ReLU(n - a)],YES,,2956,
+DynamiteExampleX4,1,openrouter,openai/gpt-5-mini,2026-03-15T20:11:01.227066,2026-03-15T20:11:57.367198,56.140132,"vars=['n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a), ReLU(4 - a)]","[ReLU(n - 4*a), ReLU(4 - a)]",YES,,4724,
+MultDisj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:12:00.726401,2026-03-15T20:13:07.175684,66.449283,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n + m + 2 - 2*b)],[ReLU(n + m + 2 - 2*b)],NO,"{
+  ""m"": 1,
+  ""n"": 2
+}",5537,
+MultDisj,2,openrouter,openai/gpt-5-mini,2026-03-15T20:13:10.468267,2026-03-15T20:14:38.823375,88.355108,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - a)+ReLU(m - a), ReLU(n - b)+ReLU(m - b)+ReLU(1 - a)]","[ReLU(n - a)+ReLU(m - a), ReLU(n - b)+ReLU(m - b)+ReLU(1 - a)]",NO,"{
+  ""m"": 0,
+  ""n"": 0
+}",7132,
+MultDisj,3,openrouter,openai/gpt-5-mini,2026-03-15T20:14:42.279606,2026-03-15T20:15:12.843212,30.563606,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a) + ReLU(m - b) + ReLU(1 - a)],[ReLU(n - a) + ReLU(m - b) + ReLU(1 - a)],NO,"{
+  ""m"": 1,
+  ""n"": 2
+}",3893,
+MultDisj,4,openrouter,openai/gpt-5-mini,2026-03-15T20:15:16.323388,2026-03-15T20:16:37.671554,81.348166,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n + m + 2 - 2*a)],[ReLU(n + m + 2 - 2*a)],NO,"{
+  ""m"": 3,
+  ""n"": 1
+}",7520,
+MultDisj,5,openrouter,openai/gpt-5-mini,2026-03-15T20:16:41.047208,2026-03-15T20:17:13.390179,32.342971,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m - b), ReLU(n - a)]","[ReLU(m - b), ReLU(n - a)]",NO,"{
+  ""m"": 2,
+  ""n"": 0
+}",3756,
+MultDisj,6,openrouter,openai/gpt-5-mini,2026-03-15T20:17:16.577007,2026-03-15T20:17:49.191053,32.614046,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m + 1 - b), ReLU(n + 1 - a)]","[ReLU(m + 1 - b), ReLU(n + 1 - a)]",YES,,3996,
+Poly2VarsCondBreak,1,openrouter,openai/gpt-5-mini,2026-03-15T20:17:52.518938,2026-03-15T20:18:13.042424,20.523486,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a + 1)],[ReLU(n - a + 1)],YES,,2833,
+PolyClosingIn,1,openrouter,openai/gpt-5-mini,2026-03-15T20:18:16.234806,2026-03-15T20:18:56.972899,40.738093,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m - 1), ReLU(m + 1)]","[ReLU(m - 1), ReLU(m + 1)]",YES,,4442,
+Square2VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:19:00.590253,2026-03-15T20:19:33.696809,33.106556,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - a + 1), ReLU(m - b + 1)]","[ReLU(n - a + 1), ReLU(m - b + 1)]",YES,,4156,
+SquareDisj2Vars,1,openrouter,openai/gpt-5-mini,2026-03-15T20:19:36.965013,2026-03-15T20:20:02.342011,25.376998,"vars=['n', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - b), ReLU(n - a)]","[ReLU(n - b), ReLU(n - a)]",NO,"{
+  ""n"": 0
+}",3368,
+SquareDisj2Vars,2,openrouter,openai/gpt-5-mini,2026-03-15T20:20:05.782309,2026-03-15T20:20:37.306186,31.523877,"vars=['n', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1*n + -1*b + 1), ReLU(1*n + -1*a + 1)]","[ReLU(1*n + -1*b + 1), ReLU(1*n + -1*a + 1)]",YES,,3926,
+TwoPol4VarsConj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:20:40.662924,2026-03-15T20:21:03.455618,22.792694,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(m - b)],[ReLU(m - b)],YES,,2648,
+TwoPol4VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-15T20:21:07.140331,2026-03-15T20:21:40.541477,33.401146,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - b), ReLU(m - b)]","[ReLU(n - b), ReLU(m - b)]",NO,"{
+  ""m"": 2,
+  ""n"": 3
+}",3633,
+TwoPol4VarsDisj,2,openrouter,openai/gpt-5-mini,2026-03-15T20:21:44.254949,2026-03-15T20:22:22.042437,37.787488,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - b) + ReLU(m - b)],[ReLU(n - b) + ReLU(m - b)],NO,"{
+  ""m"": 0,
+  ""n"": 0
+}",4542,
+TwoPol4VarsDisj,3,openrouter,openai/gpt-5-mini,2026-03-15T20:22:25.897267,2026-03-15T20:22:46.576557,20.67929,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - b), ReLU(m - b)]","[ReLU(n - b), ReLU(m - b)]",NO,"{
+  ""m"": 2,
+  ""n"": 3
+}",3514,
+TwoPol4VarsDisj,4,openrouter,openai/gpt-5-mini,2026-03-15T20:22:50.192800,2026-03-15T20:23:33.484314,43.291514,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n + m + 2 - 2*b)],[ReLU(n + m + 2 - 2*b)],NO,"{
+  ""m"": 6,
+  ""n"": 0
+}",5178,
+TwoPol4VarsDisj,5,openrouter,openai/gpt-5-mini,2026-03-15T20:23:37.224618,2026-03-15T20:23:55.416522,18.191904,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - b), ReLU(m - b)]","[ReLU(n - b), ReLU(m - b)]",NO,"{
+  ""m"": 2,
+  ""n"": 3
+}",3390,
+TwoPol4VarsDisj,6,openrouter,openai/gpt-5-mini,2026-03-15T20:23:59.266737,2026-03-15T20:24:25.408811,26.142074,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - b), ReLU(m - b)]","[ReLU(n - b), ReLU(m - b)]",NO,"{
+  ""m"": 2,
+  ""n"": 3
+}",3804,
+TwoPol4VarsDisj,7,openrouter,openai/gpt-5-mini,2026-03-15T20:24:29.073004,2026-03-15T20:25:21.251501,52.178497,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m - b), ReLU(n - b)]","[ReLU(m - b), ReLU(n - b)]",NO,"{
+  ""m"": 0,
+  ""n"": 1
+}",6213,
+TwoPol4VarsDisj,8,openrouter,openai/gpt-5-mini,2026-03-15T20:25:24.930573,2026-03-15T20:25:52.451926,27.521353,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - b) + ReLU(m - b)],[ReLU(n - b) + ReLU(m - b)],NO,"{
+  ""m"": 0,
+  ""n"": 0
+}",4220,
+TwoPol4VarsDisj,9,openrouter,openai/gpt-5-mini,2026-03-15T20:25:56.367781,2026-03-15T20:26:19.124255,22.756474,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m - b), ReLU(n - b)]","[ReLU(m - b), ReLU(n - b)]",NO,"{
+  ""m"": 0,
+  ""n"": 1
+}",3639,
+TwoPol4VarsDisj,10,openrouter,openai/gpt-5-mini,2026-03-15T20:26:23.347391,2026-03-15T20:26:57.574355,34.226964,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - b) + ReLU(m - b)],[ReLU(n - b) + ReLU(m - b)],NO,"{
+  ""m"": 0,
+  ""n"": 0
+}",3942,
+AliasDarteFeautrierGonnordSAS2010Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:27:01.452304,2026-03-15T20:28:19.375683,77.923379,"vars=['x', 'y', 'm', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",8592,
+AliasDarteFeautrierGonnordSAS2010Fig1,2,openrouter,openai/gpt-5-mini,2026-03-15T20:28:23.028907,2026-03-15T20:28:42.934691,19.905784,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",3617,
+AliasDarteFeautrierGonnordSAS2010Fig1,3,openrouter,openai/gpt-5-mini,2026-03-15T20:28:46.538095,2026-03-15T20:30:43.315478,116.777383,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x+1), ReLU(m+1 - y)]","[ReLU(x+1), ReLU(m+1 - y)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 0
+}",10170,
+AliasDarteFeautrierGonnordSAS2010Fig1,4,openrouter,openai/gpt-5-mini,2026-03-15T20:30:47.130622,2026-03-15T20:31:10.454654,23.324032,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",4101,
+AliasDarteFeautrierGonnordSAS2010Fig1,5,openrouter,openai/gpt-5-mini,2026-03-15T20:31:14.156242,2026-03-15T20:31:34.701180,20.544938,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x+1), ReLU(y+1)]","[ReLU(x+1), ReLU(y+1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",3623,
+AliasDarteFeautrierGonnordSAS2010Fig1,6,openrouter,openai/gpt-5-mini,2026-03-15T20:31:38.392412,2026-03-15T20:32:05.157520,26.765108,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",3996,
+AliasDarteFeautrierGonnordSAS2010Fig1,7,openrouter,openai/gpt-5-mini,2026-03-15T20:32:08.800465,2026-03-15T20:33:26.922110,78.121645,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m + 1 - y), ReLU(x + 1)]","[ReLU(m + 1 - y), ReLU(x + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 0
+}",9199,
+AliasDarteFeautrierGonnordSAS2010Fig1,8,openrouter,openai/gpt-5-mini,2026-03-15T20:33:30.837199,2026-03-15T20:33:55.371985,24.534786,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x+1), ReLU(y+1)]","[ReLU(x+1), ReLU(y+1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",3614,
+AliasDarteFeautrierGonnordSAS2010Fig1,9,openrouter,openai/gpt-5-mini,2026-03-15T20:33:59.817422,2026-03-15T20:34:25.324501,25.507079,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",3783,
+AliasDarteFeautrierGonnordSAS2010Fig1,10,openrouter,openai/gpt-5-mini,2026-03-15T20:34:29.038693,2026-03-15T20:35:05.598290,36.559597,"vars=['x', 'y', 'm', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",4362,
+AliasDarteFeautrierGonnordSAS2010cousot9,1,openrouter,openai/gpt-5-mini,2026-03-15T20:35:09.338027,2026-03-15T20:35:24.238394,14.900367,"vars=['i', 'j', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(i - 1), ReLU(j)]","[ReLU(i - 1), ReLU(j)]",NO,"{
+  ""i"": 0,
+  ""j"": 0,
+  ""n"": 0
+}",2276,
+AliasDarteFeautrierGonnordSAS2010cousot9,2,openrouter,openai/gpt-5-mini,2026-03-15T20:35:27.746151,2026-03-15T20:35:46.613826,18.867675,"vars=['i', 'j', 'n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(i), ReLU(j)]","[ReLU(i), ReLU(j)]",YES,,2962,
+AliasDarteFeautrierGonnordSAS2010easy1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:35:49.981114,2026-03-15T20:35:59.430232,9.449118,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(40 - x)],[ReLU(40 - x)],YES,,1866,
+AliasDarteFeautrierGonnordSAS2010easy22,1,openrouter,openai/gpt-5-mini,2026-03-15T20:36:02.799205,2026-03-15T20:36:09.445080,6.645875,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(z)],[ReLU(z)],YES,,1917,
+AliasDarteFeautrierGonnordSAS2010loops,1,openrouter,openai/gpt-5-mini,2026-03-15T20:36:12.842199,2026-03-15T20:36:50.506883,37.664684,"vars=['x', 'y', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(x - y)]","[ReLU(x + 1), ReLU(x - y)]",YES,,3784,
+AliasDarteFeautrierGonnordSAS2010nestedLoop1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:36:54.294979,2026-03-15T20:37:20.580601,26.285622,"vars=['i', 'j', 'k', 'm', 'n', 'N'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - i - 1)],[ReLU(n - i - 1)],NO,"{
+  ""i"": 0,
+  ""j"": 0,
+  ""k"": 0,
+  ""m"": 1,
+  ""n"": 1,
+  ""N"": 0
+}",2998,
+AliasDarteFeautrierGonnordSAS2010nestedLoop1,2,openrouter,openai/gpt-5-mini,2026-03-15T20:37:24.213783,2026-03-15T20:38:00.544468,36.330685,"vars=['i', 'j', 'k', 'm', 'n', 'N'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - i), ReLU(m - j)]","[ReLU(n - i), ReLU(m - j)]",NO,"{
+  ""i"": 0,
+  ""j"": 0,
+  ""k"": 0,
+  ""m"": 1,
+  ""n"": 1,
+  ""N"": 1
+}",4299,
+AliasDarteFeautrierGonnordSAS2010nestedLoop1,3,openrouter,openai/gpt-5-mini,2026-03-15T20:38:04.192361,2026-03-15T20:38:42.489888,38.297527,"vars=['i', 'j', 'k', 'm', 'n', 'N'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - i), ReLU(m - j)]","[ReLU(n - i), ReLU(m - j)]",NO,"{
+  ""i"": 0,
+  ""j"": 0,
+  ""k"": 0,
+  ""m"": 1,
+  ""n"": 1,
+  ""N"": 1
+}",4499,
+AliasDarteFeautrierGonnordSAS2010nestedLoop1,4,openrouter,openai/gpt-5-mini,2026-03-15T20:38:46.072983,2026-03-15T20:39:17.427460,31.354477,"vars=['i', 'j', 'k', 'm', 'n', 'N'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - i), ReLU(m - j), ReLU(N - 1 - k)]","[ReLU(n - i), ReLU(m - j), ReLU(N - 1 - k)]",YES,,3906,
+AliasDarteFeautrierGonnordSAS2010random1d2,1,openrouter,openai/gpt-5-mini,2026-03-15T20:39:22.669588,2026-03-15T20:39:36.392456,13.722868,"vars=['a', 'x', 'm', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(m - x)],[ReLU(m - x)],YES,,2164,
+AliasDarteFeautrierGonnordSAS2010random2d,1,openrouter,openai/gpt-5-mini,2026-03-15T20:39:40.134712,2026-03-15T20:39:48.611089,8.476377,"vars=['r', 'x', 'y', 'i'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(10 - i)],[ReLU(10 - i)],YES,,2220,
+AliasDarteFeautrierGonnordSAS2010speedpldi2,1,openrouter,openai/gpt-5-mini,2026-03-15T20:39:52.403691,2026-03-15T20:40:22.514264,30.110573,"vars=['n', 'm', 'v2'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(v), ReLU(v2)]","[ReLU(v), ReLU(v2)]",YES,,3697,
+AliasDarteFeautrierGonnordSAS2010speedpldi3,1,openrouter,openai/gpt-5-mini,2026-03-15T20:40:26.782926,2026-03-15T20:40:51.648463,24.865537,"vars=['n', 'm', 'j'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - i), ReLU(m - j)]","[ReLU(n - i), ReLU(m - j)]",YES,,3078,
+AliasDarteFeautrierGonnordSAS2010speedpldi4,1,openrouter,openai/gpt-5-mini,2026-03-15T20:40:55.030849,2026-03-15T20:41:07.379818,12.348969,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(i)],[ReLU(i)],YES,,2505,
+AliasDarteFeautrierGonnordSAS2010wcet2,1,openrouter,openai/gpt-5-mini,2026-03-15T20:41:10.644504,2026-03-15T20:41:31.046475,20.401971,"vars=['i', 'j'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(5 - i), ReLU(10 - j)]","[ReLU(5 - i), ReLU(10 - j)]",YES,,2685,
+AliasDarteFeautrierGonnordSAS2010while2,1,openrouter,openai/gpt-5-mini,2026-03-15T20:41:35.609191,2026-03-15T20:42:21.132521,45.52333,"vars=['n', 'j'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(i - 1), ReLU(j - 1)]","[ReLU(i - 1), ReLU(j - 1)]",NO,"{
+  ""n"": 1
+}",4410,
+AliasDarteFeautrierGonnordSAS2010while2,2,openrouter,openai/gpt-5-mini,2026-03-15T20:42:24.803704,2026-03-15T20:42:51.102215,26.298511,"vars=['n', 'j'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(i), ReLU(j)]","[ReLU(i), ReLU(j)]",YES,,3333,
+AliasDarteFeautrierGonnordSAS2010wise,1,openrouter,openai/gpt-5-mini,2026-03-15T20:42:54.801351,2026-03-15T20:43:05.983333,11.181982,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y - 2) + ReLU(y - x - 2)],[ReLU(x - y - 2) + ReLU(y - x - 2)],YES,,2218,
+AveryFLOPS2006Table1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:43:09.148114,2026-03-15T20:45:33.850071,144.701957,"vars=['x', 'y', 'i'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(i), ReLU(y - i)]","[ReLU(i), ReLU(y - i)]",YES,,10667,
+BradleyMannaSipmaCAV2005Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:45:37.703790,2026-03-15T20:45:55.988064,18.284274,"vars=['y1', 'y2'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y1 - y2) + ReLU(y2)],[ReLU(y1 - y2) + ReLU(y2)],YES,,2695,
+BrockschmidtCookFuhsCAV2013Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:45:59.254927,2026-03-15T20:46:27.488620,28.233693,"vars=['i', 'j', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - i - 1), ReLU(i + 1 - j)]","[ReLU(n - i - 1), ReLU(i + 1 - j)]",YES,,3194,
+BrockschmidtCookFuhsCAV2013Fig9a,1,openrouter,openai/gpt-5-mini,2026-03-15T20:46:31.544674,2026-03-15T20:47:13.434555,41.889881,"vars=['k', 'i', 'j', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - i), ReLU(i - j + 1)]","[ReLU(n - i), ReLU(i - j + 1)]",YES,,4724,
+BrockschmidtCookFuhsCAV2013Introduction,1,openrouter,openai/gpt-5-mini,2026-03-15T20:47:17.046212,2026-03-15T20:47:32.527116,15.480904,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2238,
+ChawdharyCookGulwaniSagivYangESOP2008easy1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:47:36.066681,2026-03-15T20:47:51.435392,15.368711,"vars=['z', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(40 - 1*x)],[ReLU(40 - 1*x)],YES,,2273,
+ChawdharyCookGulwaniSagivYangESOP2008easy2,1,openrouter,openai/gpt-5-mini,2026-03-15T20:47:54.711152,2026-03-15T20:48:02.773406,8.062254,"vars=['z', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(z)],[ReLU(z)],YES,,1809,
+ChawdharyCookGulwaniSagivYangESOP2008random1d,1,openrouter,openai/gpt-5-mini,2026-03-15T20:48:07.441717,2026-03-15T20:48:16.862224,9.420507,"vars=['a', 'x', 'm', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(m - x + 1)],[ReLU(m - x + 1)],YES,,2027,
+ChawdharyCookGulwaniSagivYangESOP2008random2d,1,openrouter,openai/gpt-5-mini,2026-03-15T20:48:20.165767,2026-03-15T20:48:30.225169,10.059402,"vars=['r', 'x', 'y', 'i'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(10 - i)],[ReLU(10 - i)],YES,,2090,
+ChenFlurMukhopadhyaySAS2012Ex220,1,openrouter,openai/gpt-5-mini,2026-03-15T20:48:33.666343,2026-03-15T20:48:55.471030,21.804687,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2759,
+ChenFlurMukhopadhyaySAS2012Ex301,1,openrouter,openai/gpt-5-mini,2026-03-15T20:48:59.317964,2026-03-15T20:49:27.122786,27.804822,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(z - x), ReLU(y - x)]","[ReLU(z - x), ReLU(y - x)]",YES,,3250,
+CookSeeZulegerTACAS2013Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:49:30.834268,2026-03-15T20:49:41.594588,10.76032,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2103,
+CookSeeZulegerTACAS2013Fig7a,1,openrouter,openai/gpt-5-mini,2026-03-15T20:49:45.287572,2026-03-15T20:49:59.622205,14.334633,"vars=['x', 'y', 'd', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2280,
+CookSeeZulegerTACAS2013Fig7b,1,openrouter,openai/gpt-5-mini,2026-03-15T20:50:03.393973,2026-03-15T20:51:30.336179,86.942206,"vars=['x', 'y', 'z', 'a', 'b', 'c', 'd'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(a)+ReLU(-a), ReLU(b)+ReLU(-b), ReLU(x - d)+ReLU(y)+ReLU(z - c)]","[ReLU(a)+ReLU(-a), ReLU(b)+ReLU(-b), ReLU(x - d)+ReLU(y)+ReLU(z - c)]",NO,"{
+  ""a"": 1,
+  ""b"": 1,
+  ""c"": 1,
+  ""d"": 2,
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",9478,
+CookSeeZulegerTACAS2013Fig7b,2,openrouter,openai/gpt-5-mini,2026-03-15T20:51:34.439755,2026-03-15T20:52:16.428936,41.989181,"vars=['x', 'y', 'z', 'a', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y), ReLU(z), ReLU(x)]","[ReLU(y), ReLU(z), ReLU(x)]",YES,,5057,
+CookSeeZulegerTACAS2013Fig8amodified,1,openrouter,openai/gpt-5-mini,2026-03-15T20:52:20.225014,2026-03-15T20:52:29.135560,8.910546,"vars=['k', 'x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - k) + ReLU(k - x)],[ReLU(x - k) + ReLU(k - x)],YES,,1964,
+CookSeeZulegerTACAS2013Fig8a,1,openrouter,openai/gpt-5-mini,2026-03-15T20:52:32.392989,2026-03-15T20:52:42.512216,10.119227,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x) + ReLU(-x)],[ReLU(x) + ReLU(-x)],YES,,1999,
+CookSeeZulegerTACAS2013Fig8b,1,openrouter,openai/gpt-5-mini,2026-03-15T20:52:46.010588,2026-03-15T20:52:57.416945,11.406357,"vars=['x', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - m), ReLU(m - x)]","[ReLU(x - m), ReLU(m - x)]",YES,,2212,
+GopanRepsCAV2006Fig1a,1,openrouter,openai/gpt-5-mini,2026-03-15T20:53:00.745134,2026-03-15T20:53:46.863800,46.118666,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(51 - 1*x), ReLU(1*y + 1)]","[ReLU(51 - 1*x), ReLU(1*y + 1)]",YES,,4642,
+HarrisLalNoriRajamaniSAS2010Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T20:53:50.274674,2026-03-15T20:54:14.566005,24.291331,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",2986,
+HarrisLalNoriRajamaniSAS2010Fig1,2,openrouter,openai/gpt-5-mini,2026-03-15T20:54:18.815441,2026-03-15T20:54:43.814307,24.998866,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",4068,
+HarrisLalNoriRajamaniSAS2010Fig1,3,openrouter,openai/gpt-5-mini,2026-03-15T20:54:48.113393,2026-03-15T20:55:39.536373,51.42298,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",4156,
+HarrisLalNoriRajamaniSAS2010Fig1,4,openrouter,openai/gpt-5-mini,2026-03-15T20:55:44.630523,2026-03-15T20:56:08.786731,24.156208,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",3946,
+HarrisLalNoriRajamaniSAS2010Fig1,5,openrouter,openai/gpt-5-mini,2026-03-15T20:56:13.006159,2026-03-15T20:57:14.093365,61.087206,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), 2*ReLU(y)]","[ReLU(x), 2*ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",6077,
+HarrisLalNoriRajamaniSAS2010Fig1,6,openrouter,openai/gpt-5-mini,2026-03-15T20:57:18.385433,2026-03-15T20:57:40.924282,22.538849,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",3782,
+HarrisLalNoriRajamaniSAS2010Fig1,7,openrouter,openai/gpt-5-mini,2026-03-15T20:57:45.321418,2026-03-15T20:58:10.055431,24.734013,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",3962,
+HarrisLalNoriRajamaniSAS2010Fig1,8,openrouter,openai/gpt-5-mini,2026-03-15T20:58:14.305949,2026-03-15T20:58:44.332730,30.026781,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",4181,
+HarrisLalNoriRajamaniSAS2010Fig1,9,openrouter,openai/gpt-5-mini,2026-03-15T20:58:48.655508,2026-03-15T20:59:26.978597,38.323089,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y-1)]","[ReLU(x), ReLU(y-1)]",NO,"{
+  ""a"": 1,
+  ""b"": 0,
+  ""c"": 1,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 0
+}",4845,
+HarrisLalNoriRajamaniSAS2010Fig1,10,openrouter,openai/gpt-5-mini,2026-03-15T20:59:30.936618,2026-03-15T20:59:50.810901,19.874283,"vars=['a', 'x', 'y', 'k', 'b', 'c', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""k"": 2
+}",3667,
+HarrisLalNoriRajamaniSAS2010Fig3,1,openrouter,openai/gpt-5-mini,2026-03-15T20:59:55.251370,2026-03-15T21:00:05.272895,10.021525,"vars=['x', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,1879,
+HeizmannHoenickeLeikePodelskiATVA2013Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:00:08.710795,2026-03-15T21:00:35.356779,26.645984,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(24 - y), ReLU(x)]","[ReLU(24 - y), ReLU(x)]",YES,,3198,
+HeizmannHoenickeLeikePodelskiATVA2013Fig4,1,openrouter,openai/gpt-5-mini,2026-03-15T21:00:38.638321,2026-03-15T21:00:58.219981,19.58166,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - 23), ReLU(x - 22)]","[ReLU(x - 23), ReLU(x - 22)]",YES,,2537,
+HeizmannHoenickeLeikePodelskiATVA2013Fig5,1,openrouter,openai/gpt-5-mini,2026-03-15T21:01:01.895002,2026-03-15T21:01:23.237059,21.342057,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x+1)],[ReLU(x+1)],YES,,2930,
+HeizmannHoenickeLeikePodelskiATVA2013Fig6,1,openrouter,openai/gpt-5-mini,2026-03-15T21:01:26.489906,2026-03-15T21:01:44.089770,17.599864,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],YES,,2590,
+KroeningSharyginaTsitovichWintersteigerCAV2010Ex,1,openrouter,openai/gpt-5-mini,2026-03-15T21:01:47.620621,2026-03-15T21:01:59.688171,12.06755,"vars=['i', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(255 - i)],[ReLU(255 - i)],YES,,2076,
+KroeningSharyginaTsitovichWintersteigerCAV2010Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:02:02.901588,2026-03-15T21:03:23.394079,80.492491,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",NO_RELU_SOLUTION,,NO_RELU_SOLUTION,,6975,
+LarrazOliverasRodriguezCarbonellRubioFMCAD2013Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:03:23.418702,2026-03-15T21:04:15.652526,52.233824,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + z + 20001)],[ReLU(x + z + 20001)],NO,"{
+  ""x"": 1,
+  ""y"": 10001,
+  ""z"": 2
+}",4944,
+LarrazOliverasRodriguezCarbonellRubioFMCAD2013Fig1,2,openrouter,openai/gpt-5-mini,2026-03-15T21:04:19.491173,2026-03-15T21:05:20.623018,61.131845,"vars=['x', 'y', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(z), 20001*ReLU(x+1) + ReLU(y)]","[ReLU(z), 20001*ReLU(x+1) + ReLU(y)]",NO,"{
+  ""x"": 20002,
+  ""y"": 1,
+  ""z"": 0
+}",6298,
+LarrazOliverasRodriguezCarbonellRubioFMCAD2013Fig1,3,openrouter,openai/gpt-5-mini,2026-03-15T21:05:24.606669,2026-03-15T21:06:08.131546,43.524877,"vars=['x', 'y', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + z + 20001)],[ReLU(x + z + 20001)],NO,"{
+  ""x"": 1,
+  ""y"": 10001,
+  ""z"": 2
+}",4920,
+LarrazOliverasRodriguezCarbonellRubioFMCAD2013Fig1,4,openrouter,openai/gpt-5-mini,2026-03-15T21:06:11.740842,2026-03-15T21:07:13.760030,62.019188,"vars=['x', 'y', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + z), ReLU(z - 1)]","[ReLU(x + z), ReLU(z - 1)]",YES,,6196,
+LeikeHeizmannTACAS2014Ex1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:07:17.547495,2026-03-15T21:07:29.411111,11.863616,"vars=['q', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(q)],[ReLU(q)],YES,,2102,
+LeikeHeizmannTACAS2014Ex9,1,openrouter,openai/gpt-5-mini,2026-03-15T21:07:32.883995,2026-03-15T21:07:47.512016,14.628021,"vars=['p', 'q'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(p + q)],[ReLU(p + q)],YES,,2504,
+LeikeHeizmannWST2014Ex9,1,openrouter,openai/gpt-5-mini,2026-03-15T21:07:51.019456,2026-03-15T21:07:59.751345,8.731889,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,1779,
+PodelskiRybalchenkoLICS2004Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:08:03.254524,2026-03-15T21:08:38.670546,35.416022,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x - y)]","[ReLU(x), ReLU(x - y)]",YES,,3822,
+PodelskiRybalchenkoTACAS2011Fig1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:08:43.625819,2026-03-15T21:08:52.817911,9.192092,"vars=['y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],YES,,1902,
+PodelskiRybalchenkoTACAS2011Fig2,1,openrouter,openai/gpt-5-mini,2026-03-15T21:08:56.105327,2026-03-15T21:09:24.409570,28.304243,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(x - y)]","[ReLU(x + 1), ReLU(x - y)]",YES,,3046,
+PodelskiRybalchenkoTACAS2011Fig4,1,openrouter,openai/gpt-5-mini,2026-03-15T21:09:28.203042,2026-03-15T21:09:44.452998,16.249956,"vars=['x', 'y', 'a', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",YES,,2239,
+UrbanWST2013Fig2modified1000,1,openrouter,openai/gpt-5-mini,2026-03-15T21:09:49.730398,2026-03-15T21:10:03.738546,14.008148,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(11 - x)],[ReLU(11 - x)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2065,
+UrbanWST2013Fig2modified1000,2,openrouter,openai/gpt-5-mini,2026-03-15T21:10:07.561095,2026-03-15T21:10:47.903742,40.342647,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(11 - x), ReLU(y - 1)]","[ReLU(11 - x), ReLU(y - 1)]",YES,,3953,
+UrbanWST2013Fig2,1,openrouter,openai/gpt-5-mini,2026-03-15T21:10:52.106624,2026-03-15T21:11:17.022047,24.915423,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-1*x + 10), ReLU(1*y + -1)]","[ReLU(-1*x + 10), ReLU(1*y + -1)]",YES,,3189,
+UrbanMineESOP2014Fig3,1,openrouter,openai/gpt-5-mini,2026-03-15T21:11:20.858668,2026-03-15T21:13:13.192331,112.333663,"vars=['x', 'y', 'a', 'b', 'c', 'd'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(-x)+ReLU(y)]","[ReLU(x), ReLU(-x)+ReLU(y)]",NO,"{
+  ""a"": 1,
+  ""b"": 0,
+  ""c"": 0,
+  ""d"": 1,
+  ""x"": 0,
+  ""y"": 0
+}",9687,
+UrbanMineESOP2014Fig3,2,openrouter,openai/gpt-5-mini,2026-03-15T21:13:16.954368,2026-03-15T21:14:05.557258,48.60289,"vars=['x', 'y', 'a', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-1*x), ReLU(x), ReLU(y)]","[ReLU(-1*x), ReLU(x), ReLU(y)]",YES,,5908,
+aviad,1,openrouter,openai/gpt-5-mini,2026-03-15T21:14:10.527674,2026-03-15T21:14:18.625148,8.097474,"vars=['a', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(a - 1)],[ReLU(a - 1)],YES,,2005,
+genady,1,openrouter,openai/gpt-5-mini,2026-03-15T21:14:22.400257,2026-03-15T21:14:41.205672,18.805415,"vars=['i'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(i)],[ReLU(i)],YES,,2704,
+B2Nested1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:14:44.567270,2026-03-15T21:15:45.210238,60.642968,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y + 2), ReLU(-y - 1)]","[ReLU(y + 2), ReLU(-y - 1)]",YES,,5467,
+B4BitCounterPointer,1,openrouter,openai/gpt-5-mini,2026-03-15T21:15:48.500535,2026-03-15T21:16:40.843401,52.342866,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1 - d), ReLU(7 - 1*a - 2*b - 4*c)]","[ReLU(1 - d), ReLU(7 - 1*a - 2*b - 4*c)]",NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",5174,
+B4BitCounterPointer,2,openrouter,openai/gpt-5-mini,2026-03-15T21:16:44.397155,2026-03-15T21:17:18.197111,33.799956,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1 - d), ReLU(7 - (a + 2*b + 4*c))]","[ReLU(1 - d), ReLU(7 - (a + 2*b + 4*c))]",NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",4145,
+B4BitCounterPointer,3,openrouter,openai/gpt-5-mini,2026-03-15T21:17:21.719334,2026-03-15T21:17:49.099114,27.37978,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1 - d), ReLU(7 - 4*c - 2*b - a)]","[ReLU(1 - d), ReLU(7 - 4*c - 2*b - a)]",NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",4228,
+B4BitCounterPointer,4,openrouter,openai/gpt-5-mini,2026-03-15T21:17:52.514123,2026-03-15T21:18:13.562797,21.048674,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(7 - 4*c - 2*b - 1*a)],[ReLU(7 - 4*c - 2*b - 1*a)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3719,
+B4BitCounterPointer,5,openrouter,openai/gpt-5-mini,2026-03-15T21:18:16.923954,2026-03-15T21:18:45.201093,28.277139,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(8 - a - 2*b - 4*c - 8*d)],[ReLU(8 - a - 2*b - 4*c - 8*d)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3584,
+B4BitCounterPointer,6,openrouter,openai/gpt-5-mini,2026-03-15T21:18:48.600299,2026-03-15T21:19:06.400509,17.80021,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(7 - a - 2*b - 4*c)],[ReLU(7 - a - 2*b - 4*c)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3021,
+B4BitCounterPointer,7,openrouter,openai/gpt-5-mini,2026-03-15T21:19:09.939634,2026-03-15T21:19:22.394439,12.454805,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(7 - a - 2*b - 4*c)],[ReLU(7 - a - 2*b - 4*c)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2779,
+B4BitCounterPointer,8,openrouter,openai/gpt-5-mini,2026-03-15T21:19:25.842984,2026-03-15T21:19:46.423788,20.580804,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(8 - a - 2*b - 4*c - 8*d)],[ReLU(8 - a - 2*b - 4*c - 8*d)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3187,
+B4BitCounterPointer,9,openrouter,openai/gpt-5-mini,2026-03-15T21:19:49.870060,2026-03-15T21:20:13.703074,23.833014,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(8 - a - 2*b - 4*c - 8*d)],[ReLU(8 - a - 2*b - 4*c - 8*d)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3578,
+B4BitCounterPointer,10,openrouter,openai/gpt-5-mini,2026-03-15T21:20:17.275733,2026-03-15T21:20:46.727089,29.451356,"vars=['x', 'y', 'b', 'c', 'd'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(16 + -1*a + -2*b + -4*c + -8*d)],[ReLU(16 + -1*a + -2*b + -4*c + -8*d)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3700,
+B4NestedWith3Variables1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:20:50.237227,2026-03-15T21:21:43.595122,53.357895,"vars=['q', 'a', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(10*q -1*a -2*b + 1572852)],[ReLU(10*q -1*a -2*b + 1572852)],NO,"{
+  ""q"": 1,
+  ""a"": 629148,
+  ""b"": 471861
+}",5342,
+B4NestedWith3Variables1,2,openrouter,openai/gpt-5-mini,2026-03-15T21:21:48.745618,2026-03-15T21:22:53.078095,64.332477,"vars=['q', 'a', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(10*q - a - 2*b + 1572862)],[ReLU(10*q - a - 2*b + 1572862)],NO,"{
+  ""q"": 1,
+  ""a"": 629152,
+  ""b"": 471864
+}",7097,
+B4NestedWith3Variables1,3,openrouter,openai/gpt-5-mini,2026-03-15T21:22:56.860288,2026-03-15T21:23:26.485292,29.625004,"vars=['q', 'a', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-1*a+1), ReLU(1*q+0), ReLU(-1*b+1)]","[ReLU(-1*a+1), ReLU(1*q+0), ReLU(-1*b+1)]",NO,"{
+  ""q"": 1,
+  ""a"": 4,
+  ""b"": 3
+}",3782,
+B4NestedWith3Variables1,4,openrouter,openai/gpt-5-mini,2026-03-15T21:23:30.218244,2026-03-15T21:24:24.994991,54.776747,"vars=['q', 'a', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q + a - b), ReLU(q - 7*b - 1), ReLU(q - 27*a - 21*b - 2)]","[ReLU(q + a - b), ReLU(q - 7*b - 1), ReLU(q - 27*a - 21*b - 2)]",NO,"{
+  ""q"": 0,
+  ""a"": 0,
+  ""b"": 0
+}",5833,
+B4NestedWith3Variables1,5,openrouter,openai/gpt-5-mini,2026-03-15T21:24:28.391371,2026-03-15T21:25:24.298792,55.907421,"vars=['q', 'a', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(10*q - a - 2*b + 1)],[ReLU(10*q - a - 2*b + 1)],NO,"{
+  ""q"": 1,
+  ""a"": 8,
+  ""b"": 6
+}",6546,
+B4NestedWith3Variables1,6,openrouter,openai/gpt-5-mini,2026-03-15T21:25:27.656627,2026-03-15T21:26:49.828431,82.171804,"vars=['q', 'a', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q - b), ReLU(a - b)]","[ReLU(q - b), ReLU(a - b)]",YES,,8254,
+Bangalore2,1,openrouter,openai/gpt-5-mini,2026-03-15T21:26:53.326100,2026-03-15T21:27:09.808900,16.4828,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],YES,,2408,
+Bangalorev4,1,openrouter,openai/gpt-5-mini,2026-03-15T21:27:14.497750,2026-03-15T21:27:39.089555,24.591805,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],YES,,3457,
+Benghazi,1,openrouter,openai/gpt-5-mini,2026-03-15T21:27:42.452818,2026-03-15T21:28:05.633601,23.180783,"vars=['x', 'e', 'o'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",2978,
+Benghazi,2,openrouter,openai/gpt-5-mini,2026-03-15T21:28:09.072484,2026-03-15T21:28:26.152444,17.07996,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3032,
+Benghazi,3,openrouter,openai/gpt-5-mini,2026-03-15T21:28:29.533935,2026-03-15T21:28:50.168821,20.634886,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3465,
+Benghazi,4,openrouter,openai/gpt-5-mini,2026-03-15T21:28:53.639958,2026-03-15T21:29:48.931638,55.29168,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x + e + o + 1)]","[ReLU(x), ReLU(x + e + o + 1)]",NO,"{
+  ""x"": 0
+}",7239,
+Benghazi,5,openrouter,openai/gpt-5-mini,2026-03-15T21:29:52.633668,2026-03-15T21:30:10.453215,17.819547,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 73)],[ReLU(x + 73)],NO,"{
+  ""x"": 0
+}",3553,
+Benghazi,6,openrouter,openai/gpt-5-mini,2026-03-15T21:30:13.839723,2026-03-15T21:30:48.046747,34.207024,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x+1)],[ReLU(x+1)],NO,"{
+  ""x"": 0
+}",5107,
+Benghazi,7,openrouter,openai/gpt-5-mini,2026-03-15T21:30:51.398517,2026-03-15T21:31:10.183267,18.78475,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x+1)],[ReLU(x+1)],NO,"{
+  ""x"": 0
+}",3528,
+Benghazi,8,openrouter,openai/gpt-5-mini,2026-03-15T21:31:13.550243,2026-03-15T21:31:40.254382,26.704139,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3885,
+Benghazi,9,openrouter,openai/gpt-5-mini,2026-03-15T21:31:43.625265,2026-03-15T21:32:05.113834,21.488569,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 72)],[ReLU(x + 72)],NO,"{
+  ""x"": 0
+}",3803,
+Benghazi,10,openrouter,openai/gpt-5-mini,2026-03-15T21:32:08.568416,2026-03-15T21:32:28.089369,19.520953,"vars=['x', 'e', 'o'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x+1)],[ReLU(x+1)],NO,"{
+  ""x"": 0
+}",3689,
+Benghazinondet2,1,openrouter,openai/gpt-5-mini,2026-03-15T21:32:31.515712,2026-03-15T21:33:35.917476,64.401764,"vars=['x', 'd', 'e'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(2097150 - d - e), ReLU(x)]","[ReLU(2097150 - d - e), ReLU(x)]",NO,"{
+  ""d"": 0,
+  ""e"": 2097151,
+  ""x"": 0
+}",6536,
+Benghazinondet2,2,openrouter,openai/gpt-5-mini,2026-03-15T21:33:39.302239,2026-03-15T21:35:19.434925,100.132686,"vars=['x', 'd', 'e'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(2*x - d - e)],[ReLU(2*x - d - e)],NO,"{
+  ""d"": 0,
+  ""e"": 0,
+  ""x"": 0
+}",11585,
+Benghazinondet2,3,openrouter,openai/gpt-5-mini,2026-03-15T21:35:22.756392,2026-03-15T21:36:00.828836,38.072444,"vars=['x', 'd', 'e'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(1 - d)]","[ReLU(x), ReLU(1 - d)]",NO,"{
+  ""d"": 0,
+  ""e"": 0,
+  ""x"": 0
+}",5652,
+Benghazinondet2,4,openrouter,openai/gpt-5-mini,2026-03-15T21:36:04.111904,2026-03-15T21:36:37.293498,33.181594,"vars=['x', 'd', 'e'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1 - d), ReLU(x + 1)]","[ReLU(1 - d), ReLU(x + 1)]",NO,"{
+  ""d"": 0,
+  ""e"": 0,
+  ""x"": 0
+}",4150,
+Benghazinondet2,5,openrouter,openai/gpt-5-mini,2026-03-15T21:36:40.572556,2026-03-15T21:37:23.400406,42.82785,"vars=['x', 'd', 'e'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1 - d) + ReLU(1 - e), ReLU(x)]","[ReLU(1 - d) + ReLU(1 - e), ReLU(x)]",YES,,5884,
+Cairo,1,openrouter,openai/gpt-5-mini,2026-03-15T21:37:26.722044,2026-03-15T21:37:33.966112,7.244068,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,1873,
+Cairostep21,1,openrouter,openai/gpt-5-mini,2026-03-15T21:37:37.025350,2026-03-15T21:37:49.826547,12.801197,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2298,
+Collatzbounded,1,openrouter,openai/gpt-5-mini,2026-03-15T21:37:53.306202,2026-03-15T21:38:08.875835,15.569633,"vars=['y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y - 1), ReLU(113383 - y)]","[ReLU(y - 1), ReLU(113383 - y)]",NO,"{
+  ""y"": 113385
+}",2643,
+Collatzbounded,2,openrouter,openai/gpt-5-mini,2026-03-15T21:38:12.470753,2026-03-15T21:39:04.813814,52.343061,"vars=['y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",NO_RELU_SOLUTION,,NO_RELU_SOLUTION,,7557,
+Copenhagen,1,openrouter,openai/gpt-5-mini,2026-03-15T21:39:04.855237,2026-03-15T21:39:21.127030,16.271793,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y + 1)],[ReLU(x + y + 1)],YES,,2345,
+Copenhagendisj2,1,openrouter,openai/gpt-5-mini,2026-03-15T21:39:24.718122,2026-03-15T21:39:57.117903,32.399781,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y + 1073741824)],[ReLU(x + y + 1073741824)],YES,,4484,
+Gothenburg1,1,openrouter,openai/gpt-5-mini,2026-03-15T21:40:00.264817,2026-03-15T21:40:09.974082,9.709265,"vars=['a', 'b', 'x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1) + ReLU(y + 1)],[ReLU(x + 1) + ReLU(y + 1)],YES,,2379,
+Gothenburgv21,1,openrouter,openai/gpt-5-mini,2026-03-15T21:40:13.418268,2026-03-15T21:40:26.194050,12.775782,"vars=['a', 'b', 'x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,,2299,
+Gothenburgv21,2,openrouter,openai/gpt-5-mini,2026-03-15T21:40:29.494733,2026-03-15T21:40:40.809933,11.3152,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*y + 1)],[ReLU(1*y + 1)],NO,,2748,
+Gothenburgv21,3,openrouter,openai/gpt-5-mini,2026-03-15T21:40:44.206526,2026-03-15T21:41:01.427432,17.220906,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,2988,
+Gothenburgv21,4,openrouter,openai/gpt-5-mini,2026-03-15T21:41:04.893101,2026-03-15T21:41:22.155856,17.262755,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,3110,
+Gothenburgv21,5,openrouter,openai/gpt-5-mini,2026-03-15T21:41:26.262333,2026-03-15T21:41:44.479423,18.21709,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,3195,
+Gothenburgv21,6,openrouter,openai/gpt-5-mini,2026-03-15T21:41:47.891101,2026-03-15T21:42:05.452650,17.561549,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,3182,
+Gothenburgv21,7,openrouter,openai/gpt-5-mini,2026-03-15T21:42:08.980896,2026-03-15T21:42:31.160335,22.179439,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(0), ReLU(y)]","[ReLU(0), ReLU(y)]",ERROR,,3759,
+Gothenburgv21,8,openrouter,openai/gpt-5-mini,2026-03-15T21:42:33.754680,2026-03-15T21:42:49.240868,15.486188,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,3162,
+Gothenburgv21,9,openrouter,openai/gpt-5-mini,2026-03-15T21:42:52.455831,2026-03-15T21:43:09.470973,17.015142,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,3072,
+Gothenburgv21,10,openrouter,openai/gpt-5-mini,2026-03-15T21:43:12.662502,2026-03-15T21:43:32.832264,20.169762,"vars=['a', 'b', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y + 1)],[ReLU(y + 1)],NO,,3160,
+LobnyaBooleanReordered2,1,openrouter,openai/gpt-5-mini,2026-03-15T21:43:36.613818,2026-03-15T21:44:57.347271,80.733453,"vars=['x', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(b - 1) + ReLU(-b), ReLU(b) + ReLU(x + 1)]","[ReLU(b - 1) + ReLU(-b), ReLU(b) + ReLU(x + 1)]",YES,,7119,
+McCarthy91Iteration,1,openrouter,openai/gpt-5-mini,2026-03-15T21:45:00.662296,2026-03-15T21:46:53.929304,113.267008,"vars=['n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(-2*n + 21*c + 1000)],[ReLU(-2*n + 21*c + 1000)],NO,"{
+  ""n"": 511
+}",8324,
+McCarthy91Iteration,2,openrouter,openai/gpt-5-mini,2026-03-15T21:46:57.306718,2026-03-15T21:47:28.193150,30.886432,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - 1*n), ReLU(1*c)]","[ReLU(100 - 1*n), ReLU(1*c)]",NO,"{
+  ""n"": 0
+}",3547,
+McCarthy91Iteration,3,openrouter,openai/gpt-5-mini,2026-03-15T21:47:31.476308,2026-03-15T21:48:16.128847,44.652539,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(11*c - n), ReLU(101 - n)]","[ReLU(11*c - n), ReLU(101 - n)]",NO,"{
+  ""n"": 0
+}",4767,
+McCarthy91Iteration,4,openrouter,openai/gpt-5-mini,2026-03-15T21:48:19.455215,2026-03-15T21:48:51.985807,32.530592,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - n), ReLU(c)]","[ReLU(100 - n), ReLU(c)]",NO,"{
+  ""n"": 0
+}",3776,
+McCarthy91Iteration,5,openrouter,openai/gpt-5-mini,2026-03-15T21:48:55.245520,2026-03-15T21:49:34.180984,38.935464,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - n), ReLU(n - 100)]","[ReLU(100 - n), ReLU(n - 100)]",NO,"{
+  ""n"": 101
+}",3963,
+McCarthy91Iteration,6,openrouter,openai/gpt-5-mini,2026-03-15T21:49:37.494774,2026-03-15T21:51:14.911895,97.417121,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(11*c - n), ReLU(-2*n + 21*c + 12)]","[ReLU(11*c - n), ReLU(-2*n + 21*c + 12)]",NO,"{
+  ""n"": 0
+}",8193,
+McCarthy91Iteration,7,openrouter,openai/gpt-5-mini,2026-03-15T21:51:18.209687,2026-03-15T21:53:04.378887,106.1692,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-1*n + 10*c + 1000), ReLU(1*n + 1*c - 1)]","[ReLU(-1*n + 10*c + 1000), ReLU(1*n + 1*c - 1)]",YES,,7915,
+MenloPark,1,openrouter,openai/gpt-5-mini,2026-03-15T21:53:07.602250,2026-03-15T21:53:34.731747,27.129497,"vars=['x', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",2973,
+MenloPark,2,openrouter,openai/gpt-5-mini,2026-03-15T21:53:38.078046,2026-03-15T21:54:22.600047,44.522001,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x+1)],[ReLU(x+1)],NO,"{
+  ""x"": 0
+}",4197,
+MenloPark,3,openrouter,openai/gpt-5-mini,2026-03-15T21:54:27.763491,2026-03-15T21:57:07.465503,159.702012,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + z), ReLU(100 - y)]","[ReLU(x + z), ReLU(100 - y)]",NO,"{
+  ""x"": 0
+}",11027,
+MenloPark,4,openrouter,openai/gpt-5-mini,2026-03-15T21:57:11.009892,2026-03-15T21:58:24.045079,73.035187,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + z), ReLU(-z)]","[ReLU(x + z), ReLU(-z)]",NO,"{
+  ""x"": 0
+}",6570,
+MenloPark,5,openrouter,openai/gpt-5-mini,2026-03-15T21:58:27.487057,2026-03-15T21:59:02.877906,35.390849,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3865,
+MenloPark,6,openrouter,openai/gpt-5-mini,2026-03-15T21:59:06.204096,2026-03-15T21:59:32.927138,26.723042,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3607,
+MenloPark,7,openrouter,openai/gpt-5-mini,2026-03-15T21:59:36.322466,2026-03-15T22:00:43.333984,67.011518,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x + 1*z + 100)],[ReLU(1*x + 1*z + 100)],NO,"{
+  ""x"": 0
+}",5377,
+MenloPark,8,openrouter,openai/gpt-5-mini,2026-03-15T22:00:46.694636,2026-03-15T22:01:22.640327,35.945691,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x + 1)],[ReLU(1*x + 1)],NO,"{
+  ""x"": 0
+}",3951,
+MenloPark,9,openrouter,openai/gpt-5-mini,2026-03-15T22:01:26.027270,2026-03-15T22:02:00.585594,34.558324,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3914,
+MenloPark,10,openrouter,openai/gpt-5-mini,2026-03-15T22:02:05.799937,2026-03-15T22:02:36.513864,30.713927,"vars=['x', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0
+}",3333,
+Mysore2,1,openrouter,openai/gpt-5-mini,2026-03-15T22:02:40.097310,2026-03-15T22:03:39.359830,59.26252,"vars=['c', 'x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + c), ReLU(2*x + 3*c)]","[ReLU(x + c), ReLU(2*x + 3*c)]",YES,,5418,
+Nyala2lex2,1,openrouter,openai/gpt-5-mini,2026-03-15T22:03:42.669354,2026-03-15T22:04:09.873497,27.204143,"vars=['x', 'y', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",YES,,3171,
+Parallel,1,openrouter,openai/gpt-5-mini,2026-03-15T22:04:14.605569,2026-03-15T22:04:33.449060,18.843491,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",YES,,2425,
+Piecewise,1,openrouter,openai/gpt-5-mini,2026-03-15T22:04:36.742814,2026-03-15T22:05:30.988099,54.245285,"vars=['q', 'p', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(p) - ReLU(-p) - ReLU(p - q)],[ReLU(p) - ReLU(-p) - ReLU(p - q)],YES,,4800,
+Pure2Phase1,1,openrouter,openai/gpt-5-mini,2026-03-15T22:05:34.750594,2026-03-15T22:06:10.924141,36.173547,"vars=['y', 'z', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y + 1), ReLU(z + 1)]","[ReLU(y + 1), ReLU(z + 1)]",YES,,3942,
+Pure3Phase1,1,openrouter,openai/gpt-5-mini,2026-03-15T22:06:14.404965,2026-03-15T22:07:27.770662,73.365697,"vars=['x', 'y', 'z', 'n', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(z + 65535), ReLU(x + 1)]","[ReLU(z + 65535), ReLU(x + 1)]",YES,,5914,
+Singapore2,1,openrouter,openai/gpt-5-mini,2026-03-15T22:07:32.871067,2026-03-15T22:08:14.539843,41.668776,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y + 65536)]","[ReLU(x), ReLU(y + 65536)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",3934,
+Singapore2,2,openrouter,openai/gpt-5-mini,2026-03-15T22:08:18.229019,2026-03-15T22:09:21.780536,63.551517,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(1 + x + y)]","[ReLU(x), ReLU(1 + x + y)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",5735,
+Singapore2,3,openrouter,openai/gpt-5-mini,2026-03-15T22:09:25.388441,2026-03-15T22:10:14.805028,49.416587,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x+y+1), ReLU(x)]","[ReLU(x+y+1), ReLU(x)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",4661,
+Singapore2,4,openrouter,openai/gpt-5-mini,2026-03-15T22:10:18.460888,2026-03-15T22:11:25.127647,66.666759,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x + y + 1)]","[ReLU(x), ReLU(x + y + 1)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",6147,
+Singapore2,5,openrouter,openai/gpt-5-mini,2026-03-15T22:11:28.624346,2026-03-15T22:12:14.604844,45.980498,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + y + 1), ReLU(x)]","[ReLU(x + y + 1), ReLU(x)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",4636,
+Singapore2,6,openrouter,openai/gpt-5-mini,2026-03-15T22:12:18.214422,2026-03-15T22:13:02.482934,44.268512,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y+65536)]","[ReLU(x), ReLU(y+65536)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",4815,
+Singapore2,7,openrouter,openai/gpt-5-mini,2026-03-15T22:13:06.045949,2026-03-15T22:13:33.342014,27.296065,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + y + 1), ReLU(x)]","[ReLU(x + y + 1), ReLU(x)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",3518,
+Singapore2,8,openrouter,openai/gpt-5-mini,2026-03-15T22:13:36.933205,2026-03-15T22:15:16.621151,99.687946,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y+65536)]","[ReLU(x), ReLU(y+65536)]",NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",9842,
+Singapore2,9,openrouter,openai/gpt-5-mini,2026-03-15T22:15:20.210580,2026-03-15T22:16:06.826688,46.616108,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y + 65535)],[ReLU(x + y + 65535)],NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",5103,
+Singapore2,10,openrouter,openai/gpt-5-mini,2026-03-15T22:16:10.406746,2026-03-15T22:17:15.331026,64.92428,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y + 65535)],[ReLU(x + y + 65535)],NO,"{
+  ""x"": 1,
+  ""y"": 1
+}",6382,
+Stockholm1,1,openrouter,openai/gpt-5-mini,2026-03-15T22:17:20.355056,2026-03-15T22:17:31.639957,11.284901,"vars=['x', 'a', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],YES,,2010,
+TelAvivAmirMinimum,1,openrouter,openai/gpt-5-mini,2026-03-15T22:17:34.940153,2026-03-15T22:18:30.561011,55.620858,"vars=['x', 'y', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1 - n), ReLU(y)]","[ReLU(1 - n), ReLU(y)]",YES,,5278,
+Thun2,1,openrouter,openai/gpt-5-mini,2026-03-15T22:18:34.173018,2026-03-15T22:19:35.589860,61.416842,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-x), ReLU(2*x + y + 1)]","[ReLU(-x), ReLU(2*x + y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",6259,
+Thun2,2,openrouter,openai/gpt-5-mini,2026-03-15T22:19:38.804243,2026-03-15T22:21:01.022511,82.218268,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(3*x+1*y+1), ReLU(-1*y)]","[ReLU(3*x+1*y+1), ReLU(-1*y)]",YES,,8508,
+ToulouseBranchesToLoop2,1,openrouter,openai/gpt-5-mini,2026-03-15T22:21:04.201041,2026-03-15T22:22:59.103774,114.902733,"vars=['y', 'z', 'n', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - y), ReLU(100 - z)]","[ReLU(100 - y), ReLU(100 - z)]",NO,"{
+  ""y"": 1,
+  ""z"": 0,
+  ""n"": 0
+}",11082,
+ToulouseBranchesToLoop2,2,openrouter,openai/gpt-5-mini,2026-03-15T22:23:02.638467,2026-03-15T22:24:32.925288,90.286821,"vars=['y', 'z', 'n', 't'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - y + 300*x), ReLU(100 - z - 300*x)]","[ReLU(100 - y + 300*x), ReLU(100 - z - 300*x)]",YES,,8966,
+ToulouseMultiBranchesToLoop2,1,openrouter,openai/gpt-5-mini,2026-03-15T22:24:36.418790,2026-03-15T22:26:11.836868,95.418078,"vars=['y', 'z', 'n', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",NO_RELU_SOLUTION,,NO_RELU_SOLUTION,,9263,
+Waldkirch,1,openrouter,openai/gpt-5-mini,2026-03-15T22:26:11.869830,2026-03-15T22:26:22.018180,10.14835,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],YES,,2174,
+WhileFalse,1,openrouter,openai/gpt-5-mini,2026-03-15T22:26:26.906147,2026-03-15T22:26:35.362148,8.456001,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x + 0)],[ReLU(1*x + 0)],ERROR,,1890,
+WhileFalse,2,openrouter,openai/gpt-5-mini,2026-03-15T22:26:38.633706,2026-03-15T22:26:45.813184,7.179478,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1758,
+WhileFalse,3,openrouter,openai/gpt-5-mini,2026-03-15T22:26:49.041386,2026-03-15T22:26:56.500691,7.459305,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x)],[ReLU(1*x)],ERROR,,1894,
+WhileFalse,4,openrouter,openai/gpt-5-mini,2026-03-15T22:26:59.759372,2026-03-15T22:27:04.890657,5.131285,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1662,
+WhileFalse,5,openrouter,openai/gpt-5-mini,2026-03-15T22:27:09.832859,2026-03-15T22:27:16.666896,6.834037,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1706,
+WhileFalse,6,openrouter,openai/gpt-5-mini,2026-03-15T22:27:19.893932,2026-03-15T22:27:30.623381,10.729449,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1818,
+WhileFalse,7,openrouter,openai/gpt-5-mini,2026-03-15T22:27:34.015751,2026-03-15T22:27:39.013046,4.997295,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1739,
+WhileFalse,8,openrouter,openai/gpt-5-mini,2026-03-15T22:27:42.711352,2026-03-15T22:27:48.287576,5.576224,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1790,
+WhileFalse,9,openrouter,openai/gpt-5-mini,2026-03-15T22:27:51.722039,2026-03-15T22:27:57.579803,5.857764,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],ERROR,,1812,
+WhileFalse,10,openrouter,openai/gpt-5-mini,2026-03-15T22:28:00.945198,2026-03-15T22:28:08.018602,7.073404,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x + 0)],[ReLU(1*x + 0)],ERROR,,1920,
+easy1,1,openrouter,openai/gpt-5-mini,2026-03-15T22:28:12.213527,2026-03-15T22:28:33.815068,21.601541,"vars=['z', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(40 - x)],[ReLU(40 - x)],YES,,2513,
+easy22,1,openrouter,openai/gpt-5-mini,2026-03-15T22:28:37.130067,2026-03-15T22:28:43.331457,6.20139,"vars=['z', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(z)],[ReLU(z)],YES,,1878,
+Bresenham1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:28:46.834126,2026-03-15T22:30:12.019589,85.185463,"vars=['X', 'Y', 'v', 'x', 'y', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - (2*Y*x - 2*X*y - X + 2*Y - v + c))],[ReLU(k - (2*Y*x - 2*X*y - X + 2*Y - v + c))],PARSE_FAILED,,7682,
+Bresenham1botht,2,openrouter,openai/gpt-5-mini,2026-03-15T22:30:12.052656,2026-03-15T22:31:25.878596,73.82594,"vars=['X', 'Y', 'v', 'x', 'y', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - (2*Y*x - 2*X*y - v + c - X + 2*Y))],[ReLU(k - (2*Y*x - 2*X*y - v + c - X + 2*Y))],PARSE_FAILED,,6687,
+Bresenham1botht,3,openrouter,openai/gpt-5-mini,2026-03-15T22:31:25.935471,2026-03-15T22:32:30.741532,64.806061,"vars=['X', 'Y', 'v', 'x', 'y', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k+1 - (2*Y*x - 2*X*y - X + 2*Y - v + c))],[ReLU(k+1 - (2*Y*x - 2*X*y - X + 2*Y - v + c))],PARSE_FAILED,,6449,
+Bresenham1botht,4,openrouter,openai/gpt-5-mini,2026-03-15T22:32:30.792255,2026-03-15T22:33:30.195312,59.403057,"vars=['X', 'Y', 'v', 'x', 'y', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - (2*Y*x - 2*X*y - X + 2*Y - v + c))],[ReLU(k - (2*Y*x - 2*X*y - X + 2*Y - v + c))],PARSE_FAILED,,5927,
+Bresenham1botht,5,openrouter,openai/gpt-5-mini,2026-03-15T22:33:30.213299,2026-03-15T22:34:53.154420,82.941121,"vars=['X', 'Y', 'v', 'x', 'y', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - (2*Y*x - 2*X*y - X + 2*Y - v + c))],[ReLU(k - (2*Y*x - 2*X*y - X + 2*Y - v + c))],PARSE_FAILED,,9086,
+Cohencu1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:34:53.188101,2026-03-15T22:35:10.100055,16.911954,"vars=['a', 'n', 'x', 'y', 'z', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - 6*n - 5)],[ReLU(k - 6*n - 5)],YES,,2946,
+Cohencu2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:35:13.788959,2026-03-15T22:35:29.508242,15.719283,"vars=['a', 'n', 'x', 'y', 'z', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - n)],[ReLU(k - n)],YES,,2712,
+Cohencu3botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:35:33.602861,2026-03-15T22:35:52.301020,18.698159,"vars=['a', 'n', 'x', 'y', 'z', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - n + 1)],[ReLU(k - n + 1)],YES,,2738,
+Cohencu4botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:35:56.033621,2026-03-15T22:36:48.489434,52.455813,"vars=['a', 'n', 'x', 'y', 'z', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(10000 - c), ReLU(-z)]","[ReLU(10000 - c), ReLU(-z)]",YES,,7410,
+Cohencu5botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:36:53.470794,2026-03-15T22:38:21.371301,87.900507,"vars=['a', 'n', 'x', 'y', 'z', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(-z*z+12*y+6*z-12-c+k+1)],[ReLU(-z*z+12*y+6*z-12-c+k+1)],YES,,10461,
+Cohencu6botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:38:26.341983,2026-03-15T22:38:51.382211,25.040228,"vars=['a', 'n', 'x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(a - n)],[ReLU(a - n)],YES,,3858,
+Cohencu7botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:38:54.941422,2026-03-15T22:39:35.852079,40.910657,"vars=['a', 'n', 'x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-z+1), ReLU(-(y+z)+1), ReLU(1003003001 - x - y)]","[ReLU(-z+1), ReLU(-(y+z)+1), ReLU(1003003001 - x - y)]",YES,,5494,
+Dijkstra1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:39:39.709239,2026-03-15T22:40:04.913328,25.204089,"vars=['n', 'p', 'q', 'r', 'h'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(r), ReLU(n - q)]","[ReLU(r), ReLU(n - q)]",YES,,4066,
+Dijkstra2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:40:09.041124,2026-03-15T22:40:41.013914,31.97279,"vars=['n', 'p', 'q', 'r', 'h', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q)+ReLU(-q), ReLU(k-c)]","[ReLU(q)+ReLU(-q), ReLU(k-c)]",YES,,4823,
+Dijkstra3botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:40:45.164513,2026-03-15T22:41:21.744136,36.579623,"vars=['n', 'p', 'q', 'r', 'h', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q), ReLU(k - c), ReLU(-h)]","[ReLU(q), ReLU(k - c), ReLU(-h)]",YES,,4456,
+Dijkstra4botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:41:25.911442,2026-03-15T22:42:12.141675,46.230233,"vars=['n', 'p', 'q', 'r', 'h', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c + q), ReLU(q)]","[ReLU(k - c + q), ReLU(q)]",YES,,6402,
+Dijkstra5botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:42:16.289857,2026-03-15T22:42:40.507642,24.217785,"vars=['n', 'p', 'q', 'r', 'h', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q), ReLU(p), ReLU(k - c)]","[ReLU(q), ReLU(p), ReLU(k - c)]",YES,,3883,
+Dijkstra6botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:42:44.793431,2026-03-15T22:43:28.890504,44.097073,"vars=['n', 'p', 'q', 'r', 'h', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q), ReLU(k - c + 1)]","[ReLU(q), ReLU(k - c + 1)]",YES,,5559,
+Egcdbotht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:43:33.101782,2026-03-15T22:44:17.268967,44.167185,"vars=['a', 'b', 'p', 'q', 'r', 's', 'x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(a)+ReLU(b), ReLU(x*p + y*r - x*q - y*s) + ReLU(x*q + y*s - x*p - y*r)]","[ReLU(a)+ReLU(b), ReLU(x*p + y*r - x*q - y*s) + ReLU(x*q + y*s - x*p - y*r)]",ERROR,,5119,
+Egcdbotht,2,openrouter,openai/gpt-5-mini,2026-03-15T22:44:19.944757,2026-03-15T22:45:22.918806,62.974049,"vars=['a', 'b', 'p', 'q', 'r', 's', 'x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(a), ReLU(b)]","[ReLU(a), ReLU(b)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""x"": 1,
+  ""y"": 1
+}",6379,
+Egcdbotht,3,openrouter,openai/gpt-5-mini,2026-03-15T22:45:26.721203,2026-03-15T22:46:55.078750,88.357547,"vars=['a', 'b', 'p', 'q', 'r', 's', 'x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(q + s), ReLU(a), ReLU(p + r), ReLU(b)]","[ReLU(q + s), ReLU(a), ReLU(p + r), ReLU(b)]",YES,,8830,
+Egcd2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:46:58.878196,2026-03-15T22:47:26.459902,27.581706,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b) + ReLU(-b)],[ReLU(b) + ReLU(-b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3485,
+Egcd2botht,2,openrouter,openai/gpt-5-mini,2026-03-15T22:47:30.523073,2026-03-15T22:47:53.470313,22.94724,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b) + ReLU(-b)],[ReLU(b) + ReLU(-b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3403,
+Egcd2botht,3,openrouter,openai/gpt-5-mini,2026-03-15T22:47:57.442149,2026-03-15T22:48:35.015343,37.573194,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(a), ReLU(a - k - 1)]","[ReLU(a), ReLU(a - k - 1)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",4984,
+Egcd2botht,4,openrouter,openai/gpt-5-mini,2026-03-15T22:48:39.015182,2026-03-15T22:49:02.936763,23.921581,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)+ReLU(-1*b)],[ReLU(b)+ReLU(-1*b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3669,
+Egcd2botht,5,openrouter,openai/gpt-5-mini,2026-03-15T22:49:06.954673,2026-03-15T22:49:31.939564,24.984891,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(a + b - 1), ReLU(b)]","[ReLU(a + b - 1), ReLU(b)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3806,
+Egcd2botht,6,openrouter,openai/gpt-5-mini,2026-03-15T22:49:35.914733,2026-03-15T22:49:59.805287,23.890554,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(b), ReLU(c)]","[ReLU(b), ReLU(c)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3869,
+Egcd2botht,7,openrouter,openai/gpt-5-mini,2026-03-15T22:50:04.164053,2026-03-15T22:51:20.612219,76.448166,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(b), ReLU(c)]","[ReLU(b), ReLU(c)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",6660,
+Egcd2botht,8,openrouter,openai/gpt-5-mini,2026-03-15T22:51:24.536151,2026-03-15T22:51:42.944991,18.40884,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)],[ReLU(b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3536,
+Egcd2botht,9,openrouter,openai/gpt-5-mini,2026-03-15T22:51:46.973116,2026-03-15T22:52:08.902932,21.929816,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)+ReLU(-b)],[ReLU(b)+ReLU(-b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",3444,
+Egcd2botht,10,openrouter,openai/gpt-5-mini,2026-03-15T22:52:13.499192,2026-03-15T22:52:57.533804,44.034612,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b) + ReLU(-b)],[ReLU(b) + ReLU(-b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",4790,
+Egcd3botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:53:02.568742,2026-03-15T22:53:14.080822,11.51208,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)],[ReLU(b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",2238,
+Egcd3botht,2,openrouter,openai/gpt-5-mini,2026-03-15T22:53:19.499568,2026-03-15T22:53:41.243484,21.743916,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*b)+ReLU(-1*b)],[ReLU(1*b)+ReLU(-1*b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",3526,
+Egcd3botht,3,openrouter,openai/gpt-5-mini,2026-03-15T22:53:45.410992,2026-03-15T22:54:15.659720,30.248728,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(b), ReLU(c)]","[ReLU(b), ReLU(c)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",3915,
+Egcd3botht,4,openrouter,openai/gpt-5-mini,2026-03-15T22:54:20.820350,2026-03-15T22:54:32.858621,12.038271,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)],[ReLU(b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",2933,
+Egcd3botht,5,openrouter,openai/gpt-5-mini,2026-03-15T22:54:36.986613,2026-03-15T22:55:02.920441,25.933828,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)],[ReLU(b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",3835,
+Egcd3botht,6,openrouter,openai/gpt-5-mini,2026-03-15T22:55:07.111417,2026-03-15T22:55:59.452595,52.341178,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(b), ReLU(c), ReLU(c - v)]","[ReLU(b), ReLU(c), ReLU(c - v)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",6113,
+Egcd3botht,7,openrouter,openai/gpt-5-mini,2026-03-15T22:56:03.629274,2026-03-15T22:56:19.115535,15.486261,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)],[ReLU(b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",3235,
+Egcd3botht,8,openrouter,openai/gpt-5-mini,2026-03-15T22:56:23.112112,2026-03-15T22:56:49.833345,26.721233,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b)],[ReLU(b)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",3944,
+Egcd3botht,9,openrouter,openai/gpt-5-mini,2026-03-15T22:56:54.006558,2026-03-15T22:57:19.817051,25.810493,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(b - 1)],[ReLU(b - 1)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",4070,
+Egcd3botht,10,openrouter,openai/gpt-5-mini,2026-03-15T22:57:24.000199,2026-03-15T22:58:17.512248,53.512049,"vars=['a', 'b', 'p', 'q', 'r', 's', 'c', 'k', 'd', 'v', 'temp'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(b), ReLU(c - d + 1)]","[ReLU(b), ReLU(c - d + 1)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""d"": 0,
+  ""v"": 0,
+  ""k"": 0
+}",6115,
+Fermat1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:58:21.617231,2026-03-15T22:59:16.280333,54.663102,"vars=['A', 'R', 'u', 'v', 'r', 'cc', 'kk', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(kk - u), ReLU(kk - v)]","[ReLU(kk - u), ReLU(kk - v)]",YES,,5380,
+Freire1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T22:59:21.871129,2026-03-15T23:00:01.444412,39.573283,"vars=['a', 'x', 'r', 'c', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(-r)],[ReLU(-r)],YES,,4235,
+Geo1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:00:05.163613,2026-03-15T23:01:38.707313,93.5437,"vars=['z', 'k', 'x', 'y', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c), ReLU(k - x - y + 1 - c)]","[ReLU(k - c), ReLU(k - x - y + 1 - c)]",YES,,7572,
+Geo2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:01:42.580491,2026-03-15T23:02:48.469499,65.889008,"vars=['z', 'k', 'x', 'y', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c - 1), ReLU(k - c)]","[ReLU(k - c - 1), ReLU(k - c)]",YES,,5787,
+Geo3botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:02:52.314752,2026-03-15T23:04:01.207940,68.893188,"vars=['z', 'a', 'k', 'x', 'y', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - (z*x - x + a - a*z*y + c))],[ReLU(k - (z*x - x + a - a*z*y + c))],PARSE_FAILED,,5862,
+Geo3botht,2,openrouter,openai/gpt-5-mini,2026-03-15T23:04:01.228386,2026-03-15T23:04:31.518814,30.290428,"vars=['z', 'a', 'k', 'x', 'y', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c), ReLU(k - c + x + y)]","[ReLU(k - c), ReLU(k - c + x + y)]",YES,,3569,
+Hardbotht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:04:34.984480,2026-03-15T23:05:37.779031,62.794551,"vars=['a', 'b', 'r', 'd', 'p', 'q'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(r - p), ReLU(a - q - r + p - 1)]","[ReLU(r - p), ReLU(a - q - r + p - 1)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 1,
+  ""r"": 2,
+  ""d"": 0
+}",5830,
+Hardbotht,2,openrouter,openai/gpt-5-mini,2026-03-15T23:05:41.656564,2026-03-15T23:06:27.564419,45.907855,"vars=['a', 'b', 'r', 'd', 'p', 'q'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(p), ReLU(d)]","[ReLU(p), ReLU(d)]",YES,,5335,
+Hard2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:06:31.613772,2026-03-15T23:07:17.089244,45.475472,"vars=['a', 'b', 'r', 'd', 'p', 'q'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(r - d), ReLU(r + p)]","[ReLU(r - d), ReLU(r + p)]",NO,"{
+  ""p"": 1,
+  ""a"": 5,
+  ""q"": 0,
+  ""b"": 1,
+  ""r"": 0,
+  ""d"": 1
+}",4628,
+Hard2botht,2,openrouter,openai/gpt-5-mini,2026-03-15T23:07:23.091822,2026-03-15T23:09:06.942406,103.850584,"vars=['a', 'b', 'r', 'd', 'p', 'q'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(a - q - 1), ReLU(a + r + 1 - d - p)]","[ReLU(a - q - 1), ReLU(a + r + 1 - d - p)]",NO,"{
+  ""p"": 1,
+  ""a"": 2,
+  ""q"": 0,
+  ""b"": 1,
+  ""r"": 0,
+  ""d"": 1
+}",9189,
+Hard2botht,3,openrouter,openai/gpt-5-mini,2026-03-15T23:09:12.162081,2026-03-15T23:11:15.733261,123.57118,"vars=['a', 'b', 'r', 'd', 'p', 'q'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(r), ReLU(a - p)]","[ReLU(r), ReLU(a - p)]",NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 1,
+  ""r"": 0,
+  ""d"": 1
+}",9201,
+Hard2botht,4,openrouter,openai/gpt-5-mini,2026-03-15T23:11:20.719693,2026-03-15T23:12:39.533634,78.813941,"vars=['a', 'b', 'r', 'd', 'p', 'q'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",NO_RELU_SOLUTION,,NO_RELU_SOLUTION,,7726,
+Lcm2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:12:39.551966,2026-03-15T23:13:12.176612,32.624646,"vars=['a', 'b', 'x', 'y', 'u', 'v'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y)],[ReLU(x + y)],NO,"{
+  ""a"": 6,
+  ""b"": 13,
+  ""u"": 0,
+  ""v"": 0,
+  ""x"": 0,
+  ""y"": 0
+}",3774,
+Lcm2botht,2,openrouter,openai/gpt-5-mini,2026-03-15T23:13:16.807627,2026-03-15T23:13:45.796722,28.989095,"vars=['a', 'b', 'x', 'y', 'u', 'v'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y), ReLU(y - x)]","[ReLU(x - y), ReLU(y - x)]",NO,"{
+  ""a"": 12,
+  ""b"": 6,
+  ""u"": 0,
+  ""v"": 0,
+  ""x"": 0,
+  ""y"": 0
+}",3808,
+Lcm2botht,3,openrouter,openai/gpt-5-mini,2026-03-15T23:13:49.389532,2026-03-15T23:14:22.884053,33.494521,"vars=['a', 'b', 'x', 'y', 'u', 'v'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + y), ReLU(u + v)]","[ReLU(x + y), ReLU(u + v)]",NO,"{
+  ""a"": 3,
+  ""b"": 2,
+  ""u"": 0,
+  ""v"": 0,
+  ""x"": 0,
+  ""y"": 0
+}",4243,
+Lcm2botht,4,openrouter,openai/gpt-5-mini,2026-03-15T23:14:26.418681,2026-03-15T23:14:51.639216,25.220535,"vars=['a', 'b', 'x', 'y', 'u', 'v'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",NO_RELU_SOLUTION,,NO_RELU_SOLUTION,,3420,
+Mannadivbotht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:14:51.687746,2026-03-15T23:15:52.638480,60.950734,"vars=['x', 'y', 'a', 'b', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-a), ReLU(c)]","[ReLU(-a), ReLU(c)]",YES,,5760,
+Prod4brbotht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:15:57.141909,2026-03-15T23:16:08.009229,10.86732,"vars=['x', 'y', 'a', 'b', 'p', 'q'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(a)],[ReLU(a)],NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""x"": 0,
+  ""y"": 0
+}",2301,
+Prod4brbotht,2,openrouter,openai/gpt-5-mini,2026-03-15T23:16:11.692401,2026-03-15T23:16:40.127035,28.434634,"vars=['x', 'y', 'a', 'b', 'p', 'q'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*a+1*b)],[ReLU(1*a+1*b)],YES,,4041,
+Prodbinbotht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:16:43.685558,2026-03-15T23:17:20.177420,36.491862,"vars=['a', 'b', 'x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",NO_RELU_SOLUTION,,NO_RELU_SOLUTION,,3718,
+Ps2botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:17:20.208174,2026-03-15T23:18:39.251362,79.043188,"vars=['k', 'y', 'x', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c - y), ReLU(k - c + 2*x)]","[ReLU(k - c - y), ReLU(k - c + 2*x)]",YES,,7154,
+Ps3botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:18:44.052734,2026-03-15T23:20:16.783408,92.730674,"vars=['k', 'y', 'x', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - c - 6*x + 2*y + 1)],[ReLU(k - c - 6*x + 2*y + 1)],YES,,6574,
+Ps4botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:20:21.653029,2026-03-15T23:21:46.732361,85.079332,"vars=['k', 'y', 'x', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c), ReLU(k - c - 4*x + 1)]","[ReLU(k - c), ReLU(k - c - 4*x + 1)]",YES,,7143,
+Ps5botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:21:51.428698,2026-03-15T23:22:59.446947,68.018249,"vars=['k', 'y', 'x', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - c - 30*x - y)],[ReLU(k - c - 30*x - y)],YES,,6738,
+Ps6botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:23:04.338656,2026-03-15T23:24:13.152570,68.813914,"vars=['k', 'y', 'x', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - c - 12*x - y)],[ReLU(k - c - 12*x - y)],YES,,6457,
+Sqrt1botht,1,openrouter,openai/gpt-5-mini,2026-03-15T23:24:17.921927,2026-03-15T23:25:10.362379,52.440452,"vars=['n', 'k', 'a', 's', 't', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(k - c - 2*t - 1), ReLU(k - c - t)]","[ReLU(k - c - 2*t - 1), ReLU(k - c - t)]",YES,,5350,
+Binomial,1,openrouter,openai/gpt-5-mini,2026-03-15T23:25:15.566112,2026-03-15T23:25:46.262014,30.695902,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k), ReLU(t)]","[ReLU(x - n), ReLU(x - k), ReLU(t)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",3817,
+Binomial,2,openrouter,openai/gpt-5-mini,2026-03-15T23:25:56.081789,2026-03-15T23:26:22.317567,26.235778,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k), ReLU(t)]","[ReLU(x - n), ReLU(x - k), ReLU(t)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",6173,
+Binomial,3,openrouter,openai/gpt-5-mini,2026-03-15T23:26:31.149607,2026-03-15T23:27:13.402903,42.253296,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(n - k), ReLU(t)]","[ReLU(x - n), ReLU(n - k), ReLU(t)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",7428,
+Binomial,4,openrouter,openai/gpt-5-mini,2026-03-15T23:27:22.588635,2026-03-15T23:27:36.179716,13.591081,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k)]","[ReLU(x - n), ReLU(x - k)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",5362,
+Binomial,5,openrouter,openai/gpt-5-mini,2026-03-15T23:27:40.154857,2026-03-15T23:28:04.010666,23.855809,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1 - n), ReLU(x + 1 - k)]","[ReLU(x + 1 - n), ReLU(x + 1 - k)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",4093,
+Binomial,6,openrouter,openai/gpt-5-mini,2026-03-15T23:28:08.414446,2026-03-15T23:28:29.236761,20.822315,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n + 1), ReLU(x - k + 1)]","[ReLU(x - n + 1), ReLU(x - k + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",3632,
+Binomial,7,openrouter,openai/gpt-5-mini,2026-03-15T23:28:33.100724,2026-03-15T23:28:52.394925,19.294201,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k)]","[ReLU(x - n), ReLU(x - k)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",3519,
+Binomial,8,openrouter,openai/gpt-5-mini,2026-03-15T23:28:56.364035,2026-03-15T23:29:27.775679,31.411644,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k), ReLU(t)]","[ReLU(x - n), ReLU(x - k), ReLU(t)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",4694,
+Binomial,9,openrouter,openai/gpt-5-mini,2026-03-15T23:29:35.939816,2026-03-15T23:29:59.681863,23.742047,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k), ReLU(t)]","[ReLU(x - n), ReLU(x - k), ReLU(t)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",5957,
+Binomial,10,openrouter,openai/gpt-5-mini,2026-03-15T23:30:07.905526,2026-03-15T23:30:39.774539,31.869013,"vars=['x', 'y', 'z', 'n', 'k', 'f1', 't', 'f2', 'd', 'f3', 'den', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - n), ReLU(x - k)]","[ReLU(x - n), ReLU(x - k)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",6539,
+Parts,1,openrouter,openai/gpt-5-mini,2026-03-15T23:30:43.741287,2026-03-15T23:31:34.990928,51.249641,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p), ReLU(m - t)]","[ReLU(x - p), ReLU(m - t)]",ERROR,,5956,
+Parts,2,openrouter,openai/gpt-5-mini,2026-03-15T23:31:37.926717,2026-03-15T23:33:57.531918,139.605201,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p)+ReLU(x - q), ReLU(cp - cq)+ReLU(cp), ReLU(t)]","[ReLU(x - p)+ReLU(x - q), ReLU(cp - cq)+ReLU(cp), ReLU(t)]",ERROR,,12319,
+Parts,3,openrouter,openai/gpt-5-mini,2026-03-15T23:34:00.567626,2026-03-15T23:35:22.666243,82.098617,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(t), ReLU(cq)]","[ReLU(t), ReLU(cq)]",ERROR,,7229,
+Parts,4,openrouter,openai/gpt-5-mini,2026-03-15T23:35:25.547868,2026-03-15T23:37:55.811224,150.263356,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m - cq), ReLU(t)]","[ReLU(m - cq), ReLU(t)]",ERROR,,10846,
+Parts,5,openrouter,openai/gpt-5-mini,2026-03-15T23:37:58.950463,2026-03-15T23:39:13.545428,74.594965,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p), ReLU(m - t)]","[ReLU(x - p), ReLU(m - t)]",ERROR,,5484,
+Parts,6,openrouter,openai/gpt-5-mini,2026-03-15T23:39:18.179745,2026-03-15T23:40:11.845222,53.665477,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p), ReLU(x - q), ReLU(t)]","[ReLU(x - p), ReLU(x - q), ReLU(t)]",ERROR,,5248,
+Parts,7,openrouter,openai/gpt-5-mini,2026-03-15T23:40:16.082678,2026-03-15T23:41:18.868353,62.785675,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p), ReLU(x - q), ReLU(t)]","[ReLU(x - p), ReLU(x - q), ReLU(t)]",ERROR,,5709,
+Parts,8,openrouter,openai/gpt-5-mini,2026-03-15T23:41:23.046451,2026-03-15T23:43:03.330617,100.284166,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p), ReLU(2*x + 1 - t)]","[ReLU(x - p), ReLU(2*x + 1 - t)]",ERROR,,8663,
+Parts,9,openrouter,openai/gpt-5-mini,2026-03-15T23:43:07.538368,2026-03-15T23:45:07.792700,120.254332,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(m - t), ReLU(cp + cq)]","[ReLU(m - t), ReLU(cp + cq)]",ERROR,,9654,
+Parts,10,openrouter,openai/gpt-5-mini,2026-03-15T23:45:11.891880,2026-03-15T23:45:41.444229,29.552349,"vars=['x', 'y', 'z', 'm', 'p', 'q', 't', 'cp', 'cq'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - p), ReLU(t)]","[ReLU(x - p), ReLU(t)]",ERROR,,3611,
+javaLogBuiltIn,1,openrouter,openai/gpt-5-mini,2026-03-15T23:45:44.423205,2026-03-15T23:45:54.200056,9.776851,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - 1)],[ReLU(x - 1)],YES,,2096,
+reccounter1,1,openrouter,openai/gpt-5-mini,2026-03-15T23:45:57.957894,2026-03-15T23:46:24.212169,26.254275,"vars=['x', 'r', 'a', 'rc'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - a), ReLU(rc)]","[ReLU(x - a), ReLU(rc)]",NO,"{
+  ""x"": 1
+}",3369,
+reccounter1,2,openrouter,openai/gpt-5-mini,2026-03-15T23:46:27.979849,2026-03-15T23:47:00.110105,32.130256,"vars=['x', 'r', 'a', 'rc'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - a + 1), ReLU(rc)]","[ReLU(x - a + 1), ReLU(rc)]",YES,,4226,
+reccounter3,1,openrouter,openai/gpt-5-mini,2026-03-15T23:47:03.757633,2026-03-15T23:47:22.538651,18.781018,"vars=['x', 'r', 'a', 'rc'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - a + 1), ReLU(rc)]","[ReLU(x - a + 1), ReLU(rc)]",YES,,2748,
+DivMinus,1,openrouter,openai/gpt-5-mini,2026-03-15T23:47:26.657542,2026-03-15T23:47:37.860723,11.203181,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2105,
+DivMinus2,1,openrouter,openai/gpt-5-mini,2026-03-15T23:47:42.643257,2026-03-15T23:48:18.772362,36.129105,"vars=['x', 'y', 'r'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y + 1), ReLU(y1) + ReLU(-y1)]","[ReLU(x - y + 1), ReLU(y1) + ReLU(-y1)]",NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",4000,
+DivMinus2,2,openrouter,openai/gpt-5-mini,2026-03-15T23:48:22.604459,2026-03-15T23:49:06.442575,43.838116,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y + 1), ReLU(y1)]","[ReLU(x - y + 1), ReLU(y1)]",NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",4923,
+DivMinus2,3,openrouter,openai/gpt-5-mini,2026-03-15T23:49:10.089890,2026-03-15T23:50:05.047550,54.95766,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y + 1), ReLU(x)]","[ReLU(x - y + 1), ReLU(x)]",NO,"{
+  ""x"": 0,
+  ""y"": 2
+}",5547,
+DivMinus2,4,openrouter,openai/gpt-5-mini,2026-03-15T23:50:08.870371,2026-03-15T23:51:23.519136,74.648765,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y), ReLU(x - r)]","[ReLU(x - y), ReLU(x - r)]",NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",6594,
+DivMinus2,5,openrouter,openai/gpt-5-mini,2026-03-15T23:51:27.368620,2026-03-15T23:52:01.800769,34.432149,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",3903,
+DivMinus2,6,openrouter,openai/gpt-5-mini,2026-03-15T23:52:06.034264,2026-03-15T23:53:01.334527,55.300263,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",5242,
+DivMinus2,7,openrouter,openai/gpt-5-mini,2026-03-15T23:53:06.204759,2026-03-15T23:53:47.193098,40.988339,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x)],[ReLU(1*x)],NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",4995,
+DivMinus2,8,openrouter,openai/gpt-5-mini,2026-03-15T23:53:50.916100,2026-03-15T23:54:27.611756,36.695656,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y + 1), ReLU(x)]","[ReLU(x - y + 1), ReLU(x)]",NO,"{
+  ""x"": 0,
+  ""y"": 2
+}",4866,
+DivMinus2,9,openrouter,openai/gpt-5-mini,2026-03-15T23:54:31.394377,2026-03-15T23:55:20.274692,48.880315,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",5592,
+DivMinus2,10,openrouter,openai/gpt-5-mini,2026-03-15T23:55:24.212095,2026-03-15T23:56:23.876895,59.6648,"vars=['x', 'y', 'r'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - r), ReLU(x - r)]","[ReLU(100 - r), ReLU(x - r)]",NO,"{
+  ""x"": 0,
+  ""y"": 1
+}",6782,
+GCD3,1,openrouter,openai/gpt-5-mini,2026-03-15T23:56:27.859162,2026-03-15T23:56:46.059390,18.200228,"vars=['x', 'y', 'x1'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",2571,
+GCD3,2,openrouter,openai/gpt-5-mini,2026-03-15T23:56:49.931288,2026-03-15T23:57:22.739192,32.807904,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",3938,
+GCD3,3,openrouter,openai/gpt-5-mini,2026-03-15T23:57:27.334510,2026-03-15T23:57:44.777533,17.443023,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",3082,
+GCD3,4,openrouter,openai/gpt-5-mini,2026-03-15T23:57:48.758971,2026-03-15T23:58:29.352167,40.593196,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",4541,
+GCD3,5,openrouter,openai/gpt-5-mini,2026-03-15T23:58:35.066224,2026-03-15T23:59:00.350909,25.284685,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",3639,
+GCD3,6,openrouter,openai/gpt-5-mini,2026-03-15T23:59:04.106223,2026-03-15T23:59:29.142506,25.036283,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",3736,
+GCD3,7,openrouter,openai/gpt-5-mini,2026-03-15T23:59:33.016319,2026-03-15T23:59:45.300653,12.284334,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",2860,
+GCD3,8,openrouter,openai/gpt-5-mini,2026-03-15T23:59:49.118879,2026-03-16T00:00:22.734602,33.615723,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y), ReLU(x)]","[ReLU(y), ReLU(x)]",NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",4341,
+GCD3,9,openrouter,openai/gpt-5-mini,2026-03-16T00:00:26.589190,2026-03-16T00:00:40.956556,14.367366,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",2802,
+GCD3,10,openrouter,openai/gpt-5-mini,2026-03-16T00:00:46.524276,2026-03-16T00:01:10.199999,23.675723,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",3131,
+GCD4,1,openrouter,openai/gpt-5-mini,2026-03-16T00:01:14.560074,2026-03-16T00:01:41.760453,27.200379,"vars=['x', 'y', 'x1'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",2622,
+GCD4,2,openrouter,openai/gpt-5-mini,2026-03-16T00:01:45.616707,2026-03-16T00:02:15.923483,30.306776,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y)],[ReLU(y)],NO,"{
+  ""t"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""x1"": 0
+}",3470,
+GCD4,3,openrouter,openai/gpt-5-mini,2026-03-16T00:02:19.942225,2026-03-16T00:03:02.536582,42.594357,"vars=['x', 'y', 'x1'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y - 1), ReLU(x1)]","[ReLU(y - 1), ReLU(x1)]",YES,,4242,
+IntPath,1,openrouter,openai/gpt-5-mini,2026-03-16T00:03:06.945670,2026-03-16T00:03:22.234669,15.288999,"vars=['i', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1 - y)],[ReLU(1 - y)],YES,,2156,
+Log,1,openrouter,openai/gpt-5-mini,2026-03-16T00:03:26.332527,2026-03-16T00:03:45.364341,19.031814,"vars=['x', 'r', 'r1'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - 1), ReLU(x1 - 1)]","[ReLU(x - 1), ReLU(x1 - 1)]",YES,,2629,
+LogAG,1,openrouter,openai/gpt-5-mini,2026-03-16T00:03:49.770099,2026-03-16T00:04:21.863042,32.092943,"vars=['x', 'r', 'r1'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - 1), ReLU(x1 - 1)]","[ReLU(x - 1), ReLU(x1 - 1)]",YES,,3505,
+McCarthyIterative,1,openrouter,openai/gpt-5-mini,2026-03-16T00:04:25.845976,2026-03-16T00:07:47.678851,201.832875,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(-1*x + 10*c + 91), ReLU(1*x - 101)]","[ReLU(-1*x + 10*c + 91), ReLU(1*x - 101)]",NO,"{
+  ""x"": 0
+}",13845,
+McCarthyIterative,2,openrouter,openai/gpt-5-mini,2026-03-16T00:07:51.052641,2026-03-16T00:09:01.404640,70.351999,"vars=['x'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(10*c -1*x + 91), ReLU(1*c + 0)]","[ReLU(10*c -1*x + 91), ReLU(1*c + 0)]",YES,,6744,
+MinusBuiltIn,1,openrouter,openai/gpt-5-mini,2026-03-16T00:09:04.749270,2026-03-16T00:09:16.548164,11.798894,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1935,
+MinusUserDefined,1,openrouter,openai/gpt-5-mini,2026-03-16T00:09:20.117348,2026-03-16T00:09:48.539615,28.422267,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2825,
+MinusUserDefined,2,openrouter,openai/gpt-5-mini,2026-03-16T00:09:52.028474,2026-03-16T00:10:21.055433,29.026959,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3541,
+MinusUserDefined,3,openrouter,openai/gpt-5-mini,2026-03-16T00:10:24.974771,2026-03-16T00:11:05.930744,40.955973,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",4648,
+MinusUserDefined,4,openrouter,openai/gpt-5-mini,2026-03-16T00:11:09.738185,2026-03-16T00:11:54.011057,44.272872,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",4382,
+MinusUserDefined,5,openrouter,openai/gpt-5-mini,2026-03-16T00:11:57.953554,2026-03-16T00:12:21.769044,23.81549,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3518,
+MinusUserDefined,6,openrouter,openai/gpt-5-mini,2026-03-16T00:12:25.448080,2026-03-16T00:12:56.515301,31.067221,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",3548,
+MinusUserDefined,7,openrouter,openai/gpt-5-mini,2026-03-16T00:13:00.382281,2026-03-16T00:13:42.595858,42.213577,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x - y)]","[ReLU(x), ReLU(x - y)]",YES,,4403,
+Nested2,1,openrouter,openai/gpt-5-mini,2026-03-16T00:13:46.715924,2026-03-16T00:14:10.251986,23.536062,"vars=['i', 'j'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(10 - i), ReLU(12 - j)]","[ReLU(10 - i), ReLU(12 - j)]",YES,,2705,
+PastaA1,1,openrouter,openai/gpt-5-mini,2026-03-16T00:14:13.921975,2026-03-16T00:14:29.107261,15.185286,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2156,
+PastaA1,2,openrouter,openai/gpt-5-mini,2026-03-16T00:14:32.716479,2026-03-16T00:14:59.309211,26.592732,"vars=['x'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x - y)]","[ReLU(x), ReLU(x - y)]",YES,,3148,
+PastaA10,1,openrouter,openai/gpt-5-mini,2026-03-16T00:15:03.160926,2026-03-16T00:15:16.830675,13.669749,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y) + ReLU(y - x)],[ReLU(x - y) + ReLU(y - x)],YES,,2131,
+PastaA4,1,openrouter,openai/gpt-5-mini,2026-03-16T00:15:20.201070,2026-03-16T00:15:30.618180,10.41711,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1875,
+PastaA7,1,openrouter,openai/gpt-5-mini,2026-03-16T00:15:33.962272,2026-03-16T00:15:45.816527,11.854255,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,2039,
+PastaB1,1,openrouter,openai/gpt-5-mini,2026-03-16T00:15:49.279206,2026-03-16T00:15:59.268762,9.989556,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1872,
+PastaB14,1,openrouter,openai/gpt-5-mini,2026-03-16T00:16:03.606589,2026-03-16T00:16:35.899756,32.293167,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",YES,,3540,
+PastaB15,1,openrouter,openai/gpt-5-mini,2026-03-16T00:16:39.738822,2026-03-16T00:17:05.324694,25.585872,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - z)],[ReLU(x - z)],NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 1
+}",3085,
+PastaB15,2,openrouter,openai/gpt-5-mini,2026-03-16T00:17:09.836476,2026-03-16T00:17:39.075853,29.239377,"vars=['x', 'y', 'z'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - y), ReLU(y - z)]","[ReLU(x - y), ReLU(y - z)]",YES,,3483,
+PastaB16,1,openrouter,openai/gpt-5-mini,2026-03-16T00:17:42.995246,2026-03-16T00:17:56.841187,13.845941,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1*x + 0), ReLU(1*y + 0)]","[ReLU(1*x + 0), ReLU(1*y + 0)]",YES,,2256,
+PastaB17,1,openrouter,openai/gpt-5-mini,2026-03-16T00:18:00.572504,2026-03-16T00:18:26.759885,26.187381,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - z), ReLU(y - z)]","[ReLU(x - z), ReLU(y - z)]",YES,,3180,
+PastaB2,1,openrouter,openai/gpt-5-mini,2026-03-16T00:18:30.579397,2026-03-16T00:18:35.801632,5.222235,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1772,
+PastaB4,1,openrouter,openai/gpt-5-mini,2026-03-16T00:18:39.069795,2026-03-16T00:18:46.580461,7.510666,"vars=['x', 'y', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1815,
+PastaB6,1,openrouter,openai/gpt-5-mini,2026-03-16T00:18:49.987990,2026-03-16T00:18:55.731968,5.743978,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,1758,
+PastaB7,1,openrouter,openai/gpt-5-mini,2026-03-16T00:18:59.352779,2026-03-16T00:19:12.825118,13.472339,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - z) + ReLU(y - z)],[ReLU(x - z) + ReLU(y - z)],YES,,2165,
+PastaC3,1,openrouter,openai/gpt-5-mini,2026-03-16T00:19:18.247845,2026-03-16T00:19:48.131318,29.883473,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(y - x), ReLU(x - z + 1)]","[ReLU(y - x), ReLU(x - z + 1)]",YES,,3621,
+PastaC7,1,openrouter,openai/gpt-5-mini,2026-03-16T00:19:51.848093,2026-03-16T00:20:05.636840,13.788747,"vars=['i', 'j', 'k'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - j)],[ReLU(k - j)],YES,,2218,
+PastaC9,1,openrouter,openai/gpt-5-mini,2026-03-16T00:20:09.053838,2026-03-16T00:20:28.718496,19.664658,"vars=['x', 'y', 'r', 'r1'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",YES,,2672,
+Sequence,1,openrouter,openai/gpt-5-mini,2026-03-16T00:20:32.409213,2026-03-16T00:20:44.166596,11.757383,"vars=['i', 'j'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(100 - i), ReLU(21 - j)]","[ReLU(100 - i), ReLU(21 - j)]",YES,,2060,
+WhileDecr,1,openrouter,openai/gpt-5-mini,2026-03-16T00:20:48.012731,2026-03-16T00:20:59.742527,11.729796,"vars=['i'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(i - 5)],[ReLU(i - 5)],YES,,2036,
+a01,1,openrouter,openai/gpt-5-mini,2026-03-16T00:21:03.440211,2026-03-16T00:21:34.861047,31.420836,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x - y)]","[ReLU(x), ReLU(x - y)]",YES,,4290,
+a04,1,openrouter,openai/gpt-5-mini,2026-03-16T00:21:38.682579,2026-03-16T00:21:42.345713,3.663134,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1685,
+a05,1,openrouter,openai/gpt-5-mini,2026-03-16T00:21:45.675953,2026-03-16T00:21:56.956682,11.280729,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y - 1)],[ReLU(x - y - 1)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2003,
+a05,2,openrouter,openai/gpt-5-mini,2026-03-16T00:22:00.430202,2026-03-16T00:22:18.212147,17.781945,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,2812,
+a06,1,openrouter,openai/gpt-5-mini,2026-03-16T00:22:21.522591,2026-03-16T00:22:27.474205,5.951614,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y - z)],[ReLU(x - y - z)],YES,,1956,
+a07,1,openrouter,openai/gpt-5-mini,2026-03-16T00:22:31.889642,2026-03-16T00:22:45.320457,13.430815,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x + -1*y)],[ReLU(1*x + -1*y)],YES,,2104,
+a08,1,openrouter,openai/gpt-5-mini,2026-03-16T00:22:48.643921,2026-03-16T00:22:54.720424,6.076503,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1957,
+a09assume,1,openrouter,openai/gpt-5-mini,2026-03-16T00:22:58.154274,2026-03-16T00:23:13.667377,15.513103,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - z + 1)],[ReLU(x - z + 1)],YES,,2470,
+a10,1,openrouter,openai/gpt-5-mini,2026-03-16T00:23:17.408500,2026-03-16T00:23:25.775082,8.366582,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y) + ReLU(y - x)],[ReLU(x - y) + ReLU(y - x)],YES,,1940,
+b01,1,openrouter,openai/gpt-5-mini,2026-03-16T00:23:29.197567,2026-03-16T00:23:36.823674,7.626107,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y - 1)],[ReLU(x - y - 1)],NO,"{
+  ""x"": 1,
+  ""y"": 0
+}",2005,
+b01,2,openrouter,openai/gpt-5-mini,2026-03-16T00:23:40.970730,2026-03-16T00:23:52.866142,11.895412,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,2357,
+b02,1,openrouter,openai/gpt-5-mini,2026-03-16T00:23:56.200424,2026-03-16T00:24:00.980581,4.780157,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,1830,
+b03noinvassume,1,openrouter,openai/gpt-5-mini,2026-03-16T00:24:04.393018,2026-03-16T00:24:15.244054,10.851036,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,2206,
+b03assume,1,openrouter,openai/gpt-5-mini,2026-03-16T00:24:18.421615,2026-03-16T00:24:30.622170,12.200555,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,2171,
+b04,1,openrouter,openai/gpt-5-mini,2026-03-16T00:24:34.296580,2026-03-16T00:24:46.184090,11.88751,"vars=['x', 'y', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - y)],[ReLU(x - y)],YES,,2020,
+b05,1,openrouter,openai/gpt-5-mini,2026-03-16T00:24:49.554186,2026-03-16T00:25:02.813170,13.258984,"vars=['x', 't', 't1'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2263,
+b06,1,openrouter,openai/gpt-5-mini,2026-03-16T00:25:06.653087,2026-03-16T00:25:15.510229,8.857142,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,1978,
+b07,1,openrouter,openai/gpt-5-mini,2026-03-16T00:25:19.140884,2026-03-16T00:25:24.844253,5.703369,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - z) + ReLU(y - z)],[ReLU(x - z) + ReLU(y - z)],YES,,1949,
+b09noinvassume,1,openrouter,openai/gpt-5-mini,2026-03-16T00:25:28.449279,2026-03-16T00:25:35.396455,6.947176,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(1*x)],[ReLU(1*x)],YES,,2099,
+b09assume,1,openrouter,openai/gpt-5-mini,2026-03-16T00:25:38.851995,2026-03-16T00:25:44.588181,5.736186,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,1974,
+b10,1,openrouter,openai/gpt-5-mini,2026-03-16T00:25:49.595142,2026-03-16T00:26:04.452092,14.85695,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y)],[ReLU(x + y)],YES,,2172,
+b11,1,openrouter,openai/gpt-5-mini,2026-03-16T00:26:08.225200,2026-03-16T00:26:15.755704,7.530504,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + y)],[ReLU(x + y)],YES,,2217,
+b12,1,openrouter,openai/gpt-5-mini,2026-03-16T00:26:19.614512,2026-03-16T00:26:32.662666,13.048154,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",YES,,2411,
+b13,1,openrouter,openai/gpt-5-mini,2026-03-16T00:26:36.268967,2026-03-16T00:26:42.714876,6.445909,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x - z) + ReLU(y - z)],[ReLU(x - z) + ReLU(y - z)],YES,,2094,
+b14,1,openrouter,openai/gpt-5-mini,2026-03-16T00:26:46.103138,2026-03-16T00:27:07.189888,21.08675,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",YES,,2721,
+b15,1,openrouter,openai/gpt-5-mini,2026-03-16T00:27:11.351503,2026-03-16T00:27:34.452418,23.100915,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y - z)],[ReLU(y - z)],YES,,3284,
+b16,1,openrouter,openai/gpt-5-mini,2026-03-16T00:27:38.501771,2026-03-16T00:27:57.085329,18.583558,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - 1), ReLU(y)]","[ReLU(x - 1), ReLU(y)]",NO,"{
+  ""x"": 1,
+  ""y"": 0
+}",2796,
+b16,2,openrouter,openai/gpt-5-mini,2026-03-16T00:28:02.414747,2026-03-16T00:28:14.595789,12.181042,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(y)]","[ReLU(x), ReLU(y)]",YES,,2684,
+b17,1,openrouter,openai/gpt-5-mini,2026-03-16T00:28:18.359962,2026-03-16T00:28:33.837795,15.477833,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x - z), ReLU(y - z)]","[ReLU(x - z), ReLU(y - z)]",YES,,2549,
+b18,1,openrouter,openai/gpt-5-mini,2026-03-16T00:28:37.817393,2026-03-16T00:28:46.381311,8.563918,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x) + ReLU(y)],[ReLU(x) + ReLU(y)],YES,,2122,
+c01noinv,1,openrouter,openai/gpt-5-mini,2026-03-16T00:28:50.373816,2026-03-16T00:29:12.031856,21.65804,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(x - y)]","[ReLU(x + 1), ReLU(x - y)]",YES,,3220,
+c01assume,1,openrouter,openai/gpt-5-mini,2026-03-16T00:29:15.922348,2026-03-16T00:29:28.429032,12.506684,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2346,
+c01assume,2,openrouter,openai/gpt-5-mini,2026-03-16T00:29:32.166371,2026-03-16T00:29:47.197674,15.031303,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x + 1)],[ReLU(x + 1)],NO,"{
+  ""x"": 0,
+  ""y"": 0
+}",2746,
+c01assume,3,openrouter,openai/gpt-5-mini,2026-03-16T00:29:50.811664,2026-03-16T00:30:21.410811,30.599147,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(x - y)]","[ReLU(x + 1), ReLU(x - y)]",YES,,4045,
+c02,1,openrouter,openai/gpt-5-mini,2026-03-16T00:30:25.144698,2026-03-16T00:30:38.256550,13.111852,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x+1)],[ReLU(x+1)],NO,"{
+  ""x"": 1,
+  ""y"": 0
+}",2370,
+c02,2,openrouter,openai/gpt-5-mini,2026-03-16T00:30:42.079134,2026-03-16T00:31:07.508503,25.429369,"vars=['x', 'y'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x), ReLU(x - y)]","[ReLU(x), ReLU(x - y)]",YES,,3642,
+c03,1,openrouter,openai/gpt-5-mini,2026-03-16T00:31:11.194991,2026-03-16T00:31:31.200971,20.00598,"vars=['x', 'y', 'z'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y - x + 2147483647 - z)],[ReLU(y - x + 2147483647 - z)],YES,,2556,
+c07,1,openrouter,openai/gpt-5-mini,2026-03-16T00:31:34.850672,2026-03-16T00:31:53.168786,18.318114,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - -2147483648)],[ReLU(k - -2147483648)],ERROR,,2730,
+c07,2,openrouter,openai/gpt-5-mini,2026-03-16T00:31:56.069057,2026-03-16T00:32:19.895827,23.82677,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - -2147483648)],[ReLU(k - -2147483648)],ERROR,,3205,
+c07,3,openrouter,openai/gpt-5-mini,2026-03-16T00:32:23.462539,2026-03-16T00:33:00.568162,37.105623,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - (-2147483648))],[ReLU(k - (-2147483648))],ERROR,,4321,
+c07,4,openrouter,openai/gpt-5-mini,2026-03-16T00:33:03.322547,2026-03-16T00:33:45.097274,41.774727,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - -2147483648)],[ReLU(k - -2147483648)],ERROR,,4492,
+c07,5,openrouter,openai/gpt-5-mini,2026-03-16T00:33:47.856376,2026-03-16T00:34:20.787796,32.93142,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k + 2147483648)],[ReLU(k + 2147483648)],ERROR,,3689,
+c07,6,openrouter,openai/gpt-5-mini,2026-03-16T00:34:23.598891,2026-03-16T00:34:57.810656,34.211765,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k - -2147483648)],[ReLU(k - -2147483648)],ERROR,,4241,
+c07,7,openrouter,openai/gpt-5-mini,2026-03-16T00:35:00.668920,2026-03-16T00:35:29.698663,29.029743,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k + 2147483648)],[ReLU(k + 2147483648)],ERROR,,3649,
+c07,8,openrouter,openai/gpt-5-mini,2026-03-16T00:35:32.751785,2026-03-16T00:35:47.183995,14.43221,"vars=['i', 'j', 'k', 't'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(k + 2147483647)],[ReLU(k + 2147483647)],YES,,2637,
+c08,1,openrouter,openai/gpt-5-mini,2026-03-16T00:35:50.421442,2026-03-16T00:36:05.978414,15.556972,"vars=['i', 'j'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(i+1), ReLU(i-j)]","[ReLU(i+1), ReLU(i-j)]",YES,,2649,
+ex3a,1,openrouter,openai/gpt-5-mini,2026-03-16T00:36:09.627544,2026-03-16T00:36:20.758692,11.131148,"vars=['x'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(100 - 1*x)],[ReLU(100 - 1*x)],YES,,2115,
+ex3b,1,openrouter,openai/gpt-5-mini,2026-03-16T00:36:24.794022,2026-03-16T00:36:37.101558,12.307536,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(y - x)],[ReLU(y - x)],YES,,2083,
+javaAG313,1,openrouter,openai/gpt-5-mini,2026-03-16T00:36:41.610473,2026-03-16T00:36:52.848401,11.237928,"vars=['x', 'y'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(x)],[ReLU(x)],YES,,2026,
+javaBreak,1,openrouter,openai/gpt-5-mini,2026-03-16T00:36:56.162741,2026-03-16T00:37:05.851860,9.689119,"vars=['i', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(11 - i)],[ReLU(11 - i)],YES,,2118,
+javaContinue1,1,openrouter,openai/gpt-5-mini,2026-03-16T00:37:09.138340,2026-03-16T00:37:21.487818,12.349478,"vars=['i', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(20 - i)],[ReLU(20 - i)],YES,,2146,
+javaNested,1,openrouter,openai/gpt-5-mini,2026-03-16T00:37:24.735932,2026-03-16T00:37:44.816598,20.080666,"vars=['i', 'j', 'c'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(10 - 1*i), ReLU(12 - 1*j)]","[ReLU(10 - 1*i), ReLU(12 - 1*j)]",YES,,2920,

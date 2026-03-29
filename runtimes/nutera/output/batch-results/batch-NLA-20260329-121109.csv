@@ -1,0 +1,92 @@
+caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
+Bresenham1botht#loop,[ReLU(2*Y*x - 2*X*y - X + 2*Y - v + c - k) + ReLU(v) + ReLU(-v)],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Cohencu1botht#loop,[ReLU(k - 6*n - 6) + ReLU(6*n + 6 - k)],COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 0,
+  ""x"": 0,
+  ""y"": 1,
+  ""z"": 6,
+  ""k"": 15,
+  ""n"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Cohencu2botht#loop,[ReLU(k - (3*n*n + 3*n + 1))],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,2,PROVED,
+Cohencu3botht#loop,[ ReLU(k - n*n*n) + ReLU(n) + ReLU(z - 6) + ReLU(y - 1) + ReLU(x) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,4,PROVED,
+Cohencu4botht#loop,[ReLU(k - c) + ReLU(18*x + 12*y - y*z - 2*z + 6)],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Cohencu5botht#loop,"[ ReLU(k - (z*z - 12*y - 6*z + 12 + c)), ReLU(6 - z) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 1,
+  ""z"": 6,
+  ""k"": 0,
+  ""n"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Cohencu6botht#loop,[ReLU(a - n) + ReLU(y - z)],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,2,PROVED,
+Cohencu7botht#loop,[ReLU((a+1)*(a+1)*(a+1) - x - y)],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Dijkstra1botht#loop,[ReLU(n - q) + ReLU(q - n) + ReLU(r - (2*p + q))],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,2,PROVED,
+Dijkstra2botht#loop,"[ ReLU(q - 1), ReLU(k - c) ]",COMPLETED,PROVED,YES,,Checker completed: termination was proven.,5,PROVED,
+Dijkstra3botht#loop,"[ReLU(4*n - q) + ReLU(q - 1), ReLU(k - c) + ReLU(p - 0)]",COMPLETED,NOT_PROVED,NO,,Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Dijkstra4botht#loop,[ReLU(q - 1) + ReLU(4*q - n - 1) + ReLU(c - 0)],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,2,PROVED,
+Dijkstra5botht#loop,[ ReLU(4*h*n*q - h*h*p - 4*n*p*q + p*q*q - 4*h*q*r + 4*p*q*r - c + k) ],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Dijkstra6botht#loop,[ ReLU(q) + ReLU(p) + ReLU(r) + ReLU(c) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,5,PROVED,
+Egcdbotht#loop,"[ReLU(a)+ReLU(b),ReLU(p)+ReLU(q)+ReLU(r)+ReLU(s)]",COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Egcd2botht#loop,[ ReLU(b) ],COMPLETED,NOT_PROVED,NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""r"": 0,
+  ""temp"": 0,
+  ""s"": 1,
+  ""c"": 0,
+  ""k"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Egcd3botht#loop,"[ReLU(b), ReLU(c - b) + ReLU(2*b*d - c)]",COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Fermat1botht#loop,[ ReLU(u*u - v*v - 2*u + 2*v - 4*(A + r) + cc - kk) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Freire1botht#loop,"[ReLU(k - (r * r - a - r + 2 * x + c)), ReLU(r + 1)]",COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 0,
+  ""r"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""k"": 2
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Geo1botht#loop,[ ReLU(k - (x*z - x - y + 1 + c)) ],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Geo2botht#loop,[ ReLU(k - 1 - x*z + x + z*y - c) ],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Geo3botht#loop,[ReLU(k - (z*x - x + a - a*z*y + c))],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Hardbotht#loop,[ReLU(r - b * p) + ReLU(b * p - r) + ReLU(p - 1)],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Hard2botht#loop,[ReLU(b*p - d + r - d) + ReLU(d) + ReLU(p)],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Lcm2botht#loop,"[ReLU(x) + ReLU(y), ReLU(u) + ReLU(v)]",COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 15,
+  ""b"": 11,
+  ""u"": 0,
+  ""v"": 0,
+  ""x"": 0,
+  ""y"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Mannadivbotht#loop,[ ReLU(c) + ReLU(y - b - 1) ],COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""c"": 0,
+  ""x"": 0,
+  ""y"": 1
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Prod4brbotht#loop,[ReLU(a) + ReLU(b) + ReLU(p) + ReLU(q) + ReLU(x) + ReLU(y) - 1],COMPLETED,NOT_PROVED,NO,"{
+  ""p"": 1,
+  ""a"": 0,
+  ""q"": 0,
+  ""b"": 0,
+  ""x"": 0,
+  ""y"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Prodbinbotht#loop,[ ReLU(y) + ReLU(z - x) + ReLU(x - y) ],COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 0,
+  ""b"": 0,
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Ps2botht#loop,[ ReLU(k - c - y*y + 2*x - y) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Ps3botht#loop,[ ReLU(k - c - 6*x + 2*y*y*y + 3*y*y + y) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Ps4botht#loop,[ ReLU(k - c - 4*x + y*y*y*y + 2*y*y*y + y*y) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Ps5botht#loop,[ ReLU(k - c - 6*y*y*y*y*y - 15*y*y*y*y - 10*y*y*y + 30*x + y) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Ps6botht#loop,[ ReLU(k - c - 12*x + 2*y^6 + 6*y^5 + 5*y^4 - y^2) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+Sqrt1botht#loop,[ ReLU(k - (t*t - 4*s + 2*t + 1 + c)) ],COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,

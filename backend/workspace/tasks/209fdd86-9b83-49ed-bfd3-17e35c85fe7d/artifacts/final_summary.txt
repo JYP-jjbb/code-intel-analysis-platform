@@ -1,0 +1,8 @@
+NuTERA Research Artifact — Final Report
+Generated: 2026-03-16 09:51:17
+
+Total programs:   207
+Verified OK:      189 (91%)
+  - Synthesis-verified: 189
+ReLU Limit:       7 (3%)
+Synthesis failed: 11 (5%)

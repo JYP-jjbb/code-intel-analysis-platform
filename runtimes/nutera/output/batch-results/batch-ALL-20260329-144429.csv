@@ -1,0 +1,101 @@
+caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
+DynExUpTo2VarsConj#loop,"[ ReLU(a - 1), ReLU(m - 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 8,
+  ""n"": 8
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+DynExUpTo2VarsDisj#loop,"[ ReLU(n - 1), ReLU(m - 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 4,
+  ""n"": 8
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+DynExUpTo3VarsDisj#loop,"[ ReLU(a - 1), ReLU(n - 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 0,
+  ""n"": 8,
+  ""o"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+DynExUpTo4VarsDisj#loop,"[ ReLU(n - a * a * 4), ReLU(m - a * a * 4), ReLU(o - a * a * 4), ReLU(p - a * a * 4) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""p"": 0,
+  ""m"": 0,
+  ""n"": 0,
+  ""o"": 4
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+DynamiteEx2Vars#loop,"[ ReLU(n - 2 * a), ReLU(m - 2 * b) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 6,
+  ""n"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+DynamiteExample#loop,"[ ReLU(a + 1), ReLU(n - (a + 1) * (a + 1)) ]",COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+DynamiteExampleX4#loop,[ ReLU(n - a * a * 4 - 1) ],COMPLETED,NOT_PROVED,NO,"{
+  ""n"": 8
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+MultDisj#loop,"[ ReLU(n + 1 - a), ReLU(m + 1 - b) ]",COMPLETED,PROVED,YES,,Checker completed: termination was proven.,3,PROVED,
+Poly2VarsCondBreak#loop,"[ ReLU(a - 1), ReLU(m - 4 * a * a + 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 5,
+  ""n"": 8
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+PolyClosingIn#loop,"[ ReLU(a + 1), ReLU(m - 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 0,
+  ""n"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+Square2VarsDisj#loop,"[ ReLU(n - a), ReLU(m - b), ReLU(n + m - a - b) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 7,
+  ""n"": 1
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+SquareDisj2Vars#loop,"[ ReLU(n - a), ReLU(n - b) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""n"": 2
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+TwoPol4VarsConj#loop,"[ ReLU(n - (a + 1) * (a + 1) + 1), ReLU(m - (b + 1) * (b + 1) + 1) ]",COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+TwoPol4VarsDisj#loop,"[ ReLU(n - (a + 1) * (a + 1) - 1), ReLU(m - (b + 1) * (b + 1) - 1) ]",COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010Fig1#loop,"[ ReLU(m), ReLU(n) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010cousot9#loop,"[ ReLU(i - 1), ReLU(j - 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""i"": 0,
+  ""j"": 0,
+  ""n"": 1
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010easy1#loop,"[ ReLU(x - 40), ReLU(z) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 1
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010easy22#loop,"[ ReLU(x - 1), ReLU(-y - 1), ReLU(z - 1) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""z"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010loops#loop,"[ ReLU(x - 1), ReLU(y - 1) ]",COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+AliasDarteFeautrierGonnordSAS2010nestedLoop1#loop,"[ ReLU(n - 1), ReLU(m - 1), ReLU(N - 1), ReLU(i), ReLU(j), ReLU(k) ]",COMPLETED,NOT_PROVED,NO,"{
+  ""i"": 0,
+  ""j"": 0,
+  ""k"": 0,
+  ""m"": 1,
+  ""n"": 1,
+  ""N"": 1
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010random1d2#loop,"[ ReLU(a + 1), ReLU(m - x - 1) ]",COMPLETED,PROVED,YES,,Checker completed: termination was proven.,1,PROVED,
+AliasDarteFeautrierGonnordSAS2010random2d#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010speedpldi2#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010speedpldi3#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010speedpldi4#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010wcet2#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010while2#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AliasDarteFeautrierGonnordSAS2010wise#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+AveryFLOPS2006Table1#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+BradleyMannaSipmaCAV2005Fig1#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+BrockschmidtCookFuhsCAV2013Fig1#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+BrockschmidtCookFuhsCAV2013Fig9a#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+BrockschmidtCookFuhsCAV2013Introduction#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+ChawdharyCookGulwaniSagivYangESOP2008easy1#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+ChawdharyCookGulwaniSagivYangESOP2008easy2#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+ChawdharyCookGulwaniSagivYangESOP2008random1d#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+ChawdharyCookGulwaniSagivYangESOP2008random2d#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+ChenFlurMukhopadhyaySAS2012Ex220#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+ChenFlurMukhopadhyaySAS2012Ex301#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+CookSeeZulegerTACAS2013Fig1#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+CookSeeZulegerTACAS2013Fig7a#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+CookSeeZulegerTACAS2013Fig7b#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+CookSeeZulegerTACAS2013Fig8amodified#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+CookSeeZulegerTACAS2013Fig8a#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,
+CookSeeZulegerTACAS2013Fig8b#loop,,COMPLETED,NOT_PROVED,NO,,"SiliconFlow request failed with HTTP 429. Response: {""message"":""Request was rejected due to rate limiting. Details: TPM limit reached."",""data"":null}",5,NOT_PROVED,

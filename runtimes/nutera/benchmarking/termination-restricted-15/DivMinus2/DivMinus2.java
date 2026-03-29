@@ -1,0 +1,72 @@
+/*
+Original C source:
+
+typedef enum {false,true} bool;
+
+extern int __VERIFIER_nondet_int(void);
+
+int main() {
+    int x;
+    int y;
+    int ytmp;
+    int res;
+    x = __VERIFIER_nondet_int();
+    y = __VERIFIER_nondet_int();
+    res = 0;
+    
+    while (x >= y && y > 0) {
+        ytmp = y;
+        while (ytmp != 0) {
+            if (ytmp > 0)  {
+                ytmp = ytmp - 1;
+                x = x - 1;
+            } else  {
+                ytmp = ytmp + 1;
+                x = x + 1;
+            }
+        }
+        res = res + 1;
+    }
+    
+    return 0;
+}
+
+-------------------------------------------
+
+ * Auto-generated Java skeleton for SV-COMP benchmark.
+ * Original C file: termination-restricted-15\DivMinus2.c
+ * You still need to manually translate the C code into Java inside loop().
+ */
+
+import java.util.Random;
+
+public class DivMinus2 {
+
+    public static void loop(int x, int y) {
+        int y1;
+        int r;
+        r = 0;
+        while (x >= y && y > 0) {
+            y1 = y;
+            while (y1 != 0) {
+                if (y1 > 0) {
+                    y1 = y1 - 1;
+                    x = x - 1;
+                } else {
+                    y1 = y1 + 1;
+                    x = x + 1;
+                }
+            }
+            r = r + 1;
+        }
+        return;
+    }
+
+    public static void main(String[] args) {
+        if (args.length >= 2) {
+            int x = args[0].length();
+            int y = args[1].length();
+            loop(x, y);
+        }
+    }
+}

@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm
+    compile group: 'org.ow2.asm', name: 'asm', version: '9.0'
+
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis
+    compile group: 'org.ow2.asm', name: 'asm-analysis', version: '9.0'
+
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm-tree
+    compile group: 'org.ow2.asm', name: 'asm-tree', version: '9.0'
+
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm-util
+    compile group: 'org.ow2.asm', name: 'asm-util', version: '9.0'
+
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+
+
+}
+
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'GenAndTrace',
+                'Implementation-Version': 0.1,
+                'Main-Class': 'main.CalculateLoopHeads'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}

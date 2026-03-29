@@ -1,0 +1,199 @@
+﻿program_name,parsed_rf,check_status
+DynExUpTo2VarsConj,"[ReLU(n - a) + ReLU(m - a), ReLU(1 - a)]",YES
+DynExUpTo2VarsDisj,"[ReLU(n - 4*a) + ReLU(m - 4*a), ReLU(2 - a)]",YES
+DynExUpTo3VarsDisj,[ReLU(n - 4*a + 1) + ReLU(m - 4*a + 1) + ReLU(o - 4*a + 1)],YES
+DynExUpTo4VarsDisj,[ReLU(n - 4*a + 1) + ReLU(m - 4*a + 1) + ReLU(o - 4*a + 1) + ReLU(p - 4*a + 1)],YES
+DynamiteEx2Vars,"[ReLU(n - 4*a) + ReLU(m - 4*b), ReLU(2 - a) + ReLU(2 - b)]",YES
+DynamiteExample,[ReLU(n - a)],YES
+DynamiteExampleX4,[ReLU(n + 1 - a)],YES
+MultDisj,[ReLU(n+1-a)+ReLU(m+1-b)],YES
+Poly2VarsCondBreak,[ReLU(n + 1 - a)],YES
+PolyClosingIn,[ReLU(m + 1)],YES
+Square2VarsDisj,[ReLU(n - a + 1) + ReLU(m - b + 1)],YES
+SquareDisj2Vars,"[ReLU(n + 1 - b), ReLU(n + 1 - a)]",YES
+TwoPol4VarsConj,[ReLU(m - b)],YES
+TwoPol4VarsDisj,"[ReLU(n - a), ReLU(m - b)]",YES
+AliasDarteFeautrierGonnordSAS2010Fig1,"[ReLU(m - y), ReLU(x + 1), ReLU(y + 1)]",YES
+AliasDarteFeautrierGonnordSAS2010cousot9,"[ReLU(i), ReLU(j)]",YES
+AliasDarteFeautrierGonnordSAS2010easy1,[ReLU(40 - x)],YES
+AliasDarteFeautrierGonnordSAS2010easy22,[ReLU(z)],YES
+AliasDarteFeautrierGonnordSAS2010loops,"[ReLU(x + 1), ReLU(x + 1 - y)]",YES
+AliasDarteFeautrierGonnordSAS2010nestedLoop1,"[ReLU(n - i), ReLU(m - j), ReLU(N - 1 - k)]",YES
+AliasDarteFeautrierGonnordSAS2010random1d2,[ReLU(m - x)],YES
+AliasDarteFeautrierGonnordSAS2010random2d,[ReLU(10 - i)],YES
+AliasDarteFeautrierGonnordSAS2010speedpldi2,"[ReLU(v), ReLU(v2)]",YES
+AliasDarteFeautrierGonnordSAS2010speedpldi3,"[ReLU(n - i), ReLU(m - j)]",YES
+AliasDarteFeautrierGonnordSAS2010speedpldi4,[ReLU(i)],YES
+AliasDarteFeautrierGonnordSAS2010wcet2,"[ReLU(5 - i), ReLU(10 - j)]",YES
+AliasDarteFeautrierGonnordSAS2010while2,"[ReLU(i), ReLU(j)]",YES
+AliasDarteFeautrierGonnordSAS2010wise,[ReLU(x - y - 2) + ReLU(y - x - 2)],YES
+AveryFLOPS2006Table1,"[ReLU(i), ReLU(y - i)]",YES
+BradleyMannaSipmaCAV2005Fig1,[ReLU(y1 + y2)],YES
+BrockschmidtCookFuhsCAV2013Fig1,"[ReLU(n - i), ReLU(i + 1 - j)]",YES
+BrockschmidtCookFuhsCAV2013Fig9a,"[ReLU(n - i), ReLU(i - j + 1)]",YES
+BrockschmidtCookFuhsCAV2013Introduction,[ReLU(x)],YES
+ChawdharyCookGulwaniSagivYangESOP2008easy1,[ReLU(40 - x)],YES
+ChawdharyCookGulwaniSagivYangESOP2008easy2,[ReLU(z)],YES
+ChawdharyCookGulwaniSagivYangESOP2008random1d,[ReLU(m + 1 - x)],YES
+ChawdharyCookGulwaniSagivYangESOP2008random2d,[ReLU(10 - i)],YES
+ChenFlurMukhopadhyaySAS2012Ex220,[ReLU(x)],YES
+ChenFlurMukhopadhyaySAS2012Ex301,"[ReLU(y - z), ReLU(z - x)]",YES
+CookSeeZulegerTACAS2013Fig1,[ReLU(x)],YES
+CookSeeZulegerTACAS2013Fig7a,[ReLU(x)],YES
+CookSeeZulegerTACAS2013Fig7b,"[ReLU(y), ReLU(z), ReLU(x)]",YES
+CookSeeZulegerTACAS2013Fig8amodified,[ReLU(x - k) + ReLU(k - x)],YES
+CookSeeZulegerTACAS2013Fig8a,[ReLU(x) + ReLU(-1*x)],YES
+CookSeeZulegerTACAS2013Fig8b,"[ReLU(x - m), ReLU(m - x)]",YES
+GopanRepsCAV2006Fig1a,"[ReLU(51 - x), ReLU(y + 1)]",YES
+HarrisLalNoriRajamaniSAS2010Fig1,"[ReLU(x), ReLU(y), ReLU(k - z)]",YES
+HarrisLalNoriRajamaniSAS2010Fig3,[ReLU(x)],YES
+HeizmannHoenickeLeikePodelskiATVA2013Fig1,[ReLU(x)],YES
+HeizmannHoenickeLeikePodelskiATVA2013Fig4,[ReLU(x - 22)],YES
+HeizmannHoenickeLeikePodelskiATVA2013Fig5,[ReLU(x + 1)],YES
+HeizmannHoenickeLeikePodelskiATVA2013Fig6,"[ReLU(y - z), ReLU(x + 1)]",YES
+KroeningSharyginaTsitovichWintersteigerCAV2010Ex,[ReLU(255 - i)],YES
+LarrazOliverasRodriguezCarbonellRubioFMCAD2013Fig1,"[ReLU(z), ReLU(x + 10001)]",YES
+LeikeHeizmannTACAS2014Ex1,[ReLU(q)],YES
+LeikeHeizmannTACAS2014Ex9,[ReLU(p + q)],YES
+LeikeHeizmannWST2014Ex9,[ReLU(x)],YES
+PodelskiRybalchenkoLICS2004Fig1,"[ReLU(1*x + 1), ReLU(1*x - 1*y)]",YES
+PodelskiRybalchenkoTACAS2011Fig1,[ReLU(y + 1)],YES
+PodelskiRybalchenkoTACAS2011Fig2,"[ReLU(x + 1), ReLU(x - y)]",YES
+PodelskiRybalchenkoTACAS2011Fig4,"[ReLU(x), ReLU(y)]",YES
+UrbanWST2013Fig2modified1000,"[ReLU(10 - x), ReLU(y - 1)]",YES
+UrbanWST2013Fig2,"[ReLU(10 - x), ReLU(y - 1)]",YES
+UrbanMineESOP2014Fig3,"[ReLU(-x), ReLU(x), ReLU(y)]",YES
+aviad,[ReLU(a - 1)],YES
+genady,[ReLU(i - j)],YES
+B2Nested1,"[ReLU(y + 65534), ReLU(x)]",YES
+B4BitCounterPointer,"[ReLU(1 - d), ReLU(1 - c), ReLU(1 - b), ReLU(1 - a)]",YES
+Bangalore2,[ReLU(x + 1)],YES
+Bangalorev4,[ReLU(x+1)],YES
+Cairo,[ReLU(x)],YES
+Cairostep21,[ReLU(x)],YES
+Copenhagen,[ReLU(x + y)],YES
+Copenhagendisj2,[ReLU(x+1) + ReLU(y+1)],YES
+Gothenburg1,[ReLU(x + 1) + ReLU(y + 1)],YES
+Gothenburgv21,"[ReLU(-1*x), ReLU(y + 1)]",YES
+LobnyaBooleanReordered2,"[ReLU(x+1), ReLU(-1*b), ReLU(b)]",YES
+McCarthy91Iteration,"[ReLU(10*c - 1*n + 91), ReLU(1*c)]",YES
+Mysore2,[ReLU(x + c)],YES
+Nyala2lex2,"[ReLU(x+1), ReLU(y+1)]",YES
+Parallel,"[ReLU(x+1), ReLU(y+1)]",YES
+Piecewise,[ReLU(q)-ReLU(q - p)],YES
+Pure2Phase1,"[ReLU(y), ReLU(z + 1)]",YES
+Pure3Phase1,"[ReLU(z - n + 3), ReLU(z)]",YES
+Singapore2,"[ReLU(y + 1), ReLU(x + y + 65534)]",YES
+Stockholm1,[ReLU(x + 1)],YES
+TelAvivAmirMinimum,[ReLU(x) - ReLU(x - y)],YES
+Thun2,[ReLU(3*x + y + 1)],YES
+ToulouseBranchesToLoop2,"[ReLU(1 - x), ReLU(100*x - y), ReLU(-100*x - z)]",YES
+ToulouseMultiBranchesToLoop2,"[ReLU(100 - y + 100*x), ReLU(100 - z - 100*x)]",YES
+Waldkirch,[ReLU(x + 1)],YES
+WhileFalse,[ReLU(x)],YES
+easy1,[ReLU(40 - x)],YES
+easy22,[ReLU(z)],YES
+Bresenham1botht,[ReLU(k - 1*v + 1*c - 1*x)],YES
+Cohencu1botht,[ReLU(k - 6*n - 6)],YES
+Cohencu2botht,"[ReLU(-1*z), ReLU(k - n)]",YES
+Cohencu3botht,"[ReLU(k - n), ReLU(2 - n)]",YES
+Cohencu4botht,[ReLU(k - x - y - z - c + 1000000)],YES
+Cohencu5botht,"[ReLU(k - c), ReLU(1000000 - n)]",YES
+Cohencu6botht,"[ReLU(a - n), ReLU(-z)]",YES
+Cohencu7botht,"[ReLU(-z), ReLU(1 - y - z), ReLU(1003003001 - x - y)]",YES
+Dijkstra1botht,"[ReLU(r), ReLU(r - 2*p - q), ReLU(n - q)]",YES
+Dijkstra2botht,"[ReLU(q), ReLU(k + 1 - c)]",YES
+Dijkstra3botht,"[ReLU(k - c + 1), ReLU(q)]",YES
+Dijkstra4botht,"[ReLU(q), ReLU(k - c + 1)]",YES
+Dijkstra5botht,"[ReLU(k - c + 1), ReLU(q), ReLU(p), ReLU(r)]",YES
+Dijkstra6botht,"[ReLU(k - c), ReLU(q)]",YES
+Egcdbotht,"[ReLU(a), ReLU(p) + ReLU(q) + ReLU(r) + ReLU(s)]",YES
+Egcd2botht,"[ReLU(b), ReLU(c)]",YES
+Fermat1botht,"[ReLU(kk - cc - 4*A - 4*r - u - v), ReLU(kk - v)]",YES
+Freire1botht,"[ReLU(3 - r), ReLU(k - 2*r + 1), ReLU(r + x + 5)]",YES
+Geo1botht,"[ReLU(k - c), ReLU(1 - x), ReLU(1 - y)]",YES
+Geo2botht,"[ReLU(k - c), ReLU(k - c + x - y)]",YES
+Geo3botht,"[ReLU(k - c), ReLU(-x), ReLU(-y)]",YES
+Mannadivbotht,[ReLU(x + c)],YES
+Prod4brbotht,"[ReLU(a), ReLU(b)]",YES
+Ps2botht,"[ReLU(k - c - y), ReLU(k - c - y + 2*x)]",YES
+Ps3botht,"[ReLU(k - c - 6*x), ReLU(-y)]",YES
+Ps4botht,"[ReLU(-y), ReLU(k - c - 4*x + 2*y)]",YES
+Ps5botht,"[ReLU(k - c), ReLU(x - y)]",YES
+Ps6botht,[ReLU(k - (1*c + 12*x + 1*y))],YES
+Sqrt1botht,"[ReLU(4*s - c + k - t), ReLU(-t + c + 1)]",YES
+Binomial,"[ReLU(x - n + 1), ReLU(x - k + 1), ReLU(t)]",YES
+javaLogBuiltIn,[ReLU(x-1)],YES
+reccounter1,"[ReLU(x - a + 1), ReLU(rc)]",YES
+reccounter3,"[ReLU(x - a + 1), ReLU(rc)]",YES
+DivMinus,"[ReLU(x - y), ReLU(x)]",YES
+GCD3,"[ReLU(y), ReLU(x1), ReLU(x)]",YES
+GCD4,"[ReLU(y - 1), ReLU(x1)]",YES
+IntPath,[ReLU(i - 11)],YES
+Log,"[ReLU(x - 1), ReLU(x1 - 1)]",YES
+LogAG,"[ReLU(x-1), ReLU(x1-1)]",YES
+McCarthyIterative,"[ReLU(11*c + 101 - x), ReLU(101 - x), ReLU(x - 101)]",YES
+MinusBuiltIn,[ReLU(x - y)],YES
+MinusUserDefined,"[ReLU(1*x), ReLU(-1*y)]",YES
+Nested2,"[ReLU(10 - i), ReLU(12 - j)]",YES
+PastaA1,"[ReLU(x-1), ReLU(x-y)]",YES
+PastaA10,[ReLU(x - y) + ReLU(y - x)],YES
+PastaA4,[ReLU(x - y)],YES
+PastaA7,[ReLU(x - y) + ReLU(x - z)],YES
+PastaB1,[ReLU(x - y)],YES
+PastaB14,"[ReLU(x), ReLU(y)]",YES
+PastaB15,"[ReLU(x - z), ReLU(y - z)]",YES
+PastaB16,"[ReLU(x), ReLU(y)]",YES
+PastaB17,"[ReLU(x - z), ReLU(y - z)]",YES
+PastaB2,[ReLU(x - y)],YES
+PastaB4,[ReLU(x - y)],YES
+PastaB6,[ReLU(x)],YES
+PastaB7,[ReLU(x - z) + ReLU(y - z)],YES
+PastaC3,"[ReLU(y - x), ReLU(y - z)]",YES
+PastaC7,[ReLU(k - j)],YES
+PastaC9,"[ReLU(x), ReLU(y)]",YES
+Sequence,"[ReLU(100 - i), ReLU(21 - j)]",YES
+WhileDecr,[ReLU(i - 5)],YES
+a01,"[ReLU(x - 1), ReLU(x - y)]",YES
+a04,[ReLU(x - y)],YES
+a05,[ReLU(x - y)],YES
+a06,[ReLU(x - y - z)],YES
+a07,[ReLU(x - y) + ReLU(x - z)],YES
+a08,[ReLU(x - y)],YES
+a09assume,[ReLU(x - z + 1)],YES
+a10,[ReLU(x - y) + ReLU(y - x)],YES
+b01,[ReLU(x - y)],YES
+b02,[ReLU(x - y)],YES
+b03noinvassume,[ReLU(2147483647 - y)],YES
+b03assume,[ReLU(x - y)],YES
+b04,[ReLU(x - y)],YES
+b05,[ReLU(x)],YES
+b06,[ReLU(x + y)],YES
+b07,[ReLU(x - z) + ReLU(y - z)],YES
+b09noinvassume,[ReLU(x)],YES
+b09assume,[ReLU(x)],YES
+b10,[ReLU(x + y)],YES
+b11,[ReLU(x + y)],YES
+b12,[ReLU(x)+ReLU(y)],YES
+b13,[ReLU(x - z) + ReLU(y - z)],YES
+b14,[ReLU(y)],YES
+b15,"[ReLU(x - z), ReLU(y - z)]",YES
+b16,"[ReLU(x), ReLU(y)]",YES
+b17,"[ReLU(x - z), ReLU(y - z)]",YES
+b18,"[ReLU(x), ReLU(y)]",YES
+c01noinv,"[ReLU(x + 1), ReLU(1073741824 - y)]",YES
+c01assume,"[ReLU(x+1), ReLU(1073741824 - y)]",YES
+c02,"[ReLU(x + 1), ReLU(x - y)]",YES
+c03,[ReLU(y - x) + ReLU(2147483647 - z)],YES
+c07,[ReLU(k - -2147483647)],YES
+c08,"[ReLU(i+1), ReLU(i-j)]",YES
+ex3a,[ReLU(100 - x)],YES
+ex3b,[ReLU(y - x)],YES
+javaAG313,[ReLU(x)],YES
+javaBreak,[ReLU(11 - i)],YES
+javaContinue1,[ReLU(-1*i + 20)],YES
+javaNested,"[ReLU(-1*i + 10), ReLU(-1*j + 12)]",YES
+DivMinus2,"[ReLU(x - y1 + 1), ReLU(y1) + ReLU(-y1)]",YES
+Hardbotht,"[ReLU(r - b - p - d), ReLU(d - 1), ReLU(a - q - r + p - 1)]",YES
+Hard2botht,"[ReLU(a)+ReLU(-a)+ReLU(b)+ReLU(-b), ReLU(p)+ReLU(-p)+ReLU(d)+ReLU(-d), ReLU(q)+ReLU(-q)+ReLU(r)+ReLU(-r)]",YES
+Benghazinondet2,"[ReLU(1 - d) + ReLU(1 - e), ReLU(x + 1)]",YES

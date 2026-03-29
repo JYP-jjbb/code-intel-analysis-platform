@@ -1,0 +1,6 @@
+File,Class,Function
+../termination-numeric/Binomial/Binomial.jar,Binomial,loop
+../termination-numeric/Parts/Parts.jar,Parts,loop
+../termination-numeric/java_LogBuiltIn/javaLogBuiltIn.jar,javaLogBuiltIn,loop
+../termination-numeric/rec_counter1/reccounter1.jar,reccounter1,loop
+../termination-numeric/rec_counter3/reccounter3.jar,reccounter3,loop

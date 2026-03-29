@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Main-Class: GopanRepsCAV2006Fig1a

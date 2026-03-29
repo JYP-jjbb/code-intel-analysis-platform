@@ -1,0 +1,7 @@
+{
+  "projectStructure" : "- backend/src/main/java\n- frontend/src/pages\n- docs/README.md",
+  "issueList" : "1. Missing unit tests\n2. Potential null handling issue",
+  "riskLevel" : "LOW",
+  "fixSuggestions" : "- Add tests\n- Add input validation",
+  "summary" : "Demo review completed with low risk."
+}

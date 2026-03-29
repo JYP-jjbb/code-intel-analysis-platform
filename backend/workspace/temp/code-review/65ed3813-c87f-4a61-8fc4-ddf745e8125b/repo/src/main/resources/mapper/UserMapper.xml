@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mickey.onlineordering.onlineorderingserver.mapper.UserMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.mickey.onlineordering.onlineorderingserver.entity.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="role" property="role"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <result column="default_address" property="defaultAddress"/>
+        <result column="default_receiver_name" property="defaultReceiverName"/>
+        <result column="default_receiver_phone" property="defaultReceiverPhone"/>
+        <result column="avatar" property="avatar"/>
+        <result column="email" property="email"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, username, password, role, phone, address, default_address, default_receiver_name, 
+        default_receiver_phone, avatar, email, status, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询用户 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tb_user
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据用户名查询用户 -->
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tb_user
+        WHERE username = #{username}
+    </select>
+    
+    <!-- 插入用户 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_user (username, password, role, phone, address, default_address, default_receiver_name, 
+                             default_receiver_phone, avatar, email, status, create_time, update_time)
+        VALUES (#{username}, #{password}, #{role}, #{phone}, #{address}, #{defaultAddress}, #{defaultReceiverName}, 
+                #{defaultReceiverPhone}, #{avatar}, #{email}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <!-- 更新用户 -->
+    <update id="update">
+        UPDATE tb_user
+        <set>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="defaultAddress != null">default_address = #{defaultAddress},</if>
+            <if test="defaultReceiverName != null">default_receiver_name = #{defaultReceiverName},</if>
+            <if test="defaultReceiverPhone != null">default_receiver_phone = #{defaultReceiverPhone},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除用户 -->
+    <delete id="deleteById">
+        DELETE FROM tb_user WHERE id = #{id}
+    </delete>
+    
+    <!-- 检查用户名是否存在 -->
+    <select id="countByUsername" resultType="int">
+        SELECT COUNT(*) FROM tb_user WHERE username = #{username}
+    </select>
+    
+    <!-- 检查邮箱是否存在 -->
+    <select id="countByEmail" resultType="int">
+        SELECT COUNT(*) FROM tb_user WHERE email = #{email}
+    </select>
+    
+</mapper>
+
+
+
+
+
+
+
+
+

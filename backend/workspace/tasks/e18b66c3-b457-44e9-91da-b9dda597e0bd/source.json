@@ -1,0 +1,6 @@
+{
+  "repoUrl": "https://github.com/example-org/e2e-check.git",
+  "zipFileName": "",
+  "localFolder": "",
+  "parameters": "--model Pro/moonshotai/Kimi-K2.5"
+}

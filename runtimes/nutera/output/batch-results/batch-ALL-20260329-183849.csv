@@ -1,0 +1,3 @@
+caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
+DynExUpTo2VarsConj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a)],COMPLETED,NOT_PROVED,NO,,[checker-runtime-v2] Checker returned an error (exit code 1).,5,NOT_PROVED,
+DynExUpTo2VarsDisj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a)],COMPLETED,NOT_PROVED,NO,,[checker-runtime-v2] Checker returned an error (exit code 1).,5,NOT_PROVED,

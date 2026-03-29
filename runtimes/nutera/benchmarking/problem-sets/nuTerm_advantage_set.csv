@@ -1,0 +1,15 @@
+File,Class,Function
+../nuTerm-advantage/DynExUpTo2VarsConj/DynExUpTo2VarsConj.jar,DynExUpTo2VarsConj,loop
+../nuTerm-advantage/DynExUpTo2VarsDisj/DynExUpTo2VarsDisj.jar,DynExUpTo2VarsDisj,loop
+../nuTerm-advantage/DynExUpTo3VarsDisj/DynExUpTo3VarsDisj.jar,DynExUpTo3VarsDisj,loop
+../nuTerm-advantage/DynExUpTo4VarsDisj/DynExUpTo4VarsDisj.jar,DynExUpTo4VarsDisj,loop
+../nuTerm-advantage/DynamiteEx2Vars/DynamiteEx2Vars.jar,DynamiteEx2Vars,loop
+../nuTerm-advantage/DynamiteExample/DynamiteExample.jar,DynamiteExample,loop
+../nuTerm-advantage/DynamiteExampleX4/DynamiteExampleX4.jar,DynamiteExampleX4,loop
+../nuTerm-advantage/MultDisj/MultDisj.jar,MultDisj,loop
+../nuTerm-advantage/Poly2VarsCondBreak/Poly2VarsCondBreak.jar,Poly2VarsCondBreak,loop
+../nuTerm-advantage/PolyClosingIn/PolyClosingIn.jar,PolyClosingIn,loop
+../nuTerm-advantage/Square2VarsDisj/Square2VarsDisj.jar,Square2VarsDisj,loop
+../nuTerm-advantage/SquareDisj2Vars/SquareDisj2Vars.jar,SquareDisj2Vars,loop
+../nuTerm-advantage/TwoPol4VarsConj/TwoPol4VarsConj.jar,TwoPol4VarsConj,loop
+../nuTerm-advantage/TwoPol4VarsDisj/TwoPol4VarsDisj.jar,TwoPol4VarsDisj,loop

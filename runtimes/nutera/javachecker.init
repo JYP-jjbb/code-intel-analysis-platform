@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export LD_LIBRARY_PATH=${PWD}/libs/linux-x64/
+
+#export CLASSPATH="/workspace/libs/share/java/com.microsoft.z3.jar:/workspace/deps/javachecker/RankChecker.jar:${CLASSPATH}"
+#
+#export JAVA_TOOL_OPTIONS="-Djava.library.path=/workspace/libs/linux-x64 ${JAVA_TOOL_OPTIONS}"

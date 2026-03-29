@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mickey.onlineordering.onlineorderingserver.mapper.CartItemMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.mickey.onlineordering.onlineorderingserver.entity.CartItem">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="dish_id" property="dishId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="price" property="price"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, user_id, dish_id, quantity, price, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询购物车项 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tb_cart_item
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据用户ID查询购物车列表 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tb_cart_item
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 根据用户ID和菜品ID查询购物车项 -->
+    <select id="selectByUserIdAndDishId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tb_cart_item
+        WHERE user_id = #{userId} AND dish_id = #{dishId}
+    </select>
+    
+    <!-- 插入购物车项 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_cart_item (user_id, dish_id, quantity, price, create_time, update_time)
+        VALUES (#{userId}, #{dishId}, #{quantity}, #{price}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <!-- 更新购物车项 -->
+    <update id="update">
+        UPDATE tb_cart_item
+        <set>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="price != null">price = #{price},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除购物车项 -->
+    <delete id="deleteById">
+        DELETE FROM tb_cart_item WHERE id = #{id}
+    </delete>
+    
+    <!-- 清空用户购物车 -->
+    <delete id="deleteByUserId">
+        DELETE FROM tb_cart_item WHERE user_id = #{userId}
+    </delete>
+    
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,44 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+app:
+  workspace:
+    root: workspace/tasks
+  settings:
+    file: workspace/settings/settings.json
+  code-review:
+    temp-root: workspace/temp/code-review
+    temp-ttl-hours: 12
+    temp-clean-interval-ms: 1800000
+  nutera:
+    runtimePath: runtimes/nutera
+    mode: MOCK
+    pythonCommand: python3
+    dockerImage: nutera
+    timeoutSeconds: 600
+    checker:
+      java11-home: "${NUTERA_CHECKER_JAVA11_HOME:C:/Program Files/Eclipse Adoptium/jdk-11.0.28.6-hotspot}"
+    rfPromptPath: runtimes/nutera/config/prompts/rf_generation_l3.txt
+    report-db:
+      enabled: ${NUTERA_REPORT_DB_ENABLED:true}
+      url: ${NUTERA_SQLSERVER_URL:jdbc:sqlserver://localhost:1433;databaseName=code_intel_analysis;encrypt=false;trustServerCertificate=true}
+      username: ${NUTERA_SQLSERVER_USERNAME:test}
+      password: ${NUTERA_SQLSERVER_PASSWORD:123456}
+      startup-check:
+        strict: ${NUTERA_REPORT_DB_STARTUP_CHECK_STRICT:true}
+  siliconflow:
+    baseUrl: https://api.siliconflow.cn/v1
+    timeoutSeconds: 90
+  demo:
+    enabled: true
+
+checker:
+  java:
+    home: ${CHECKER_JAVA_HOME:}

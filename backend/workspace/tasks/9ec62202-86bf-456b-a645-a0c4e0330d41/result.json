@@ -1,0 +1,7 @@
+{
+  "projectStructure" : "- backend/src/main/java/...\n- frontend/src/pages/...\n- docs/README.md",
+  "issueList" : "1. Missing unit tests for core services\n2. Possible null handling gaps in input parsing",
+  "riskLevel" : "MEDIUM",
+  "fixSuggestions" : "- Add validation for empty inputs\n- Introduce basic unit tests for TaskService",
+  "summary" : "Mock summary: review completed with medium risk."
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mickey.onlineordering.onlineorderingserver.mapper.AddressMapper">
+
+    <resultMap id="AddressResultMap" type="com.mickey.onlineordering.onlineorderingserver.entity.Address">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverPhone" column="receiver_phone"/>
+        <result property="address" column="address"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 查询用户的所有地址 -->
+    <select id="findByUserId" resultMap="AddressResultMap">
+        SELECT * FROM tb_address
+        WHERE user_id = #{userId}
+        ORDER BY is_default DESC, created_at DESC
+    </select>
+
+    <!-- 根据ID查询地址 -->
+    <select id="findById" resultMap="AddressResultMap">
+        SELECT * FROM tb_address
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入地址 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_address (user_id, receiver_name, receiver_phone, address, is_default, created_at, updated_at)
+        VALUES (#{userId}, #{receiverName}, #{receiverPhone}, #{address}, #{isDefault}, GETDATE(), GETDATE())
+    </insert>
+
+    <!-- 更新地址 -->
+    <update id="update">
+        UPDATE tb_address
+        SET receiver_name = #{receiverName},
+            receiver_phone = #{receiverPhone},
+            address = #{address},
+            is_default = #{isDefault},
+            updated_at = GETDATE()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除地址 -->
+    <delete id="deleteById">
+        DELETE FROM tb_address WHERE id = #{id}
+    </delete>
+
+    <!-- 取消用户的所有默认地址 -->
+    <update id="clearDefaultByUserId">
+        UPDATE tb_address SET is_default = 0 WHERE user_id = #{userId}
+    </update>
+
+    <!-- 设置默认地址 -->
+    <update id="setDefaultById">
+        UPDATE tb_address SET is_default = 1, updated_at = GETDATE() WHERE id = #{id}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,10 @@
+caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
+Bresenham1botht#loop,[ReLU(2*Y*x - 2*X*y - X + 2*Y - v + c - k)],COMPLETED,NOT_PROVED,NO,,Checker returned an error (exit code 1).,5,NOT_PROVED,
+Cohencu1botht#loop,[ ReLU(k - 6*n - 6) ],COMPLETED,NOT_PROVED,NO,"{
+  ""a"": 0,
+  ""x"": 0,
+  ""y"": 1,
+  ""z"": 6,
+  ""k"": 12,
+  ""n"": 0
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,

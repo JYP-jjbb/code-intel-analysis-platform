@@ -1,0 +1,7 @@
+{
+  "summary" : "NuTERA Research Artifact — Final Report\nGenerated: 2026-03-16 09:51:17\n\nTotal programs:   207\nVerified OK:      189 (91%)\n  - Synthesis-verified: 189\nReLU Limit:       7 (3%)\nSynthesis failed: 11 (5%)\n",
+  "candidateFunctions" : "See program_level.csv for synthesized ranking functions.",
+  "checkerFeedback" : "See attempt_level.csv for checker results.",
+  "artifactSummary" : "final_summary.txt: final_summary.txt\nprogram_level.csv: program_level_after_synthesis_20260316_095117.csv\nattempt_level.csv: attempts_20260316_050344.csv\ncheckpoint.pkl: after_synthesis_20260316_095117.pkl",
+  "message" : "MOCK mode: reading existing results"
+}

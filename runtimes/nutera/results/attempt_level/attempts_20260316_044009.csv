@@ -1,0 +1,63 @@
+program_name,attempt_number,provider,model,start_time,end_time,duration_seconds,prompt_summary,llm_output,parsed_rf,check_status,counterexample,tokens_used,empty_output_reason
+DynExUpTo2VarsConj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:40:09.693131,2026-03-16T04:41:09.434994,59.741863,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - a) + ReLU(m - a), ReLU(n + m + 1 - a)]","[ReLU(n - a) + ReLU(m - a), ReLU(n + m + 1 - a)]",YES,,5781,
+DynExUpTo2VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:41:14.826071,2026-03-16T04:41:31.087483,16.261412,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",,,EXCEPTION,,,
+DynExUpTo2VarsDisj,2,openrouter,openai/gpt-5-mini,2026-03-16T04:41:31.113351,2026-03-16T04:42:14.777717,43.664366,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - a + 1), ReLU(m - a + 1)]","[ReLU(n - a + 1), ReLU(m - a + 1)]",YES,,4453,
+DynExUpTo3VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:42:19.373756,2026-03-16T04:42:59.520129,40.146373,"vars=['n', 'm', 'o'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n + 1 - a), ReLU(m + 1 - a), ReLU(o + 1 - a)]","[ReLU(n + 1 - a), ReLU(m + 1 - a), ReLU(o + 1 - a)]",YES,,4250,
+DynExUpTo4VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:43:02.910689,2026-03-16T04:43:59.139872,56.229183,"vars=['n', 'm', 'o', 'p'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a) + ReLU(m - a) + ReLU(o - a) + ReLU(p - a) + ReLU(1 - a)],[ReLU(n - a) + ReLU(m - a) + ReLU(o - a) + ReLU(p - a) + ReLU(1 - a)],YES,,5827,
+DynamiteEx2Vars,1,openrouter,openai/gpt-5-mini,2026-03-16T04:44:02.370100,2026-03-16T04:44:28.421555,26.051455,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a), ReLU(m - 4*b)]","[ReLU(n - 4*a), ReLU(m - 4*b)]",NO,"{
+  ""m"": 0,
+  ""n"": 2
+}",2983,
+DynamiteEx2Vars,2,openrouter,openai/gpt-5-mini,2026-03-16T04:44:31.838866,2026-03-16T04:45:14.468191,42.629325,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a), ReLU(m - 4*b)]","[ReLU(n - 4*a), ReLU(m - 4*b)]",NO,"{
+  ""m"": 0,
+  ""n"": 2
+}",4675,
+DynamiteEx2Vars,3,openrouter,openai/gpt-5-mini,2026-03-16T04:45:18.017409,2026-03-16T04:45:58.292828,40.275419,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - 4*a) + ReLU(m - 4*b)],[ReLU(n - 4*a) + ReLU(m - 4*b)],NO,"{
+  ""m"": 6,
+  ""n"": 4
+}",4668,
+DynamiteEx2Vars,4,openrouter,openai/gpt-5-mini,2026-03-16T04:46:01.604907,2026-03-16T04:46:32.978619,31.373712,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a), ReLU(m - 4*b)]","[ReLU(n - 4*a), ReLU(m - 4*b)]",NO,"{
+  ""m"": 0,
+  ""n"": 2
+}",4191,
+DynamiteEx2Vars,5,openrouter,openai/gpt-5-mini,2026-03-16T04:46:38.397358,2026-03-16T04:47:05.051024,26.653666,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - 4*a) + ReLU(m - 4*b)],[ReLU(n - 4*a) + ReLU(m - 4*b)],NO,"{
+  ""m"": 6,
+  ""n"": 4
+}",4121,
+DynamiteEx2Vars,6,openrouter,openai/gpt-5-mini,2026-03-16T04:47:08.995839,2026-03-16T04:47:57.900345,48.904506,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - 4*a + 1), ReLU(m - 4*b + 1)]","[ReLU(n - 4*a + 1), ReLU(m - 4*b + 1)]",YES,,6410,
+DynamiteExample,1,openrouter,openai/gpt-5-mini,2026-03-16T04:48:01.512952,2026-03-16T04:48:19.664837,18.151885,"vars=['n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a)],[ReLU(n - a)],YES,,2712,
+DynamiteExampleX4,1,openrouter,openai/gpt-5-mini,2026-03-16T04:48:26.054836,2026-03-16T04:48:44.859738,18.804902,"vars=['n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - 4*a)],[ReLU(n - 4*a)],NO,"{
+  ""n"": 0
+}",2633,
+DynamiteExampleX4,2,openrouter,openai/gpt-5-mini,2026-03-16T04:48:48.320968,2026-03-16T04:49:06.147098,17.82613,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - 4*a)],[ReLU(n - 4*a)],NO,"{
+  ""n"": 0
+}",3251,
+DynamiteExampleX4,3,openrouter,openai/gpt-5-mini,2026-03-16T04:49:10.511840,2026-03-16T04:49:51.853813,41.341973,"vars=['n'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - 4*a + 1)],[ReLU(n - 4*a + 1)],YES,,3529,
+MultDisj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:49:55.943461,2026-03-16T04:50:18.202289,22.258828,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - a), ReLU(m - b)]","[ReLU(n - a), ReLU(m - b)]",NO,"{
+  ""m"": 5,
+  ""n"": 0
+}",2872,
+MultDisj,2,openrouter,openai/gpt-5-mini,2026-03-16T04:50:22.604313,2026-03-16T04:50:50.987586,28.383273,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a) + ReLU(m - b)],[ReLU(n - a) + ReLU(m - b)],NO,"{
+  ""m"": 1,
+  ""n"": 3
+}",3900,
+MultDisj,3,openrouter,openai/gpt-5-mini,2026-03-16T04:50:55.181676,2026-03-16T04:51:29.099698,33.918022,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n + m + 1 - a)],[ReLU(n + m + 1 - a)],NO,"{
+  ""m"": 0,
+  ""n"": 0
+}",4738,
+MultDisj,4,openrouter,openai/gpt-5-mini,2026-03-16T04:51:33.019424,2026-03-16T04:52:56.611506,83.592082,"vars=['n', 'm', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a + 1) + ReLU(n - b + 1) + ReLU(m - a + 1) + ReLU(m - b + 1)],[ReLU(n - a + 1) + ReLU(n - b + 1) + ReLU(m - a + 1) + ReLU(m - b + 1)],YES,,8173,
+Poly2VarsCondBreak,1,openrouter,openai/gpt-5-mini,2026-03-16T04:53:00.195754,2026-03-16T04:53:14.348857,14.153103,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a + 1)],[ReLU(n - a + 1)],YES,,2389,
+PolyClosingIn,1,openrouter,openai/gpt-5-mini,2026-03-16T04:53:18.327667,2026-03-16T04:53:48.783494,30.455827,"vars=['n', 'm'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(m)],[ReLU(m)],YES,,3215,
+Square2VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:53:53.038599,2026-03-16T04:54:34.798075,41.759476,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n + 1 - a), ReLU(m + 1 - b)]","[ReLU(n + 1 - a), ReLU(m + 1 - b)]",YES,,4104,
+SquareDisj2Vars,1,openrouter,openai/gpt-5-mini,2026-03-16T04:54:38.820295,2026-03-16T04:55:25.963071,47.142776,"vars=['n', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(1*n + -1*b + 1), ReLU(1*n + -1*a)]","[ReLU(1*n + -1*b + 1), ReLU(1*n + -1*a)]",NO,"{
+  ""n"": 0
+}",5098,
+SquareDisj2Vars,2,openrouter,openai/gpt-5-mini,2026-03-16T04:55:29.951494,2026-03-16T04:55:55.644315,25.692821,"vars=['n', 'b'], has_cex=True, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(n - b + 1), ReLU(n - a + 1)]","[ReLU(n - b + 1), ReLU(n - a + 1)]",YES,,3967,
+TwoPol4VarsConj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:55:59.202106,2026-03-16T04:56:20.245537,21.043431,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a)],[ReLU(n - a)],YES,,3044,
+TwoPol4VarsDisj,1,openrouter,openai/gpt-5-mini,2026-03-16T04:56:24.046402,2026-03-16T04:56:40.127437,16.081035,"vars=['n', 'm', 'b'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None",[ReLU(n - a) + ReLU(m - b)],[ReLU(n - a) + ReLU(m - b)],YES,,3438,
+AliasDarteFeautrierGonnordSAS2010Fig1,1,openrouter,openai/gpt-5-mini,2026-03-16T04:56:44.308415,2026-03-16T04:57:12.702475,28.39406,"vars=['x', 'y', 'm', 'n'], has_cex=False, single_turn=True, target_dim=None, loop_keywords=None","[ReLU(x + 1), ReLU(y + 1)]","[ReLU(x + 1), ReLU(y + 1)]",NO,"{
+  ""x"": 0,
+  ""y"": 0,
+  ""m"": 0,
+  ""n"": 1
+}",4236,

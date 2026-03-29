@@ -1,0 +1,12 @@
+diff --git a/build.gradle b/build.gradle
+index 872d86d..fa25a39 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -21,6 +21,7 @@ repositories {
+         dirs '/usr/lib64/z3/' // fedora
+         dirs '/usr/lib/' 
+         dirs '/usr/share/java' // gentoo
++	dirs '../../libs/share/java/'	
+     }
+ }
+ 

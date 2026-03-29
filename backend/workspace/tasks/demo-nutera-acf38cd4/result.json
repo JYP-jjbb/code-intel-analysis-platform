@@ -1,0 +1,7 @@
+{
+  "summary" : "Demo summary loaded from NuTera results.",
+  "candidateFunctions" : "rank(x) = x",
+  "checkerFeedback" : "checker: YES",
+  "artifactSummary" : "final_summary.txt, program_level.csv, attempt_level.csv, checkpoint.pkl",
+  "message" : null
+}

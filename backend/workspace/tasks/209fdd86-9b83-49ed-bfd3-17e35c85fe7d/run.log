@@ -1,0 +1,6 @@
+[2026-03-26T12:16:31.892293Z] NuTera task started.
+[2026-03-26T12:16:31.892816700Z] Run mode: run
+[2026-03-26T12:16:31.893526900Z] Benchmark: nuTerm_advantage_set.csv
+[2026-03-26T12:16:31.894110600Z] NuTera adapter mode: MOCK
+[2026-03-26T12:16:31.894110600Z] Runtime path: E:\UserData\13199\IdeaProjects\code-intel-analysis-platform\runtimes\nutera
+[2026-03-26T12:16:31.902369700Z] Artifacts copied to E:\UserData\13199\IdeaProjects\code-intel-analysis-platform\backend\workspace\tasks\209fdd86-9b83-49ed-bfd3-17e35c85fe7d\artifacts

@@ -1,0 +1,175 @@
+﻿<template>
+  <div class="nutera-workbench code-review-workbench">
+    <div class="nutera-grid code-review-grid">
+      <section class="nutera-operation code-review-operation">
+        <el-card class="wb-card wb-task-config-card cr-task-card" shadow="never">
+          <template #header>
+            <div class="wb-card-head">
+              <h3>Code Review Task</h3>
+            </div>
+          </template>
+
+          <div class="cr-config-row">
+            <div class="wb-config-toolbar cr-config-toolbar">
+              <div class="wb-config-chip cr-upload-chip">
+                <span class="wb-config-chip-label">Upload</span>
+                <el-upload
+                  class="wb-chip-upload"
+                  :auto-upload="false"
+                  :show-file-list="false"
+                  :on-change="handleFileChange"
+                >
+                  <el-button class="wb-chip-upload-btn" size="small">
+                    <el-icon><UploadFilled /></el-icon>
+                    <span>Select File</span>
+                  </el-button>
+                </el-upload>
+              </div>
+
+              <div class="wb-config-chip is-repo-chip cr-repo-chip">
+                <span class="wb-config-chip-label cr-repo-label">Repository</span>
+                <el-input
+                  v-model="form.repoUrl"
+                  class="wb-chip-control cr-repo-input"
+                  size="small"
+                  placeholder="https://github.com/..."
+                />
+                <el-button class="cr-repo-download" size="small" :loading="downloadingRepo" @click="downloadRepository">Download</el-button>
+              </div>
+
+              <div class="wb-config-chip cr-model-chip">
+                <span class="wb-config-chip-label">Model</span>
+                <el-select
+                  v-model="form.model"
+                  class="wb-chip-control"
+                  size="small"
+                  placeholder="Select Model"
+                  popper-class="wb-config-select-dropdown"
+                >
+                  <el-option
+                    v-for="item in modelOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="wb-form-group wb-code-group">
+            <label class="wb-field-label">Code Preview / Focus Entry</label>
+            <div class="wb-code-editor cr-code-editor">
+              <pre ref="gutterRef" class="wb-code-gutter" aria-hidden="true">{{ lineNumbers }}</pre>
+              <textarea
+                v-model="form.codePreview"
+                class="wb-code-textarea"
+                spellcheck="false"
+                readonly
+                @scroll="syncGutterScroll"
+              />
+            </div>
+            <div class="cr-code-caption">Current focus file: {{ form.focusFilePath || "-" }}</div>
+          </div>
+
+          <div class="wb-action-row wb-main-actions">
+            <el-button class="wb-primary-btn" type="primary" :loading="submitting" @click="submitTask">
+              <el-icon><Check /></el-icon>
+              Start Review
+            </el-button>
+            <el-button class="wb-soft-btn" @click="resetForm">
+              <el-icon><Brush /></el-icon>
+              Reset
+            </el-button>
+          </div>
+        </el-card>
+      </section>
+
+      <section class="nutera-display code-review-display">
+        <el-card class="wb-card wb-log-card cr-tree-card" shadow="never">
+          <template #header>
+            <div class="wb-card-head">
+              <h3>Project Tree</h3>
+              <p>{{ selectedTreePath || "Waiting for project structure..." }}</p>
+            </div>
+          </template>
+
+          <div class="wb-block wb-block-log-only">
+            <div class="cr-tree-scroll">
+              <el-tree
+                v-if="treeData.length"
+                :data="treeData"
+                node-key="id"
+                :props="treeProps"
+                :expand-on-click-node="false"
+                :highlight-current="true"
+                :default-expanded-keys="expandedTreeKeys"
+                :current-node-key="selectedTreeNodeKey"
+                @node-click="handleTreeNodeClick"
+              />
+              <el-empty v-else description="No project structure yet" />
+            </div>
+          </div>
+        </el-card>
+
+        <el-card class="wb-card wb-summary-card cr-result-card" shadow="never">
+          <template #header>
+            <div class="wb-card-head">
+              <h3>Review Result</h3>
+            </div>
+          </template>
+
+          <div class="wb-block">
+            <div class="wb-block-title">Risk Overview</div>
+            <div class="cr-overview-grid">
+              <div class="cr-overview-item">
+                <span class="cr-overview-key">Task Status</span>
+                <el-tag size="small" :type="statusTagType">{{ taskStatusText }}</el-tag>
+              </div>
+              <div class="cr-overview-item">
+                <span class="cr-overview-key">Risk Level</span>
+                <el-tag size="small" :type="riskTagType">{{ riskLevelText }}</el-tag>
+              </div>
+              <div class="cr-overview-item">
+                <span class="cr-overview-key">Issue Count</span>
+                <strong class="cr-overview-value">{{ issueItems.length }}</strong>
+              </div>
+              <div class="cr-overview-item">
+                <span class="cr-overview-key">Model</span>
+                <strong class="cr-overview-value">{{ form.model }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="wb-block">
+            <div class="wb-block-title">Issue List</div>
+            <ul v-if="issueItems.length" class="cr-list">
+              <li v-for="(item, index) in issueItems" :key="`issue-${index}`">{{ item }}</li>
+            </ul>
+            <div v-else class="cr-empty">Waiting for issues...</div>
+          </div>
+
+          <div class="wb-block">
+            <div class="wb-block-title">Fix Suggestions</div>
+            <ul v-if="suggestionItems.length" class="cr-list">
+              <li v-for="(item, index) in suggestionItems" :key="`suggestion-${index}`">{{ item }}</li>
+            </ul>
+            <div v-else class="cr-empty">Waiting for suggestions...</div>
+          </div>
+
+          <div class="wb-block">
+            <div class="wb-block-title">Summary</div>
+            <pre class="wb-code-block">{{ result.summary || "Waiting for review summary..." }}</pre>
+          </div>
+
+          <div class="wb-block">
+            <div class="wb-block-title">Execution Logs</div>
+            <pre class="wb-code-block cr-log-preview">{{ logs || "Waiting for execution logs..." }}</pre>
+          </div>
+        </el-card>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script setup>

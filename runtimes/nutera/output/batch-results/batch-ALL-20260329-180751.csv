@@ -1,0 +1,4 @@
+caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
+DynExUpTo2VarsConj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a)],COMPLETED,NOT_PROVED,NO,,"Java runtime is not configured for checker. Set NUTERA_JAVA_HOME first, or JAVA_HOME as fallback.",5,NOT_PROVED,
+DynExUpTo2VarsDisj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a)],COMPLETED,NOT_PROVED,NO,,"Java runtime is not configured for checker. Set NUTERA_JAVA_HOME first, or JAVA_HOME as fallback.",5,NOT_PROVED,
+DynExUpTo3VarsDisj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a) + ReLU(o - 4*a*a)],COMPLETED,NOT_PROVED,NO,,"Java runtime is not configured for checker. Set NUTERA_JAVA_HOME first, or JAVA_HOME as fallback.",5,NOT_PROVED,

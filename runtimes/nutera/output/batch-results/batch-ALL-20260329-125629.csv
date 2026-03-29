@@ -1,0 +1,5 @@
+caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
+DynExUpTo2VarsConj#loop,[ReLU(m - 4*a*a) + ReLU(n - 4*a*a) + ReLU(a) + ReLU(-a)],COMPLETED,NOT_PROVED,NO,"{
+  ""m"": 1,
+  ""n"": 4
+}",Checker completed: candidate function could not prove termination.,5,NOT_PROVED,

@@ -1,0 +1,6 @@
+{
+  "repoUrl": "https://github.com/example-org/repo2.git",
+  "zipFileName": "",
+  "localFolder": "",
+  "parameters": "--model deepseek-ai/DeepSeek-V3.2"
+}
