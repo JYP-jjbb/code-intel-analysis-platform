@@ -1,4 +1,3 @@
-
 import java.util.Random;
 
 public class AliasDarteFeautrierGonnordSAS2010easy22 {

@@ -1,4 +1,3 @@
-
 import java.util.Random;
 
 public class KroeningSharyginaTsitovichWintersteigerCAV2010Ex {

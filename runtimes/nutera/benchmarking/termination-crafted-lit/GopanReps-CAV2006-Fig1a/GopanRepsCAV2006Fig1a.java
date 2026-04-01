@@ -1,5 +1,3 @@
-
-
 import java.util.Random;
 
 public class GopanRepsCAV2006Fig1a {

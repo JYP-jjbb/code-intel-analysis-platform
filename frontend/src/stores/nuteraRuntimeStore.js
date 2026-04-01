@@ -7,7 +7,7 @@ const BATCH_RESULT_LIMIT = 300;
 const createDefaultForm = () => ({
   code: "",
   benchmark: "none",
-  model: "deepseek-ai/DeepSeek-V3.2",
+  model: "kimi-k2.5",
   language: "python",
   batchMode: false
 });
@@ -139,7 +139,7 @@ const applySnapshot = (snapshot) => {
   Object.assign(state.form, createDefaultForm(), {
     code: asString(form.code),
     benchmark: asString(form.benchmark, "none") || "none",
-    model: asString(form.model, "deepseek-ai/DeepSeek-V3.2") || "deepseek-ai/DeepSeek-V3.2",
+    model: asString(form.model, "kimi-k2.5") || "kimi-k2.5",
     language: asString(form.language, "python") || "python",
     batchMode: Boolean(form.batchMode)
   });
@@ -209,7 +209,7 @@ const buildSnapshot = () => ({
   form: {
     code: asString(state.form.code),
     benchmark: asString(state.form.benchmark, "none") || "none",
-    model: asString(state.form.model, "deepseek-ai/DeepSeek-V3.2"),
+    model: asString(state.form.model, "kimi-k2.5"),
     language: asString(state.form.language, "python"),
     batchMode: Boolean(state.form.batchMode)
   },

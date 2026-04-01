@@ -1,4 +1,3 @@
-
 import java.util.Random;
 
 public class B4NestedWith3Variables1 {

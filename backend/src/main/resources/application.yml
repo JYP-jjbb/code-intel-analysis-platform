@@ -33,9 +33,22 @@ app:
       password: ${NUTERA_SQLSERVER_PASSWORD:123456}
       startup-check:
         strict: ${NUTERA_REPORT_DB_STARTUP_CHECK_STRICT:true}
-  siliconflow:
-    baseUrl: https://api.siliconflow.cn/v1
+  moonshot:
+    base-url: ${MOONSHOT_BASE_URL:${OPENAI_BASE_URL:https://api.moonshot.cn/v1}}
+    api-key: ${MOONSHOT_API_KEY:${OPENAI_API_KEY:}}
+    model: ${MOONSHOT_MODEL:kimi-k2.5}
     timeoutSeconds: 90
+  hunyuan:
+    base-url: ${HUNYUAN_BASE_URL:https://api.hunyuan.cloud.tencent.com/v1}
+    api-key: ${HUNYUAN_API_KEY:${OPENAI_API_KEY:}}
+    model: ${HUNYUAN_MODEL:hunyuan-2.0-thinking-20251109}
+  qwen:
+    base-url: ${QWEN_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+    api-key: ${QWEN_API_KEY:}
+    model: ${QWEN_MODEL:qwen3.5-plus}
+  deepseek:
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    api-key: ${DEEPSEEK_API_KEY:}
   demo:
     enabled: true
 

@@ -2,7 +2,12 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env*
 workspace/tasks/
+runtimes/nutera/deps/
+runtimes/nutera/libs/
 backend/target/
+backend/workspace/temp/
+backend/workspace/temp/**
+backend/workspace/tasks/
 
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -42,8 +47,3 @@ build/
 
 ### Mac OS ###
 .DS_Store
-
-
-# NuTERA native / third-party sources
-runtimes/nutera/deps/
-runtimes/nutera/libs/

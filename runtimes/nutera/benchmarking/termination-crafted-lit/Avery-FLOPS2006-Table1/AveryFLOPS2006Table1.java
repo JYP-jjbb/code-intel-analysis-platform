@@ -1,5 +1,3 @@
-
-
 import java.util.Random;
 
 public class AveryFLOPS2006Table1 {

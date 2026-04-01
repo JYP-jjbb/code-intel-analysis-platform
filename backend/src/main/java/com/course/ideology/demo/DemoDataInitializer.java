@@ -47,7 +47,7 @@ public class DemoDataInitializer {
     private void createNuteraDemo() {
         String taskId = "demo-nutera-" + UUID.randomUUID().toString().substring(0, 8);
         TaskRecord record = new TaskRecord(taskId, TaskType.NUTERA);
-        String model = "deepseek-ai/DeepSeek-V3.2";
+        String model = "kimi-k2.5";
         Path taskDir = workspaceManager.createTaskDir(taskId);
         Path logPath = taskDir.resolve("run.log");
         Path resultPath = taskDir.resolve("result.json");
@@ -86,7 +86,7 @@ public class DemoDataInitializer {
     private void createCodeReviewDemo() {
         String taskId = "demo-review-" + UUID.randomUUID().toString().substring(0, 8);
         TaskRecord record = new TaskRecord(taskId, TaskType.CODE_REVIEW);
-        String model = "Pro/moonshotai/Kimi-K2.5";
+        String model = "kimi-k2.5";
         Path taskDir = workspaceManager.createTaskDir(taskId);
         Path logPath = taskDir.resolve("run.log");
         Path resultPath = taskDir.resolve("result.json");

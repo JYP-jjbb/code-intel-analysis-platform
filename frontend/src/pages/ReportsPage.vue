@@ -265,6 +265,7 @@ const typeFilterOptions = [
 const MODEL_FILTER_KEYS = {
   DEEPSEEK: "DEEPSEEK",
   HUNYUAN: "HUNYUAN",
+  QWEN: "QWEN",
   KIMI: "KIMI",
   OTHER: "OTHER"
 };
@@ -304,6 +305,7 @@ const modelFilterOptions = computed(() => {
   const counters = {
     [MODEL_FILTER_KEYS.DEEPSEEK]: 0,
     [MODEL_FILTER_KEYS.HUNYUAN]: 0,
+    [MODEL_FILTER_KEYS.QWEN]: 0,
     [MODEL_FILTER_KEYS.KIMI]: 0,
     [MODEL_FILTER_KEYS.OTHER]: 0
   };
@@ -315,6 +317,7 @@ const modelFilterOptions = computed(() => {
     { label: `全部模型 (${reportRows.value.length})`, value: "" },
     { label: `DeepSeek (${counters[MODEL_FILTER_KEYS.DEEPSEEK]})`, value: MODEL_FILTER_KEYS.DEEPSEEK },
     { label: `Hunyuan (${counters[MODEL_FILTER_KEYS.HUNYUAN]})`, value: MODEL_FILTER_KEYS.HUNYUAN },
+    { label: `Qwen (${counters[MODEL_FILTER_KEYS.QWEN]})`, value: MODEL_FILTER_KEYS.QWEN },
     { label: `Kimi (${counters[MODEL_FILTER_KEYS.KIMI]})`, value: MODEL_FILTER_KEYS.KIMI },
     { label: `Other (${counters[MODEL_FILTER_KEYS.OTHER]})`, value: MODEL_FILTER_KEYS.OTHER }
   ];
@@ -489,7 +492,9 @@ const classifyModelKey = (value) => {
   const normalized = parseModelToken(value).toLowerCase();
   if (!normalized) return MODEL_FILTER_KEYS.OTHER;
   if (normalized.includes("deepseek")) return MODEL_FILTER_KEYS.DEEPSEEK;
+  if (normalized.includes("moonshot")) return MODEL_FILTER_KEYS.KIMI;
   if (normalized.includes("hunyuan")) return MODEL_FILTER_KEYS.HUNYUAN;
+  if (normalized.includes("qwen")) return MODEL_FILTER_KEYS.QWEN;
   if (normalized.includes("kimi")) return MODEL_FILTER_KEYS.KIMI;
   return MODEL_FILTER_KEYS.OTHER;
 };
@@ -498,9 +503,11 @@ const toModelDisplay = (rawModel) => {
   const raw = cleanupName(rawModel);
   if (!raw) return "-";
   const lower = raw.toLowerCase();
+  if (lower.includes("moonshot")) return "Kimi";
   if (lower.includes("kimi")) return "Kimi";
   if (lower.includes("deepseek")) return "DeepSeek";
   if (lower.includes("hunyuan")) return "Hunyuan";
+  if (lower.includes("qwen")) return "Qwen";
   const compact = raw.replace(/\\/g, "/").split("/").filter(Boolean).pop() || raw;
   return compact || raw;
 };

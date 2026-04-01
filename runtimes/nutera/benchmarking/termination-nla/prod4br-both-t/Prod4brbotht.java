@@ -1,5 +1,3 @@
-
-
 import java.util.Random;
 
 public class Prod4brbotht {

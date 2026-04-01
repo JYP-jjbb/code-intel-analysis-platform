@@ -647,7 +647,7 @@ const resetForm = () => {
   caseLoadToken += 1;
   form.code = "";
   form.benchmark = "none";
-  form.model = "deepseek-ai/DeepSeek-V3.2";
+  form.model = "kimi-k2.5";
   form.language = "python";
   form.batchMode = false;
   selectedFileName.value = "";

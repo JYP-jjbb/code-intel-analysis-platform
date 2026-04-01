@@ -1,4 +1,3 @@
-
 import java.util.Random;
 
 public class PodelskiRybalchenkoTACAS2011Fig1 {

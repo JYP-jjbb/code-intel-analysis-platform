@@ -1,4 +1,3 @@
-
 import java.util.Random;
 
 public class LeikeHeizmannTACAS2014Ex9 {

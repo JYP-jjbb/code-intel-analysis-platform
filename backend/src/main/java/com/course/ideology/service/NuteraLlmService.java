@@ -52,10 +52,8 @@ public class NuteraLlmService {
     }
 
     public NuteraGenerateResponse generateRankingFunction(NuteraGenerateRequest request) {
-        if (!settingsService.hasApiKey()) {
-            throw new ApiKeyNotConfiguredException(
-                    "SiliconFlow API Key is not configured. Please configure it in Settings first."
-            );
+        if (!chatService.hasApiCredentialForModel(request.getModel(), settingsService.getApiKey())) {
+            throw new ApiKeyNotConfiguredException(chatService.buildMissingCredentialMessage(request.getModel()));
         }
 
         if (request != null) {
@@ -77,10 +75,8 @@ public class NuteraLlmService {
     public NuteraGenerateResponse runBatchWithProgress(NuteraGenerateRequest request,
                                                        BatchProgressListener listener,
                                                        BatchPauseSignal pauseSignal) {
-        if (!settingsService.hasApiKey()) {
-            throw new ApiKeyNotConfiguredException(
-                    "SiliconFlow API Key is not configured. Please configure it in Settings first."
-            );
+        if (!chatService.hasApiCredentialForModel(request.getModel(), settingsService.getApiKey())) {
+            throw new ApiKeyNotConfiguredException(chatService.buildMissingCredentialMessage(request.getModel()));
         }
         return generateBatchRankingFunction(request, listener, pauseSignal);
     }
@@ -148,7 +144,7 @@ public class NuteraLlmService {
             response.setCheckerVerdict("CHECKER_ERROR");
             response.setCheckerConclusion("ERROR");
             response.setCheckerCounterexample("");
-            response.setCheckerFeedback("Model call failed. Please check runtime logs and SiliconFlow settings.");
+            response.setCheckerFeedback("Model call failed. Please check runtime logs and Moonshot/DeepSeek settings.");
             response.setFinalSummary("Generation failed. Checker was not executed.");
             response.setMessage(readableMessage);
             response.setBatchMode(false);
@@ -524,7 +520,7 @@ public class NuteraLlmService {
                                                List<String> logs,
                                                RefinementContext refinementContext) {
         String userMessage = buildUserMessage(request, refinementContext);
-        append(logs, "Calling SiliconFlow Chat Completions.");
+        append(logs, "Calling LLM Chat Completions.");
         SiliconFlowChatService.ChatResult chatResult = chatService.chatCompletion(
                 settingsService.getApiKey(),
                 request.getModel(),

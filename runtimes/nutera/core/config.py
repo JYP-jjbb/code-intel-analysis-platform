@@ -38,7 +38,7 @@ class LLMConfig:
     deepseek_api_key: Optional[str] = None
 
     # Generation parameters
-    temperature: float = 0.0
+    temperature: float = 1.0
     max_tokens: int = 100000
     max_attempts: int = 10
 

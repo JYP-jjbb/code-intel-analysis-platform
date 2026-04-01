@@ -36,7 +36,7 @@ llm:
   deepseek_api_key: ${DEEPSEEK_API_KEY}
 
   # Generation parameters
-  temperature: 0.0
+  temperature: 1.0
   max_tokens: 100000
   max_attempts: 10  # Maximum synthesis attempts per program
 

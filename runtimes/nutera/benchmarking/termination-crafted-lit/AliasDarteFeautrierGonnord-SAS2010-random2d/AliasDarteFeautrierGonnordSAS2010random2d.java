@@ -1,4 +1,3 @@
-
 public class AliasDarteFeautrierGonnordSAS2010random2d {
 
     public static void loop(int r) {

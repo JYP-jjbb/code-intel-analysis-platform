@@ -1,5 +1,3 @@
-
-
 import java.util.Random;
 
 public class CookSeeZulegerTACAS2013Fig8amodified {

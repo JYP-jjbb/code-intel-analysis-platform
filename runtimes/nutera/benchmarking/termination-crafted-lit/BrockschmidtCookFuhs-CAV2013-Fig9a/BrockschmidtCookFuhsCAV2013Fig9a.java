@@ -1,5 +1,3 @@
-
-
 import java.util.Random;
 
 public class BrockschmidtCookFuhsCAV2013Fig9a {

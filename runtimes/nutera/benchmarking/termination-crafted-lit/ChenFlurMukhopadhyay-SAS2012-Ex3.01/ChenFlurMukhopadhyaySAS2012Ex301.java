@@ -1,5 +1,3 @@
-
-
 import java.util.Random;
 
 public class ChenFlurMukhopadhyaySAS2012Ex301 {

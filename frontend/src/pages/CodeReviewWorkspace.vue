@@ -203,16 +203,17 @@ const treeProps = {
 };
 
 const modelOptions = [
+  { label: "Kimi", value: "kimi-k2.5" },
   { label: "DeepSeek", value: "deepseek-ai/DeepSeek-V3.2" },
-  { label: "Hunyuan", value: "tencent/Hunyuan-A13B-Instruct" },
-  { label: "Kimi", value: "Pro/moonshotai/Kimi-K2.5" }
+  { label: "Hunyuan", value: "hunyuan-2.0-thinking-20251109" },
+  { label: "Qwen", value: "qwen3.5-plus" }
 ];
 
 const form = reactive({
   repoUrl: "",
   zipFileName: "",
   localFolder: "",
-  model: "deepseek-ai/DeepSeek-V3.2",
+  model: "kimi-k2.5",
   codePreview: DEFAULT_CODE_PREVIEW,
   focusFilePath: ""
 });
@@ -1095,5 +1096,3 @@ onBeforeUnmount(() => {
   }
 }
 </style>
-
-
