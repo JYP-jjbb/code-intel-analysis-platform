@@ -42,3 +42,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+# NuTERA native / third-party sources
+runtimes/nutera/deps/
+runtimes/nutera/libs/
