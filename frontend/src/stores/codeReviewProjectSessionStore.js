@@ -12,6 +12,7 @@ const sanitizeSnapshot = (snapshot = {}) => ({
   repoUrl: asString(snapshot.repoUrl),
   downloadedProjectId: asString(snapshot.downloadedProjectId),
   downloadedProjectPath: asString(snapshot.downloadedProjectPath),
+  model: asString(snapshot.model),
   projectStructure: asString(snapshot.projectStructure),
   focusFilePath: asString(snapshot.focusFilePath),
   selectedTreeNodeKey: asString(snapshot.selectedTreeNodeKey),

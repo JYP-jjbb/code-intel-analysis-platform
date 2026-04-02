@@ -1,8 +1,0 @@
-# Ensure consistent line endings and treat these as text
-*.properties text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.java text eol=lf
-*.xml text eol=lf
-*.md text eol=lf
-

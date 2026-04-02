@@ -216,38 +216,22 @@
       </div>
       <div class="scenario-grid">
         <article class="scenario-card reveal-item" data-reveal>
-          <div class="scenario-visual">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 18h16"></path>
-              <path d="M6 18V6h12v12"></path>
-              <path d="M8 10h8"></path>
-              <path d="M8 14h5"></path>
-            </svg>
+          <div class="scenario-visual scenario-visual--learning">
+            <img class="scenario-visual-image" :src="scenarioCodeLearning" alt="代码学习场景展示图" loading="lazy" />
           </div>
           <div class="scenario-title">代码学习</div>
           <p>辅助理解程序逻辑、执行路径与关键规则，提升代码阅读与学习效率。</p>
         </article>
         <article class="scenario-card reveal-item" data-reveal>
-          <div class="scenario-visual">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 7h16"></path>
-              <path d="M7 7v10"></path>
-              <path d="M17 7v10"></path>
-              <path d="M4 17h16"></path>
-              <path d="M10 11h4"></path>
-            </svg>
+          <div class="scenario-visual scenario-visual--teaching">
+            <img class="scenario-visual-image" :src="scenarioTeachingShow" alt="教学演示场景展示图" loading="lazy" />
           </div>
           <div class="scenario-title">教学演示</div>
           <p>直观呈现智能体分析、推理与校验过程，增强课堂展示与实验讲解效果。</p>
         </article>
         <article class="scenario-card reveal-item" data-reveal>
-          <div class="scenario-visual">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 4h16v12H4z"></path>
-              <path d="M8 20h8"></path>
-              <path d="M9 8l2 2-2 2"></path>
-              <path d="M15 8l-2 2 2 2"></path>
-            </svg>
+          <div class="scenario-visual scenario-visual--review">
+            <img class="scenario-visual-image" :src="scenarioProjectReview" alt="工程项目审查场景展示图" loading="lazy" />
           </div>
           <div class="scenario-title">工程项目审查</div>
           <p>针对真实代码仓库输出风险摘要、问题定位与审查辅助建议。</p>
@@ -359,6 +343,9 @@ import analysisDecisionIcon from "../assets/media/analysis-decision.png";
 import ruleValidateIcon from "../assets/media/rule-validate.png";
 import resultReportIcon from "../assets/media/result-report.png";
 import refiningLoop from "../assets/media/Refining-Loop.png";
+import scenarioCodeLearning from "../assets/media/code-learning.png";
+import scenarioTeachingShow from "../assets/media/teaching-show.png";
+import scenarioProjectReview from "../assets/media/project-review.png";
 
 gsap.registerPlugin(ScrollTrigger);
 const router = useRouter();

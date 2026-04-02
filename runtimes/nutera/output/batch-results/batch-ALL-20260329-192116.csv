@@ -1,3 +1,0 @@
-caseName,candidateFunction,executionStatus,verificationStatus,conclusion,counterexample,message,attemptCount,finalStatus,stopReason
-DynExUpTo2VarsConj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a)],COMPLETED,NOT_PROVED,NO,,"Checker bytecode compatibility error: target program uses class major version 61 (Java 17), but current checker supports up to major 55 (Java 11). Rebuild target jars with --release 11 or upgrade javachecker/ASM.",5,NOT_PROVED,
-DynExUpTo2VarsDisj#loop,[ReLU(n - 4*a*a) + ReLU(m - 4*a*a)],COMPLETED,NOT_PROVED,NO,,"Checker bytecode compatibility error: target program uses class major version 61 (Java 17), but current checker supports up to major 55 (Java 11). Rebuild target jars with --release 11 or upgrade javachecker/ASM.",5,NOT_PROVED,

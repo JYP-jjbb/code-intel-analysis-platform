@@ -4,6 +4,7 @@ frontend/.env*
 workspace/tasks/
 runtimes/nutera/deps/
 runtimes/nutera/libs/
+runtimes/nutera/output/batch-results/
 backend/target/
 backend/workspace/temp/
 backend/workspace/temp/**
@@ -15,6 +16,7 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
+.idea/
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
