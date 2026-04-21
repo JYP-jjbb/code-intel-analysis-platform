@@ -1951,12 +1951,86 @@ body.landing-mode {
 
 .workbench-main.is-nutera-route .wb-card .el-card__body {
   padding: 12px 16px 14px;
+  transition: padding-top 0.26s ease, padding-bottom 0.26s ease;
+}
+
+/* Collapsed card: shrink body padding so no phantom gap shows */
+.workbench-main.is-nutera-route .wb-log-card.is-collapsed > .el-card__body,
+.workbench-main.is-nutera-route .wb-program-output-card.is-collapsed > .el-card__body,
+.workbench-main.is-nutera-route .wb-summary-card.is-collapsed > .el-card__body {
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
 }
 
 .wb-card-head h3 {
   margin: 0;
   font-size: 17px;
   color: var(--wb-text-main);
+}
+
+/* Header layout when a collapse button is present */
+.wb-card-head-split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Collapse / expand toggle button */
+.wb-collapse-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(44, 107, 255, 0.16);
+  background: rgba(44, 107, 255, 0.05);
+  color: #6286ae;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wb-collapse-btn:hover {
+  background: rgba(44, 107, 255, 0.12);
+  color: #2f63c8;
+}
+
+.wb-collapse-btn.is-collapsed {
+  transform: rotate(-90deg);
+}
+
+.wb-collapse-btn .el-icon {
+  font-size: 13px;
+}
+
+/* ── Collapsible card-body wrapper (grid 1fr→0fr trick) ─────────────────── */
+.wb-collapsible-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.22s ease;
+  opacity: 1;
+}
+
+.wb-collapsible-wrap.is-collapsed {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.wb-collapsible-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Disable card hover-lift while collapsing/collapsed to avoid jank */
+.wb-card.el-card.is-collapsed:hover {
+  transform: none;
 }
 
 .wb-task-head-row {
@@ -2115,12 +2189,18 @@ body.landing-mode {
   overflow: hidden;
 }
 
+/* Widen gutter column when brace indicators are active */
+.wb-task-config-card .wb-code-editor.is-brace-mode {
+  grid-template-columns: 62px minmax(0, 1fr);
+}
+
 .wb-task-config-card .wb-code-editor:focus-within {
   border-color: var(--wb-border-strong);
   box-shadow: 0 0 0 3px rgba(44, 107, 255, 0.12);
 }
 
 .wb-task-config-card .wb-code-gutter {
+  position: relative;
   margin: 0;
   padding: 12px 8px;
   border-right: 1px solid rgba(44, 107, 255, 0.14);
@@ -2158,6 +2238,37 @@ body.landing-mode {
   width: 0;
   height: 0;
 }
+
+/* ── Brace block indicators ────────────────────────────────────────────── */
+
+.wb-task-config-card .wb-brace-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  /* height is determined by the tallest brace item; does not affect flex layout */
+}
+
+/* "["-shaped bracket: left + top + bottom borders, no right border */
+.wb-task-config-card .wb-brace-item {
+  position: absolute;
+  width: 6px;
+  box-sizing: border-box;
+  border: 1.5px solid rgba(44, 107, 255, 0.24);
+  border-right: none;
+  border-radius: 3px 0 0 3px;
+  pointer-events: none;
+  /* default = depth 0 */
+  left: 2px;
+}
+
+/* Each deeper nesting level shifts the bracket 8px to the right */
+.wb-task-config-card .wb-brace-depth-1 { left: 10px; border-color: rgba(44, 149, 255, 0.21); }
+.wb-task-config-card .wb-brace-depth-2 { left: 18px; border-color: rgba(44, 195, 220, 0.20); }
+.wb-task-config-card .wb-brace-depth-3 { left: 26px; border-color: rgba(120, 80, 220, 0.18); }
+
+/* ── End brace indicators ───────────────────────────────────────────────── */
 
 .wb-task-config-card .wb-code-textarea {
   width: 100%;
@@ -2626,6 +2737,37 @@ body.landing-mode {
   overflow: hidden;
 }
 
+/* Learning mode: the entire card body is scrollable */
+.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body:hover {
+  scrollbar-color: rgba(68, 125, 207, 0.3) transparent;
+}
+
+.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body:hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.3);
+}
+
 .workbench-main.is-nutera-route .wb-block.wb-block-log-only {
   height: 100%;
   min-height: 0;
@@ -2671,13 +2813,65 @@ body.landing-mode {
 .workbench-main.is-nutera-route .wb-summary-card > .el-card__body {
   min-height: 0;
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.workbench-main.is-nutera-route .wb-summary-card > .el-card__body:hover {
+  scrollbar-color: rgba(68, 125, 207, 0.3) transparent;
+}
+
+.workbench-main.is-nutera-route .wb-summary-card > .el-card__body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.workbench-main.is-nutera-route .wb-summary-card > .el-card__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workbench-main.is-nutera-route .wb-summary-card > .el-card__body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.workbench-main.is-nutera-route .wb-summary-card > .el-card__body:hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.3);
 }
 
 .workbench-main.is-nutera-route .wb-program-output-card > .el-card__body {
   min-height: 0;
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card > .el-card__body:hover {
+  scrollbar-color: rgba(68, 125, 207, 0.3) transparent;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card > .el-card__body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card > .el-card__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card > .el-card__body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card > .el-card__body:hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.3);
 }
 
 .workbench-main.is-nutera-route .wb-summary-card .wb-code-block {

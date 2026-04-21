@@ -77,8 +77,18 @@
 
     <div class="wb-form-group wb-code-group">
       <label class="wb-field-label">代码输入</label>
-      <div class="wb-code-editor">
+      <div class="wb-code-editor" :class="{ 'is-brace-mode': gutterBraces.length > 0 }">
         <div ref="gutterRef" class="wb-code-gutter" aria-hidden="true">
+          <!-- Brace block indicators, absolutely positioned, scroll with the gutter -->
+          <div v-if="gutterBraces.length > 0" class="wb-brace-overlay" aria-hidden="true">
+            <div
+              v-for="(brace, index) in gutterBraces"
+              :key="index"
+              class="wb-brace-item"
+              :class="`wb-brace-depth-${brace.depth}`"
+              :style="{ top: `${brace.top}px`, height: `${brace.height}px` }"
+            />
+          </div>
           <span
             v-for="line in lineNumbers"
             :key="line"
@@ -185,6 +195,10 @@ const props = defineProps({
   externalSelectedLine: {
     type: Number,
     default: 1
+  },
+  codeBlocks: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -245,6 +259,45 @@ watch(
 const lineNumbers = computed(() => {
   const lineCount = Math.max(1, String(props.form.code || "").split("\n").length);
   return Array.from({ length: lineCount }, (_, index) => index + 1);
+});
+
+// Gutter brace indicators: computed from code block ranges (startLine / endLine).
+// Each entry is {top, height, depth} in pixels, ready for inline style.
+const BRACE_LINE_HEIGHT = 12 * 1.6; // matches CSS: font-size 12px, line-height 1.6
+const BRACE_PADDING_TOP = 12; // matches CSS: padding-top 12px on .wb-code-gutter
+
+const gutterBraces = computed(() => {
+  if (props.mode !== "learning") return [];
+  const blocks = Array.isArray(props.codeBlocks) ? props.codeBlocks : [];
+  if (blocks.length === 0) return [];
+
+  const totalLines = Math.max(1, String(props.form.code || "").split("\n").length);
+
+  // Sanitise and sort: wider (outer) blocks first so depths are computed correctly
+  const sorted = blocks
+    .filter((b) => b && Number.isFinite(Number(b.startLine)) && Number.isFinite(Number(b.endLine)))
+    .map((b) => ({
+      startLine: Math.max(1, Math.min(totalLines, Number(b.startLine))),
+      endLine: Math.max(1, Math.min(totalLines, Number(b.endLine)))
+    }))
+    .sort((a, b) => a.startLine - b.startLine || b.endLine - a.endLine);
+
+  // Nesting depth: count how many earlier blocks fully contain this one
+  const depths = sorted.map((block, i) => {
+    let depth = 0;
+    for (let j = 0; j < i; j++) {
+      if (sorted[j].startLine <= block.startLine && sorted[j].endLine >= block.endLine) {
+        depth++;
+      }
+    }
+    return Math.min(depth, 3); // cap visual depth at 3
+  });
+
+  return sorted.map((block, i) => ({
+    top: BRACE_PADDING_TOP + (block.startLine - 1) * BRACE_LINE_HEIGHT,
+    height: Math.max(BRACE_LINE_HEIGHT, (block.endLine - block.startLine + 1) * BRACE_LINE_HEIGHT),
+    depth: depths[i]
+  }));
 });
 
 const syncGutterScroll = (event) => {

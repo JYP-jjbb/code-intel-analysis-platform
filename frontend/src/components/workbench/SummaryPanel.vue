@@ -1,12 +1,27 @@
 <template>
-  <el-card class="wb-card wb-summary-card" :class="{ 'is-learning-mode': mode === 'learning' }" shadow="never">
+  <el-card
+    class="wb-card wb-summary-card"
+    :class="{ 'is-learning-mode': mode === 'learning', 'is-collapsed': mode === 'learning' && collapsed }"
+    shadow="never"
+  >
     <template #header>
-      <div class="wb-card-head">
+      <div class="wb-card-head wb-card-head-split">
         <h3>{{ panelTitle }}</h3>
+        <button
+          v-if="mode === 'learning'"
+          class="wb-collapse-btn"
+          :class="{ 'is-collapsed': collapsed }"
+          :title="collapsed ? '展开' : '收起'"
+          @click="$emit('toggle-collapse')"
+        >
+          <el-icon><ArrowDown /></el-icon>
+        </button>
       </div>
     </template>
 
     <template v-if="mode === 'learning'">
+      <div class="wb-collapsible-wrap" :class="{ 'is-collapsed': collapsed }">
+      <div class="wb-collapsible-inner">
       <div class="wb-learning-shell">
         <div class="wb-learning-compare">
           <section class="wb-learning-column">
@@ -60,6 +75,8 @@
           </section>
         </div>
       </div>
+      </div><!-- /wb-collapsible-inner -->
+      </div><!-- /wb-collapsible-wrap -->
     </template>
 
     <template v-else-if="!batchMode">
@@ -275,6 +292,7 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { ArrowDown } from "@element-plus/icons-vue";
 import VerificationGraphSummaryPanel from "./VerificationGraphSummaryPanel.vue";
 
 const props = defineProps({
@@ -297,9 +315,10 @@ const props = defineProps({
   batchResultPath: { type: String, default: "" },
   selectedCaseKey: { type: String, default: "" },
   knowledgePoints: { type: Array, default: () => [] },
-  commonMistakes: { type: Array, default: () => [] }
+  commonMistakes: { type: Array, default: () => [] },
+  collapsed: { type: Boolean, default: false }
 });
-const emit = defineEmits(["update:selectedCaseKey", "select-verification-line"]);
+const emit = defineEmits(["update:selectedCaseKey", "select-verification-line", "toggle-collapse"]);
 
 const panelTitle = computed(() => (props.mode === "learning" ? "核心要点与易错提醒" : "候选函数与验证器反馈"));
 const learningScrollRefs = new Set();

@@ -8,6 +8,7 @@
           :run-state="primaryRunState"
           :mode="currentMode"
           :external-selected-line="activeEditorLine"
+          :code-blocks="isLearningMode ? learning.codeBlocks : []"
           @file-change="handleFileChange"
           @line-select="handleCodeLineSelect"
           @update:mode="handleModeChange"
@@ -21,6 +22,7 @@
         ref="displayRef"
         class="nutera-display"
         :class="{ 'is-learning-mode': isLearningMode }"
+        :style="isLearningMode ? { gridTemplateRows: learningDisplayGridRows } : {}"
         data-nutera-right
       >
         <template v-if="isLearningMode">
@@ -30,12 +32,20 @@
             :teaching-steps="learning.steps"
             :line-explanation="learningLineExplanation"
             :block-explanation="learningBlockExplanation"
+            :collapsed="logCollapsed"
+            @toggle-collapse="logCollapsed = !logCollapsed"
           />
-          <ProgramOutputPanel :output="learning.programOutput" />
+          <ProgramOutputPanel
+            :output="learning.programOutput"
+            :collapsed="outputCollapsed"
+            @toggle-collapse="outputCollapsed = !outputCollapsed"
+          />
           <SummaryPanel
             mode="learning"
             :knowledge-points="learning.knowledgePoints"
             :common-mistakes="learning.commonMistakes"
+            :collapsed="summaryCollapsed"
+            @toggle-collapse="summaryCollapsed = !summaryCollapsed"
           />
         </template>
         <template v-else>
@@ -148,6 +158,37 @@ const currentMode = computed({
 });
 
 const isLearningMode = computed(() => currentMode.value === "learning");
+
+// ── Collapse state for the three learning-mode right-column cards ──────────
+const logCollapsed = ref(false);
+const outputCollapsed = ref(false);
+const summaryCollapsed = ref(false);
+
+/**
+ * Dynamic grid-template-rows for the .nutera-display column in learning mode.
+ * Priority: log (42fr) > output (18fr) > summary (40fr).
+ * When a card collapses its row becomes "auto" (header-only height).
+ * The freed fr units are reassigned to the highest-priority expanded card.
+ */
+const learningDisplayGridRows = computed(() => {
+  const l = !logCollapsed.value;
+  const o = !outputCollapsed.value;
+  const s = !summaryCollapsed.value;
+
+  let logFr = l ? 42 : 0;
+  let outputFr = o ? 18 : 0;
+  let summaryFr = s ? 40 : 0;
+
+  const freed = (l ? 0 : 42) + (o ? 0 : 18) + (s ? 0 : 40);
+  if (freed > 0) {
+    if (l) { logFr += freed; }
+    else if (o) { outputFr += freed; }
+    else if (s) { summaryFr += freed; }
+  }
+
+  const row = (expanded, fr) => expanded ? `minmax(0, ${fr}fr)` : "auto";
+  return `${row(l, logFr)} ${row(o, outputFr)} ${row(s, summaryFr)}`;
+});
 
 const learningLineExplanation = computed(() => ({
   lineNumber: Number(learning.selectedLine || 1),

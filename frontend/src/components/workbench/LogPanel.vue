@@ -1,51 +1,68 @@
 <template>
-  <el-card class="wb-card wb-log-card" :class="{ 'is-learning-mode': mode === 'learning' }" shadow="never">
+  <el-card
+    class="wb-card wb-log-card"
+    :class="{ 'is-learning-mode': mode === 'learning', 'is-collapsed': collapsed }"
+    shadow="never"
+  >
     <template #header>
-      <div class="wb-card-head">
+      <div class="wb-card-head wb-card-head-split">
         <h3>{{ panelTitle }}</h3>
+        <button
+          v-if="mode === 'learning'"
+          class="wb-collapse-btn"
+          :class="{ 'is-collapsed': collapsed }"
+          :title="collapsed ? '展开' : '收起'"
+          @click="$emit('toggle-collapse')"
+        >
+          <el-icon><ArrowDown /></el-icon>
+        </button>
       </div>
     </template>
 
     <template v-if="mode === 'learning'">
-      <div class="wb-block wb-learning-guide-block">
-        <div class="wb-block-title">当前代码行讲解</div>
-        <div class="wb-learning-line-card">
-          <p class="wb-learning-line-title">
-            第 {{ normalizedLineExplanation.lineNumber }} 行
-            <code>{{ normalizedLineExplanation.lineText || "(空行)" }}</code>
-          </p>
-          <p>{{ normalizedLineExplanation.lineExplanation }}</p>
-          <p><strong>语法点：</strong>{{ normalizedLineExplanation.syntaxPoint }}</p>
-          <p><strong>常见错误：</strong>{{ normalizedLineExplanation.commonMistake }}</p>
+      <div class="wb-collapsible-wrap" :class="{ 'is-collapsed': collapsed }">
+        <div class="wb-collapsible-inner">
+          <div class="wb-block wb-learning-guide-block">
+            <div class="wb-block-title">当前代码行讲解</div>
+            <div class="wb-learning-line-card">
+              <p class="wb-learning-line-title">
+                第 {{ normalizedLineExplanation.lineNumber }} 行
+                <code>{{ normalizedLineExplanation.lineText || "(空行)" }}</code>
+              </p>
+              <p>{{ normalizedLineExplanation.lineExplanation }}</p>
+              <p><strong>语法点：</strong>{{ normalizedLineExplanation.syntaxPoint }}</p>
+              <p><strong>常见错误：</strong>{{ normalizedLineExplanation.commonMistake }}</p>
+            </div>
+          </div>
+
+          <div class="wb-block wb-learning-guide-block">
+            <div class="wb-block-title">当前代码块讲解</div>
+            <div class="wb-learning-line-card wb-learning-block-card">
+              <p class="wb-learning-line-title wb-learning-block-title">
+                <span class="wb-learning-block-chip">{{ normalizedBlockExplanation.blockTypeLabel }}</span>
+                <span>{{ normalizedBlockExplanation.blockTitle }}</span>
+                <span class="wb-learning-block-range">
+                  第 {{ normalizedBlockExplanation.startLine }}-{{ normalizedBlockExplanation.endLine }} 行
+                </span>
+              </p>
+              <p>{{ normalizedBlockExplanation.blockExplanation }}</p>
+              <p>
+                <strong>关键知识点：</strong>
+                <span>{{ normalizedBlockExplanation.keyPointsText }}</span>
+              </p>
+              <p>
+                <strong>常见错误：</strong>
+                <span>{{ normalizedBlockExplanation.commonMistakesText }}</span>
+              </p>
+            </div>
+          </div>
+
+          <details class="wb-raw-details" v-if="logs">
+            <summary>原始运行日志</summary>
+            <pre class="wb-code-block wb-log-scroll">{{ logs }}</pre>
+          </details>
         </div>
       </div>
-
-      <div class="wb-block wb-learning-guide-block">
-        <div class="wb-block-title">当前代码块讲解</div>
-        <div class="wb-learning-line-card wb-learning-block-card">
-          <p class="wb-learning-line-title wb-learning-block-title">
-            <span class="wb-learning-block-chip">{{ normalizedBlockExplanation.blockTypeLabel }}</span>
-            <span>{{ normalizedBlockExplanation.blockTitle }}</span>
-            <span class="wb-learning-block-range">
-              第 {{ normalizedBlockExplanation.startLine }}-{{ normalizedBlockExplanation.endLine }} 行
-            </span>
-          </p>
-          <p>{{ normalizedBlockExplanation.blockExplanation }}</p>
-          <p>
-            <strong>关键知识点：</strong>
-            <span>{{ normalizedBlockExplanation.keyPointsText }}</span>
-          </p>
-          <p>
-            <strong>常见错误：</strong>
-            <span>{{ normalizedBlockExplanation.commonMistakesText }}</span>
-          </p>
-        </div>
-      </div>
-
-      <details class="wb-raw-details" v-if="logs">
-        <summary>原始运行日志</summary>
-        <pre class="wb-code-block wb-log-scroll">{{ logs }}</pre>
-      </details>
     </template>
 
     <template v-else>
@@ -62,6 +79,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { ArrowDown } from "@element-plus/icons-vue";
 
 const props = defineProps({
   logs: {
@@ -83,8 +101,14 @@ const props = defineProps({
   blockExplanation: {
     type: Object,
     default: () => ({})
+  },
+  collapsed: {
+    type: Boolean,
+    default: false
   }
 });
+
+const emit = defineEmits(["toggle-collapse"]);
 
 const panelTitle = computed(() => (props.mode === "learning" ? "代码速通" : "运行日志"));
 
@@ -174,11 +198,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.wb-log-card.is-learning-mode :deep(.el-card__body) {
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
 .wb-learning-block-card {
   gap: 8px;
 }
