@@ -67,6 +67,20 @@ export function generateRankingFunction(payload, requestOptions = {}) {
   });
 }
 
+export function explainLearningCode(payload) {
+  return request("/api/nutera/learning/explain-code", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function buildVerificationSummaryGraph(payload) {
+  return request("/api/nutera/verification/summary-graph", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
 export function startBatchTask(payload) {
   return request("/api/nutera/batch/start", {
     method: "POST",

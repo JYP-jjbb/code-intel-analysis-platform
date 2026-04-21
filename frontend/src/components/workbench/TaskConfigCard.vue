@@ -1,8 +1,19 @@
-﻿<template>
+<template>
   <el-card class="wb-card wb-task-config-card" shadow="never">
     <template #header>
       <div class="wb-card-head">
-        <h3>验证任务配置</h3>
+        <div class="wb-task-head-row">
+          <h3>验证任务配置</h3>
+          <el-radio-group
+            :model-value="mode"
+            size="small"
+            class="wb-mode-switcher"
+            @update:model-value="(value) => $emit('update:mode', value)"
+          >
+            <el-radio-button label="learning">学习模式</el-radio-button>
+            <el-radio-button label="verification">验证模式</el-radio-button>
+          </el-radio-group>
+        </div>
       </div>
     </template>
 
@@ -67,13 +78,26 @@
     <div class="wb-form-group wb-code-group">
       <label class="wb-field-label">代码输入</label>
       <div class="wb-code-editor">
-        <pre ref="gutterRef" class="wb-code-gutter" aria-hidden="true">{{ lineNumbers }}</pre>
+        <div ref="gutterRef" class="wb-code-gutter" aria-hidden="true">
+          <span
+            v-for="line in lineNumbers"
+            :key="line"
+            class="wb-gutter-line"
+            :class="{ 'is-active': line === selectedLineNumber }"
+          >
+            {{ line }}
+          </span>
+        </div>
         <textarea
+          ref="textareaRef"
           v-model="form.code"
           class="wb-code-textarea"
           spellcheck="false"
           placeholder="输入或粘贴待验证的程序片段"
           @scroll="syncGutterScroll"
+          @click="handleCursorActivity"
+          @keyup="handleCursorActivity"
+          @mouseup="handleCursorActivity"
         />
       </div>
     </div>
@@ -82,16 +106,23 @@
       <el-button
         class="wb-primary-btn"
         :class="{
-          'is-pause-btn': isRunningState,
+          'is-pause-btn': shouldShowPauseAction,
           'is-resume-btn': runState === 'paused'
         }"
-        :type="isRunningState ? 'danger' : runState === 'paused' ? 'warning' : 'primary'"
-        @click="isRunningState ? $emit('pause') : $emit('submit')"
+        :type="shouldShowPauseAction ? 'danger' : runState === 'paused' && mode === 'verification' ? 'warning' : 'primary'"
+        @click="shouldShowPauseAction ? $emit('pause') : $emit('submit')"
       >
         <el-icon><component :is="primaryIcon" /></el-icon>
         {{ primaryLabel }}
       </el-button>
-      <el-checkbox v-model="form.batchMode" :disabled="isRunningState" class="wb-batch-toggle">批量处理</el-checkbox>
+      <el-checkbox
+        v-if="mode === 'verification'"
+        v-model="form.batchMode"
+        :disabled="isRunningState"
+        class="wb-batch-toggle"
+      >
+        批量处理
+      </el-checkbox>
       <el-button class="wb-soft-btn" @click="$emit('reset')">
         <el-icon><Brush /></el-icon>
         清空代码
@@ -101,10 +132,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { Brush, Check, UploadFilled, VideoPause, VideoPlay } from "@element-plus/icons-vue";
 
 const gutterRef = ref(null);
+const textareaRef = ref(null);
+const selectedLineNumber = ref(1);
 
 const modelOptions = [
   { label: "Kimi", value: "kimi-k2.5" },
@@ -144,16 +177,28 @@ const props = defineProps({
   runState: {
     type: String,
     default: "idle"
+  },
+  mode: {
+    type: String,
+    default: "learning"
+  },
+  externalSelectedLine: {
+    type: Number,
+    default: 1
   }
 });
 
-defineEmits(["submit", "pause", "reset", "file-change"]);
+const emit = defineEmits(["submit", "pause", "reset", "file-change", "update:mode", "line-select"]);
 
 const isLanguageLocked = computed(() => props.form.benchmark && props.form.benchmark !== "none");
 const lastCustomLanguage = ref("python");
 const isRunningState = computed(() => props.runState === "running" || props.runState === "pausing");
+const shouldShowPauseAction = computed(() => props.mode === "verification" && isRunningState.value);
 
 const primaryLabel = computed(() => {
+  if (props.mode === "learning") {
+    return props.submitting ? "讲解中" : "开始讲解";
+  }
   if (props.runState === "running") return "暂停验证";
   if (props.runState === "pausing") return "暂停中";
   if (props.runState === "paused") return "继续验证";
@@ -161,6 +206,9 @@ const primaryLabel = computed(() => {
 });
 
 const primaryIcon = computed(() => {
+  if (props.mode === "learning") {
+    return VideoPlay;
+  }
   if (props.runState === "running" || props.runState === "pausing") return VideoPause;
   if (props.runState === "paused") return VideoPlay;
   return Check;
@@ -196,11 +244,99 @@ watch(
 
 const lineNumbers = computed(() => {
   const lineCount = Math.max(1, String(props.form.code || "").split("\n").length);
-  return Array.from({ length: lineCount }, (_, index) => index + 1).join("\n");
+  return Array.from({ length: lineCount }, (_, index) => index + 1);
 });
 
 const syncGutterScroll = (event) => {
   if (!gutterRef.value) return;
   gutterRef.value.scrollTop = event.target.scrollTop;
 };
+
+const resolveLineFromCursor = () => {
+  const textarea = textareaRef.value;
+  const code = String(props.form.code || "");
+  const lines = code.split("\n");
+  if (!textarea) {
+    return { lineNumber: 1, lineText: lines[0] || "", totalLines: lines.length };
+  }
+  const cursor = Number(textarea.selectionStart || 0);
+  const prefix = code.slice(0, cursor);
+  const lineNumber = Math.max(1, prefix.split("\n").length);
+  const lineText = lines[lineNumber - 1] || "";
+  return { lineNumber, lineText, totalLines: lines.length };
+};
+
+const emitLineSelection = () => {
+  const payload = resolveLineFromCursor();
+  selectedLineNumber.value = Math.min(payload.lineNumber, Math.max(1, payload.totalLines));
+  emit("line-select", {
+    lineNumber: selectedLineNumber.value,
+    lineText: payload.lineText,
+    code: String(props.form.code || "")
+  });
+};
+
+const handleCursorActivity = () => {
+  emitLineSelection();
+};
+
+const moveCursorToLine = (lineNumber) => {
+  const textarea = textareaRef.value;
+  if (!(textarea instanceof HTMLTextAreaElement)) {
+    return;
+  }
+  const code = String(props.form.code || "");
+  const rows = code.split("\n");
+  const targetLine = Math.max(1, Math.min(rows.length || 1, Number(lineNumber || 1)));
+  let start = 0;
+  for (let i = 0; i < targetLine - 1; i += 1) {
+    start += rows[i].length + 1;
+  }
+  const end = start + String(rows[targetLine - 1] || "").length;
+  textarea.selectionStart = start;
+  textarea.selectionEnd = end;
+
+  const computedStyle = window.getComputedStyle(textarea);
+  const lineHeightRaw = Number.parseFloat(computedStyle.lineHeight || "");
+  const lineHeight = Number.isFinite(lineHeightRaw) && lineHeightRaw > 0 ? lineHeightRaw : 20;
+  const paddingTop = Number.parseFloat(computedStyle.paddingTop || "0") || 0;
+  const targetScrollTop = Math.max(0, (targetLine - 1) * lineHeight - paddingTop - lineHeight);
+  textarea.scrollTop = targetScrollTop;
+  if (gutterRef.value) {
+    gutterRef.value.scrollTop = targetScrollTop;
+  }
+};
+
+const applyExternalSelectedLine = (lineNumber) => {
+  const lineCount = Math.max(1, String(props.form.code || "").split("\n").length);
+  const normalized = Math.max(1, Math.min(lineCount, Number(lineNumber || 1)));
+  if (selectedLineNumber.value === normalized) {
+    return;
+  }
+  selectedLineNumber.value = normalized;
+  nextTick(() => {
+    moveCursorToLine(normalized);
+    emitLineSelection();
+  });
+};
+
+watch(
+  () => props.form.code,
+  (nextCode) => {
+    const lineCount = Math.max(1, String(nextCode || "").split("\n").length);
+    if (selectedLineNumber.value > lineCount) {
+      selectedLineNumber.value = lineCount;
+    }
+    emitLineSelection();
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.externalSelectedLine,
+  (lineNumber) => {
+    applyExternalSelectedLine(lineNumber);
+  },
+  { immediate: true }
+);
 </script>

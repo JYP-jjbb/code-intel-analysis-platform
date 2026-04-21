@@ -3,6 +3,8 @@ import { reactive } from "vue";
 const STORAGE_KEY = "nutera-workspace-runtime-v1";
 const LOG_MAX_LENGTH = 400000;
 const BATCH_RESULT_LIMIT = 300;
+const LEARNING_LINE_EXPLANATION_LIMIT = 1000;
+const LEARNING_CODE_BLOCK_LIMIT = 300;
 
 const createDefaultForm = () => ({
   code: "",
@@ -34,6 +36,7 @@ const createDefaultResult = () => ({
   checkerRawOutput: "",
   checkerFeedback: "",
   artifactSummary: "",
+  verificationSummary: null,
   batchMode: false,
   batchProgress: createDefaultBatchProgress(),
   batchResults: [],
@@ -53,9 +56,31 @@ const createDefaultCaseSource = () => ({
 });
 
 const createDefaultUiState = () => ({
+  mode: "learning",
   scrollTopWindow: 0,
   scrollTopOperation: 0,
   scrollTopDisplay: 0
+});
+
+const createDefaultVerificationState = () => ({
+  selectedLine: 1,
+  lineText: ""
+});
+
+const createDefaultLearningState = () => ({
+  selectedLine: 1,
+  lineText: "",
+  lineExplanation: "",
+  syntaxPoint: "",
+  commonMistake: "",
+  lineExplanations: [],
+  codeBlocks: [],
+  selectedBlock: null,
+  explainedCodeFingerprint: "",
+  steps: [],
+  programOutput: "",
+  knowledgePoints: [],
+  commonMistakes: []
 });
 
 const createDefaultState = () => ({
@@ -68,6 +93,8 @@ const createDefaultState = () => ({
   activeBatchTaskId: "",
   lastBatchCompletedCases: 0,
   selectedBatchCaseKey: "",
+  verification: createDefaultVerificationState(),
+  learning: createDefaultLearningState(),
   ui: createDefaultUiState()
 });
 
@@ -134,6 +161,109 @@ const normalizeBatchResults = (value) => {
   return source.slice(0, BATCH_RESULT_LIMIT).map(sanitizeBatchResultRow);
 };
 
+const sanitizeVerificationSummary = (value) => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const graph = value.graph && typeof value.graph === "object" ? value.graph : {};
+  const slice = value.slice && typeof value.slice === "object" ? value.slice : {};
+  const insight = value.insight && typeof value.insight === "object" ? value.insight : {};
+  return {
+    status: asString(value.status),
+    message: asString(value.message),
+    summaryText: asString(value.summaryText ?? value.summary_text),
+    verificationStatus: asString(value.verificationStatus ?? value.verification_status),
+    candidateFunction: asString(value.candidateFunction ?? value.candidate_function),
+    focusLines: Array.isArray(value.focusLines ?? value.focus_lines)
+      ? (value.focusLines ?? value.focus_lines).slice(0, 120).map((item) => Math.max(1, asNumber(item, 1)))
+      : [],
+    graph: {
+      nodes: Array.isArray(graph.nodes)
+        ? graph.nodes.slice(0, 200).map((node, idx) => {
+          const lineStart = Math.max(1, asNumber(node?.lineStart ?? node?.line_start, 1));
+          const lineEndRaw = Math.max(1, asNumber(node?.lineEnd ?? node?.line_end, lineStart));
+          return {
+            id: asString(node?.id, `n-${idx + 1}`),
+            label: asString(node?.label),
+            type: asString(node?.type),
+            lineStart,
+            lineEnd: Math.max(lineStart, lineEndRaw),
+            status: asString(node?.status),
+            explanation: asString(node?.explanation)
+          };
+        })
+        : [],
+      edges: Array.isArray(graph.edges)
+        ? graph.edges.slice(0, 400).map((edge) => ({
+          source: asString(edge?.source),
+          target: asString(edge?.target),
+          type: asString(edge?.type),
+          status: asString(edge?.status)
+        }))
+        : []
+    },
+    slice: {
+      lines: Array.isArray(slice.lines)
+        ? slice.lines.slice(0, 120).map((item) => Math.max(1, asNumber(item, 1)))
+        : [],
+      code: asString(slice.code)
+    },
+    insight: {
+      target: asString(insight.target),
+      checkerConclusion: asString(insight.checkerConclusion ?? insight.checker_conclusion),
+      proofOutcome: asString(insight.proofOutcome ?? insight.proof_outcome),
+      failureReason: asString(insight.failureReason ?? insight.failure_reason),
+      highlightExplanation: asString(insight.highlightExplanation ?? insight.highlight_explanation)
+    }
+  };
+};
+
+const sanitizeLearningLineExplanation = (item) => {
+  const lineNumber = Math.max(1, asNumber(item?.lineNumber ?? item?.line_number, 1));
+  return {
+    lineNumber,
+    lineText: asString(item?.lineText ?? item?.line_text),
+    lineExplanation: asString(item?.lineExplanation ?? item?.line_explanation),
+    syntaxPoint: asString(item?.syntaxPoint ?? item?.syntax_point),
+    commonMistake: asString(item?.commonMistake ?? item?.common_mistake)
+  };
+};
+
+const normalizeLearningLineExplanations = (value) => {
+  const source = Array.isArray(value) ? value : [];
+  return source.slice(0, LEARNING_LINE_EXPLANATION_LIMIT).map(sanitizeLearningLineExplanation);
+};
+
+const sanitizeLearningCodeBlock = (item) => {
+  const startLine = Math.max(1, asNumber(item?.startLine ?? item?.start_line, 1));
+  const endLineRaw = Math.max(1, asNumber(item?.endLine ?? item?.end_line, startLine));
+  return {
+    startLine,
+    endLine: Math.max(startLine, endLineRaw),
+    blockTitle: asString(item?.blockTitle ?? item?.block_title),
+    blockType: asString(item?.blockType ?? item?.block_type),
+    blockExplanation: asString(item?.blockExplanation ?? item?.block_explanation),
+    keyPoints: Array.isArray(item?.keyPoints ?? item?.key_points)
+      ? (item?.keyPoints ?? item?.key_points).slice(0, 24).map((row) => asString(row))
+      : [],
+    commonMistakes: Array.isArray(item?.commonMistakes ?? item?.common_mistakes)
+      ? (item?.commonMistakes ?? item?.common_mistakes).slice(0, 24).map((row) => asString(row))
+      : []
+  };
+};
+
+const normalizeLearningCodeBlocks = (value) => {
+  const source = Array.isArray(value) ? value : [];
+  return source.slice(0, LEARNING_CODE_BLOCK_LIMIT).map(sanitizeLearningCodeBlock);
+};
+
+const normalizeLearningSelectedBlock = (value) => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  return sanitizeLearningCodeBlock(value);
+};
+
 const applySnapshot = (snapshot) => {
   const form = snapshot?.form || {};
   Object.assign(state.form, createDefaultForm(), {
@@ -158,6 +288,7 @@ const applySnapshot = (snapshot) => {
     checkerRawOutput: asString(result.checkerRawOutput),
     checkerFeedback: asString(result.checkerFeedback),
     artifactSummary: asString(result.artifactSummary),
+    verificationSummary: sanitizeVerificationSummary(result.verificationSummary),
     batchMode: Boolean(result.batchMode),
     batchResultPath: asString(result.batchResultPath)
   });
@@ -195,9 +326,38 @@ const applySnapshot = (snapshot) => {
   state.activeBatchTaskId = asString(snapshot?.activeBatchTaskId);
   state.lastBatchCompletedCases = Math.max(0, asNumber(snapshot?.lastBatchCompletedCases));
   state.selectedBatchCaseKey = asString(snapshot?.selectedBatchCaseKey);
+  const verification = snapshot?.verification || {};
+  Object.assign(state.verification, createDefaultVerificationState(), {
+    selectedLine: Math.max(1, asNumber(verification.selectedLine, 1)),
+    lineText: asString(verification.lineText)
+  });
+
+  const learning = snapshot?.learning || {};
+  Object.assign(state.learning, createDefaultLearningState(), {
+    selectedLine: Math.max(1, asNumber(learning.selectedLine, 1)),
+    lineText: asString(learning.lineText),
+    lineExplanation: asString(learning.lineExplanation),
+    syntaxPoint: asString(learning.syntaxPoint),
+    commonMistake: asString(learning.commonMistake),
+    lineExplanations: normalizeLearningLineExplanations(learning.lineExplanations ?? learning.line_explanations),
+    codeBlocks: normalizeLearningCodeBlocks(learning.codeBlocks ?? learning.code_blocks),
+    selectedBlock: normalizeLearningSelectedBlock(learning.selectedBlock ?? learning.selected_block),
+    explainedCodeFingerprint: asString(learning.explainedCodeFingerprint ?? learning.explained_code_fingerprint),
+    steps: Array.isArray(learning.steps)
+      ? learning.steps.slice(0, 24).map((item) => asString(item))
+      : [],
+    programOutput: asString(learning.programOutput),
+    knowledgePoints: Array.isArray(learning.knowledgePoints)
+      ? learning.knowledgePoints.slice(0, 24).map((item) => asString(item))
+      : [],
+    commonMistakes: Array.isArray(learning.commonMistakes)
+      ? learning.commonMistakes.slice(0, 24).map((item) => asString(item))
+      : []
+  });
 
   const ui = snapshot?.ui || {};
   Object.assign(state.ui, createDefaultUiState(), {
+    mode: asString(ui.mode, "learning") === "verification" ? "verification" : "learning",
     scrollTopWindow: Math.max(0, asNumber(ui.scrollTopWindow)),
     scrollTopOperation: Math.max(0, asNumber(ui.scrollTopOperation)),
     scrollTopDisplay: Math.max(0, asNumber(ui.scrollTopDisplay))
@@ -225,6 +385,7 @@ const buildSnapshot = () => ({
     checkerRawOutput: asString(state.result.checkerRawOutput),
     checkerFeedback: asString(state.result.checkerFeedback),
     artifactSummary: asString(state.result.artifactSummary),
+    verificationSummary: sanitizeVerificationSummary(state.result.verificationSummary),
     batchMode: Boolean(state.result.batchMode),
     batchProgress: {
       total: Math.max(0, asNumber(state.result.batchProgress.total)),
@@ -255,7 +416,33 @@ const buildSnapshot = () => ({
   activeBatchTaskId: asString(state.activeBatchTaskId),
   lastBatchCompletedCases: Math.max(0, asNumber(state.lastBatchCompletedCases)),
   selectedBatchCaseKey: asString(state.selectedBatchCaseKey),
+  verification: {
+    selectedLine: Math.max(1, asNumber(state.verification.selectedLine, 1)),
+    lineText: asString(state.verification.lineText)
+  },
+  learning: {
+    selectedLine: Math.max(1, asNumber(state.learning.selectedLine, 1)),
+    lineText: asString(state.learning.lineText),
+    lineExplanation: asString(state.learning.lineExplanation),
+    syntaxPoint: asString(state.learning.syntaxPoint),
+    commonMistake: asString(state.learning.commonMistake),
+    lineExplanations: normalizeLearningLineExplanations(state.learning.lineExplanations),
+    codeBlocks: normalizeLearningCodeBlocks(state.learning.codeBlocks),
+    selectedBlock: normalizeLearningSelectedBlock(state.learning.selectedBlock),
+    explainedCodeFingerprint: asString(state.learning.explainedCodeFingerprint),
+    steps: Array.isArray(state.learning.steps)
+      ? state.learning.steps.slice(0, 24).map((item) => asString(item))
+      : [],
+    programOutput: asString(state.learning.programOutput),
+    knowledgePoints: Array.isArray(state.learning.knowledgePoints)
+      ? state.learning.knowledgePoints.slice(0, 24).map((item) => asString(item))
+      : [],
+    commonMistakes: Array.isArray(state.learning.commonMistakes)
+      ? state.learning.commonMistakes.slice(0, 24).map((item) => asString(item))
+      : []
+  },
   ui: {
+    mode: asString(state.ui.mode, "learning") === "verification" ? "verification" : "learning",
     scrollTopWindow: Math.max(0, asNumber(state.ui.scrollTopWindow)),
     scrollTopOperation: Math.max(0, asNumber(state.ui.scrollTopOperation)),
     scrollTopDisplay: Math.max(0, asNumber(state.ui.scrollTopDisplay))

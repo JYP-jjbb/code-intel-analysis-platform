@@ -9,11 +9,17 @@ import com.course.ideology.api.dto.NuteraBatchPauseRequest;
 import com.course.ideology.api.dto.NuteraBatchPauseResponse;
 import com.course.ideology.api.dto.NuteraBatchReportSummaryResponse;
 import com.course.ideology.api.dto.NuteraBatchReportDetailResponse;
+import com.course.ideology.api.dto.NuteraLearningExplainRequest;
+import com.course.ideology.api.dto.NuteraLearningExplainResponse;
+import com.course.ideology.api.dto.NuteraVerificationSummaryRequest;
+import com.course.ideology.api.dto.NuteraVerificationSummaryResponse;
 import com.course.ideology.service.ApiKeyNotConfiguredException;
 import com.course.ideology.service.NuteraBatchTaskService;
 import com.course.ideology.service.NuteraBatchReportStoreService;
 import com.course.ideology.service.NuteraCaseSourceService;
+import com.course.ideology.service.NuteraLearningExplainService;
 import com.course.ideology.service.NuteraLlmService;
+import com.course.ideology.service.NuteraVerificationSummaryService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,15 +48,21 @@ public class NuteraLlmController {
     private final NuteraCaseSourceService nuteraCaseSourceService;
     private final NuteraBatchTaskService nuteraBatchTaskService;
     private final NuteraBatchReportStoreService nuteraBatchReportStoreService;
+    private final NuteraLearningExplainService nuteraLearningExplainService;
+    private final NuteraVerificationSummaryService nuteraVerificationSummaryService;
 
     public NuteraLlmController(NuteraLlmService nuteraLlmService,
                                NuteraCaseSourceService nuteraCaseSourceService,
                                NuteraBatchTaskService nuteraBatchTaskService,
-                               NuteraBatchReportStoreService nuteraBatchReportStoreService) {
+                               NuteraBatchReportStoreService nuteraBatchReportStoreService,
+                               NuteraLearningExplainService nuteraLearningExplainService,
+                               NuteraVerificationSummaryService nuteraVerificationSummaryService) {
         this.nuteraLlmService = nuteraLlmService;
         this.nuteraCaseSourceService = nuteraCaseSourceService;
         this.nuteraBatchTaskService = nuteraBatchTaskService;
         this.nuteraBatchReportStoreService = nuteraBatchReportStoreService;
+        this.nuteraLearningExplainService = nuteraLearningExplainService;
+        this.nuteraVerificationSummaryService = nuteraVerificationSummaryService;
     }
 
     @GetMapping("/case-source")
@@ -76,6 +88,26 @@ public class NuteraLlmController {
             return nuteraLlmService.generateRankingFunction(request);
         } catch (ApiKeyNotConfiguredException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        }
+    }
+
+    @PostMapping("/learning/explain-code")
+    public NuteraLearningExplainResponse explainCodeForLearning(@Valid @RequestBody NuteraLearningExplainRequest request) {
+        try {
+            return nuteraLearningExplainService.explainCode(request);
+        } catch (ApiKeyNotConfiguredException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
+        }
+    }
+
+    @PostMapping("/verification/summary-graph")
+    public NuteraVerificationSummaryResponse buildVerificationSummary(@Valid @RequestBody NuteraVerificationSummaryRequest request) {
+        try {
+            return nuteraVerificationSummaryService.buildSummary(request);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
         }
     }
 

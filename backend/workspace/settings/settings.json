@@ -1,5 +1,16 @@
 {
-  "siliconflowApiKey" : "sk-ojnkruecicfoviwmxnbvbtyyvkmpotcsgdbwvrfpwvdkwshm",
   "apiKeyUpdatedAt" : "2026-03-29T04:59:36.377260400Z",
-  "siliconflowApiKeyUpdatedAt" : "2026-03-29T04:59:36.377260400Z"
+  "deepseekExtraConfig" : "",
+  "deepseekBaseUrl" : "https://api.deepseek.com",
+  "deepseekModelName" : "deepseek-ai/DeepSeek-V3.2",
+  "deepseekStream" : false,
+  "deepseekTimeout" : 90,
+  "deepseekApiKey" : "sk-34355cf0c6164ac2b65ca7081bdd66b5",
+  "siliconflowApiKeyUpdatedAt" : "2026-03-29T04:59:36.377260400Z",
+  "deepseekConfigUpdatedAt" : "2026-04-21T14:58:20.326636300Z",
+  "siliconflowApiKey" : "sk-ojnkruecicfoviwmxnbvbtyyvkmpotcsgdbwvrfpwvdkwshm",
+  "deepseekProviderName" : "DeepSeek",
+  "deepseekEnableThinking" : false,
+  "deepseekTemperature" : 0.0,
+  "deepseekApiKeyUpdatedAt" : "2026-04-21T14:58:20.326636300Z"
 }

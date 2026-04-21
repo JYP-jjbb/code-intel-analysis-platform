@@ -1,4 +1,4 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
 :root {
   color-scheme: light;
@@ -1872,6 +1872,7 @@ body.landing-mode {
 .workbench-main.is-nutera-route .nutera-grid {
   height: 100%;
   min-height: 0;
+  grid-template-columns: minmax(380px, 1.2fr) minmax(500px, 1fr);
   gap: 12px;
 }
 
@@ -1917,6 +1918,10 @@ body.landing-mode {
   gap: 12px;
 }
 
+.workbench-main.is-nutera-route .nutera-display.is-learning-mode {
+  grid-template-rows: minmax(0, 42fr) minmax(0, 18fr) minmax(0, 40fr);
+}
+
 .wb-card.el-card {
   border-radius: var(--wb-radius-lg);
   border: 1px solid var(--wb-border);
@@ -1952,6 +1957,35 @@ body.landing-mode {
   margin: 0;
   font-size: 17px;
   color: var(--wb-text-main);
+}
+
+.wb-task-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wb-mode-switcher.el-radio-group {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.wb-mode-switcher .el-radio-button__inner {
+  border-radius: 999px !important;
+  border: 1px solid rgba(44, 107, 255, 0.2) !important;
+  background: #f5f9ff;
+  color: #406794;
+  font-size: 12px;
+  padding: 6px 14px;
+  box-shadow: none !important;
+}
+
+.wb-mode-switcher .el-radio-button.is-active .el-radio-button__inner {
+  background: linear-gradient(135deg, #2f75ff, #54a2ff);
+  border-color: transparent !important;
+  color: #ffffff;
 }
 
 .wb-card-head p {
@@ -2088,12 +2122,11 @@ body.landing-mode {
 
 .wb-task-config-card .wb-code-gutter {
   margin: 0;
-  padding: 12px 10px 12px 8px;
+  padding: 12px 8px;
   border-right: 1px solid rgba(44, 107, 255, 0.14);
   background: #eef4ff;
   color: #7d93ae;
-  text-align: right;
-  white-space: pre;
+  text-align: left;
   user-select: none;
   pointer-events: none;
   overflow: auto;
@@ -2102,6 +2135,23 @@ body.landing-mode {
   font-family: "JetBrains Mono", "Fira Code", monospace;
   line-height: 1.6;
   font-size: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wb-task-config-card .wb-gutter-line {
+  display: block;
+  width: 100%;
+  text-align: right;
+  border-radius: 8px;
+  padding: 0 4px;
+  color: #7d93ae;
+}
+
+.wb-task-config-card .wb-gutter-line.is-active {
+  background: rgba(44, 107, 255, 0.16);
+  color: #235384;
+  font-weight: 700;
 }
 
 .wb-task-config-card .wb-code-gutter::-webkit-scrollbar {
@@ -2451,6 +2501,105 @@ body.landing-mode {
   padding-top: 14px;
 }
 
+.wb-learning-guide-block {
+  margin-bottom: 8px;
+}
+
+.wb-learning-steps {
+  display: grid;
+  gap: 8px;
+}
+
+.wb-learning-steps-block {
+  min-height: 0;
+}
+
+.wb-learning-steps-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;
+}
+
+.wb-learning-steps-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wb-learning-steps-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wb-learning-steps-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.wb-learning-steps-scroll:hover {
+  scrollbar-color: rgba(68, 125, 207, 0.32) transparent;
+}
+
+.wb-learning-steps-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.32);
+}
+
+.wb-learning-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid rgba(44, 107, 255, 0.14);
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 8px 10px;
+}
+
+.wb-learning-step-index {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(44, 107, 255, 0.16);
+  color: #2a5c95;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  flex: 0 0 18px;
+  font-weight: 700;
+}
+
+.wb-learning-step-text {
+  color: #2d527f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wb-learning-line-card {
+  border: 1px solid rgba(44, 107, 255, 0.14);
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 10px 12px;
+  display: grid;
+  gap: 6px;
+  color: #2e5584;
+  font-size: 12px;
+  line-height: 1.56;
+}
+
+.wb-learning-line-card p {
+  margin: 0;
+}
+
+.wb-learning-line-title code {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(44, 107, 255, 0.1);
+  color: #245588;
+}
+
 .wb-block.wb-block-log-only {
   margin-bottom: 0;
 }
@@ -2461,6 +2610,7 @@ body.landing-mode {
 }
 
 .workbench-main.is-nutera-route .wb-log-card,
+.workbench-main.is-nutera-route .wb-program-output-card,
 .workbench-main.is-nutera-route .wb-summary-card {
   height: 100%;
   min-height: 0;
@@ -2489,7 +2639,42 @@ body.landing-mode {
   overflow: auto;
 }
 
+.wb-program-output-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;
+}
+
+.wb-program-output-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wb-program-output-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wb-program-output-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.wb-program-output-scroll:hover {
+  scrollbar-color: rgba(68, 125, 207, 0.32) transparent;
+}
+
+.wb-program-output-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.32);
+}
+
 .workbench-main.is-nutera-route .wb-summary-card > .el-card__body {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card > .el-card__body {
   min-height: 0;
   flex: 1;
   overflow: auto;
@@ -2497,6 +2682,12 @@ body.landing-mode {
 
 .workbench-main.is-nutera-route .wb-summary-card .wb-code-block {
   max-height: none;
+}
+
+@media (max-width: 1440px) and (min-width: 1081px) {
+  .workbench-main.is-nutera-route .nutera-grid {
+    grid-template-columns: minmax(360px, 1.15fr) minmax(430px, 1fr);
+  }
 }
 
 @media (max-width: 1080px) {
@@ -2608,8 +2799,10 @@ body.landing-mode {
   .workbench-main.is-nutera-route .nutera-grid,
   .workbench-main.is-nutera-route .nutera-display,
   .workbench-main.is-nutera-route .wb-log-card,
+  .workbench-main.is-nutera-route .wb-program-output-card,
   .workbench-main.is-nutera-route .wb-summary-card,
   .workbench-main.is-nutera-route .wb-log-card > .el-card__body,
+  .workbench-main.is-nutera-route .wb-program-output-card > .el-card__body,
   .workbench-main.is-nutera-route .wb-summary-card > .el-card__body {
     height: auto;
     min-height: 0;
@@ -2619,9 +2812,31 @@ body.landing-mode {
     grid-template-rows: auto;
   }
 
+  .workbench-main.is-nutera-route .nutera-display.is-learning-mode {
+    grid-template-rows: auto;
+  }
+
 }
 
 @media (max-width: 720px) {
+  .wb-task-head-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .wb-mode-switcher.el-radio-group {
+    width: 100%;
+  }
+
+  .wb-mode-switcher .el-radio-button {
+    flex: 1;
+  }
+
+  .wb-mode-switcher .el-radio-button__inner {
+    width: 100%;
+    text-align: center;
+  }
+
   .workbench-content-shell.is-unified-header .wb-header-decor {
     display: none;
   }

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="nutera-workbench">
     <div class="nutera-grid">
       <section ref="operationRef" class="nutera-operation" data-nutera-left>
@@ -6,32 +6,63 @@
           :form="form"
           :submitting="submitting"
           :run-state="primaryRunState"
+          :mode="currentMode"
+          :external-selected-line="activeEditorLine"
           @file-change="handleFileChange"
+          @line-select="handleCodeLineSelect"
+          @update:mode="handleModeChange"
           @submit="submitTask"
           @pause="pauseTask"
           @reset="resetForm"
         />
       </section>
 
-      <section ref="displayRef" class="nutera-display" data-nutera-right>
-        <LogPanel :logs="logs" />
-        <SummaryPanel
-          :candidate-functions="result.candidateFunctions"
-          :checker-status="result.checkerStatus"
-          :checker-verdict="result.checkerVerdict"
-          :checker-conclusion="result.checkerConclusion"
-          :checker-message="result.checkerMessage"
-          :checker-counterexample="result.checkerCounterexample"
-          :checker-raw-output="result.checkerRawOutput"
-          :checker-feedback="result.checkerFeedback"
-          :artifact-summary="result.artifactSummary"
-          :batch-mode="form.batchMode || result.batchMode"
-          :batch-progress="result.batchProgress"
-          :batch-results="result.batchResults"
-          :batch-result-path="result.batchResultPath"
-          :selected-case-key="selectedBatchCaseKey"
-          @update:selected-case-key="handleSelectedCaseKeyUpdate"
-        />
+      <section
+        ref="displayRef"
+        class="nutera-display"
+        :class="{ 'is-learning-mode': isLearningMode }"
+        data-nutera-right
+      >
+        <template v-if="isLearningMode">
+          <LogPanel
+            :logs="logs"
+            mode="learning"
+            :teaching-steps="learning.steps"
+            :line-explanation="learningLineExplanation"
+            :block-explanation="learningBlockExplanation"
+          />
+          <ProgramOutputPanel :output="learning.programOutput" />
+          <SummaryPanel
+            mode="learning"
+            :knowledge-points="learning.knowledgePoints"
+            :common-mistakes="learning.commonMistakes"
+          />
+        </template>
+        <template v-else>
+          <LogPanel :logs="logs" mode="verification" />
+          <SummaryPanel
+            mode="verification"
+            :candidate-functions="result.candidateFunctions"
+            :checker-status="result.checkerStatus"
+            :checker-verdict="result.checkerVerdict"
+            :checker-conclusion="result.checkerConclusion"
+            :checker-message="result.checkerMessage"
+            :checker-counterexample="result.checkerCounterexample"
+            :checker-raw-output="result.checkerRawOutput"
+            :checker-feedback="result.checkerFeedback"
+            :artifact-summary="result.artifactSummary"
+            :verification-summary-data="result.verificationSummary"
+            :verification-code="form.code"
+            :verification-selected-line="verification.selectedLine"
+            :batch-mode="form.batchMode || result.batchMode"
+            :batch-progress="result.batchProgress"
+            :batch-results="result.batchResults"
+            :batch-result-path="result.batchResultPath"
+            :selected-case-key="selectedBatchCaseKey"
+            @update:selected-case-key="handleSelectedCaseKeyUpdate"
+            @select-verification-line="handleVerificationLineSelectFromGraph"
+          />
+        </template>
       </section>
     </div>
     <LeaveTaskConfirmDialog
@@ -53,9 +84,18 @@ import gsap from "gsap";
 import { onBeforeRouteLeave } from "vue-router";
 import TaskConfigCard from "../components/workbench/TaskConfigCard.vue";
 import LogPanel from "../components/workbench/LogPanel.vue";
+import ProgramOutputPanel from "../components/workbench/ProgramOutputPanel.vue";
 import SummaryPanel from "../components/workbench/SummaryPanel.vue";
 import LeaveTaskConfirmDialog from "../components/workbench/LeaveTaskConfirmDialog.vue";
-import { fetchBatchStatus, generateRankingFunction, loadCaseSource, pauseBatchTask, startBatchTask } from "../api/nuteraApi.js";
+import {
+  buildVerificationSummaryGraph,
+  explainLearningCode,
+  fetchBatchStatus,
+  generateRankingFunction,
+  loadCaseSource,
+  pauseBatchTask,
+  startBatchTask
+} from "../api/nuteraApi.js";
 import { useNuteraRuntimeStore } from "../stores/nuteraRuntimeStore.js";
 
 const operationRef = ref(null);
@@ -73,6 +113,8 @@ const submitting = toRef(runtimeState, "submitting");
 const activeBatchTaskId = toRef(runtimeState, "activeBatchTaskId");
 const lastBatchCompletedCases = toRef(runtimeState, "lastBatchCompletedCases");
 const selectedBatchCaseKey = toRef(runtimeState, "selectedBatchCaseKey");
+const verification = runtimeState.verification;
+const learning = runtimeState.learning;
 let caseLoadToken = 0;
 
 let batchPollingTimer = null;
@@ -98,11 +140,557 @@ const primaryRunState = computed(() => {
   return "idle";
 });
 
+const currentMode = computed({
+  get: () => (runtimeState.ui.mode === "verification" ? "verification" : "learning"),
+  set: (value) => {
+    runtimeState.ui.mode = value === "verification" ? "verification" : "learning";
+  }
+});
+
+const isLearningMode = computed(() => currentMode.value === "learning");
+
+const learningLineExplanation = computed(() => ({
+  lineNumber: Number(learning.selectedLine || 1),
+  lineText: String(learning.lineText || ""),
+  lineExplanation: String(learning.lineExplanation || ""),
+  syntaxPoint: String(learning.syntaxPoint || ""),
+  commonMistake: String(learning.commonMistake || "")
+}));
+
+const learningBlockExplanation = computed(() => {
+  const source = learning.selectedBlock || {};
+  const startLine = Math.max(1, Number(source.startLine || learning.selectedLine || 1));
+  const endLineRaw = Math.max(1, Number(source.endLine || startLine));
+  return {
+    startLine,
+    endLine: Math.max(startLine, endLineRaw),
+    blockTitle: String(source.blockTitle || "当前代码块"),
+    blockType: String(source.blockType || "LOGIC_BLOCK"),
+    blockExplanation: String(source.blockExplanation || "点击左侧代码行后，将展示该行所属代码块的整体说明。"),
+    keyPoints: Array.isArray(source.keyPoints) ? source.keyPoints.map((item) => String(item || "")).filter(Boolean) : [],
+    commonMistakes: Array.isArray(source.commonMistakes)
+      ? source.commonMistakes.map((item) => String(item || "")).filter(Boolean)
+      : []
+  };
+});
+
+const activeEditorLine = computed(() => {
+  if (isLearningMode.value) {
+    return Math.max(1, Number(learning.selectedLine || 1));
+  }
+  return Math.max(1, Number(verification.selectedLine || 1));
+});
+
 const nowLabel = () => new Date().toLocaleString("zh-CN", { hour12: false });
 
 const appendLog = (message) => {
   const line = `[${nowLabel()}] ${message}`;
   logs.value = logs.value ? `${logs.value}\n${line}` : line;
+};
+
+const resetLearningPanels = () => {
+  learning.selectedLine = 1;
+  learning.lineText = "";
+  learning.lineExplanation = "";
+  learning.syntaxPoint = "";
+  learning.commonMistake = "";
+  learning.lineExplanations = [];
+  learning.codeBlocks = [];
+  learning.selectedBlock = null;
+  learning.explainedCodeFingerprint = "";
+  learning.steps = [];
+  learning.programOutput = "";
+  learning.knowledgePoints = [];
+  learning.commonMistakes = [];
+};
+
+const resolveLanguageLabel = () => {
+  const normalized = String(form.language || "").toLowerCase();
+  if (normalized === "cpp" || normalized === "c++") return "C++";
+  if (normalized === "c") return "C";
+  if (normalized === "java") return "Java";
+  if (normalized === "go") return "Go";
+  return "Python";
+};
+
+const extractProgramOutput = (code) => {
+  const source = String(code || "");
+  const outputs = [];
+  const lines = source.split("\n");
+  const printRegex = /(print\s*\(|console\.log\s*\(|cout\s*<<|System\.out\.print(?:ln)?\s*\()/;
+  const literalRegex = /["'`](.*?)["'`]/g;
+  lines.forEach((line) => {
+    if (!printRegex.test(line)) {
+      return;
+    }
+    const literals = [];
+    let match = literalRegex.exec(line);
+    while (match) {
+      literals.push(match[1]);
+      match = literalRegex.exec(line);
+    }
+    literalRegex.lastIndex = 0;
+    if (literals.length > 0) {
+      outputs.push(literals.join(""));
+    } else {
+      outputs.push("（该输出语句依赖变量运行结果）");
+    }
+  });
+  if (outputs.length === 0) {
+    return "（暂无可推断输出，请根据执行过程观察变量变化）";
+  }
+  return outputs.join("\n");
+};
+
+const buildKnowledgePoints = (code) => {
+  const points = [];
+  const source = String(code || "");
+  const languageLabel = resolveLanguageLabel();
+  points.push(`当前示例采用 ${languageLabel} 语法，建议先从入口函数与主流程阅读。`);
+  if (/\b(if|else)\b/.test(source)) {
+    points.push("代码包含条件分支，需要重点理解条件成立与不成立时的执行路径。");
+  }
+  if (/\b(for|while)\b/.test(source)) {
+    points.push("代码存在循环结构，建议同步追踪循环变量和终止条件。");
+  }
+  if (/(print\s*\(|cout\s*<<|console\.log|System\.out\.print)/.test(source)) {
+    points.push("包含输出语句，可通过输出结果反推执行顺序和变量状态。");
+  }
+  if (/\b(return)\b/.test(source)) {
+    points.push("注意返回语句位置，返回时函数会立即结束后续语句。");
+  }
+  return points.slice(0, 6);
+};
+
+const buildCommonMistakes = (code) => {
+  const mistakes = [
+    "漏写分号、括号或冒号会导致语句结构不完整。",
+    "变量先使用后初始化，容易出现运行结果异常。",
+    "循环终止条件写错会导致死循环或少执行一次。"
+  ];
+  const source = String(code || "");
+  if (/\b(if|for|while)\b/.test(source)) {
+    mistakes.push("条件判断中把赋值符号写成比较符号是常见错误。");
+  }
+  if (/(cout\s*<<|print\s*\(|console\.log|System\.out\.print)/.test(source)) {
+    mistakes.push("输出语句中字符串引号不匹配会直接触发语法错误。");
+  }
+  return mistakes.slice(0, 6);
+};
+
+const buildLearningSteps = (code) => {
+  const steps = [];
+  const lines = String(code || "").split("\n");
+  const activeLines = lines
+    .map((line, index) => ({ line: String(line || "").trim(), lineNumber: index + 1 }))
+    .filter((item) => item.line);
+  if (activeLines.length === 0) {
+    return ["请先输入代码，然后点击“开始讲解”生成学习步骤。"];
+  }
+  const preview = activeLines.slice(0, 6);
+  preview.forEach((item) => {
+    steps.push(`第 ${item.lineNumber} 行：${item.line}`);
+  });
+  if (activeLines.length > preview.length) {
+    steps.push("其余语句可通过点击代码行查看逐行解释。");
+  }
+  return steps;
+};
+
+const buildLineExplanation = (lineNumber, lineText) => {
+  const text = String(lineText || "").trim();
+  if (!text) {
+    return {
+      lineNumber,
+      lineText: "",
+      lineExplanation: "这是空行或仅包含空白字符，主要用于代码排版与阅读分组。",
+      syntaxPoint: "空行不参与语义执行。",
+      commonMistake: "过度压缩空行会降低代码可读性。"
+    };
+  }
+  if (/^\s*#include|^\s*import|^\s*using\b/.test(text)) {
+    return {
+      lineNumber,
+      lineText: text,
+      lineExplanation: "该行用于引入外部库或命名空间，为后续语句提供依赖。",
+      syntaxPoint: "模块/包导入语法。",
+      commonMistake: "导入路径或类名拼写错误会导致编译失败。"
+    };
+  }
+  if (/\b(if|else if|else)\b/.test(text)) {
+    return {
+      lineNumber,
+      lineText: text,
+      lineExplanation: "该行控制分支选择，不同条件会进入不同代码路径。",
+      syntaxPoint: "条件判断与布尔表达式。",
+      commonMistake: "条件表达式边界遗漏，导致分支命中不符合预期。"
+    };
+  }
+  if (/\b(for|while)\b/.test(text)) {
+    return {
+      lineNumber,
+      lineText: text,
+      lineExplanation: "该行定义循环结构，程序会重复执行循环体直到条件不满足。",
+      syntaxPoint: "循环控制与终止条件。",
+      commonMistake: "循环变量更新遗漏，可能导致无限循环。"
+    };
+  }
+  if (/(cout\s*<<|print\s*\(|console\.log|System\.out\.print)/.test(text)) {
+    return {
+      lineNumber,
+      lineText: text,
+      lineExplanation: "该行用于输出内容，便于观察程序执行结果。",
+      syntaxPoint: "输出语句与流操作符。",
+      commonMistake: "输出语句末尾标点缺失，或字符串引号不成对。"
+    };
+  }
+  if (/\b(return)\b/.test(text)) {
+    return {
+      lineNumber,
+      lineText: text,
+      lineExplanation: "该行会将值返回给调用方，并结束当前函数执行。",
+      syntaxPoint: "函数返回值与控制流终止。",
+      commonMistake: "返回值类型与函数声明不一致。"
+    };
+  }
+  if (/(=|\+=|-=|\*=|\/=)/.test(text)) {
+    return {
+      lineNumber,
+      lineText: text,
+      lineExplanation: "该行用于变量赋值或更新，会直接影响后续计算结果。",
+      syntaxPoint: "赋值语句与表达式求值。",
+      commonMistake: "将比较运算符与赋值运算符混用。"
+    };
+  }
+  return {
+    lineNumber,
+    lineText: text,
+    lineExplanation: "该行参与当前程序逻辑，请结合上下文观察它对数据流的影响。",
+    syntaxPoint: "基础语句结构。",
+    commonMistake: "忽略上下文依赖会导致理解偏差。"
+  };
+};
+
+const computeCodeFingerprint = (code) => {
+  const source = String(code || "");
+  let hash = 0;
+  for (let i = 0; i < source.length; i += 1) {
+    hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
+  }
+  return `${source.length}:${hash}`;
+};
+
+const resolveLineTextByNumber = (code, lineNumber) => {
+  const lines = String(code || "").split("\n");
+  const normalizedLine = Math.max(1, Number(lineNumber || 1));
+  return String(lines[normalizedLine - 1] || "");
+};
+
+const normalizeLearningLineExplanations = (value, totalLines) => {
+  const source = Array.isArray(value) ? value : [];
+  const rows = [];
+  source.forEach((item) => {
+    const lineNumber = Math.max(1, Number(item?.lineNumber ?? item?.line_number ?? item?.line ?? 0));
+    if (totalLines > 0 && lineNumber > totalLines) {
+      return;
+    }
+    rows.push({
+      lineNumber,
+      lineText: String(item?.lineText ?? item?.line_text ?? item?.code ?? ""),
+      lineExplanation: String(item?.lineExplanation ?? item?.line_explanation ?? item?.explanation ?? ""),
+      syntaxPoint: String(item?.syntaxPoint ?? item?.syntax_point ?? ""),
+      commonMistake: String(item?.commonMistake ?? item?.common_mistake ?? "")
+    });
+  });
+  return rows;
+};
+
+const normalizeLearningCodeBlock = (item, totalLines) => {
+  if (!item || typeof item !== "object") {
+    return null;
+  }
+  const startRaw = Number(item.startLine ?? item.start_line ?? item.lineStart ?? item.line_start ?? 0);
+  const endRaw = Number(item.endLine ?? item.end_line ?? item.lineEnd ?? item.line_end ?? startRaw);
+  if (!Number.isFinite(startRaw) || startRaw <= 0) {
+    return null;
+  }
+  const startLine = Math.max(1, Math.floor(startRaw));
+  const maxLine = Math.max(1, totalLines || startLine);
+  const endLine = Math.max(startLine, Math.min(maxLine, Math.floor(Number.isFinite(endRaw) ? endRaw : startLine)));
+  return {
+    startLine,
+    endLine,
+    blockTitle: String(item.blockTitle ?? item.block_title ?? item.title ?? `代码块 ${startLine}-${endLine}`),
+    blockType: String(item.blockType ?? item.block_type ?? item.type ?? "LOGIC_BLOCK"),
+    blockExplanation: String(item.blockExplanation ?? item.block_explanation ?? item.explanation ?? ""),
+    keyPoints: Array.isArray(item.keyPoints ?? item.key_points)
+      ? (item.keyPoints ?? item.key_points).map((row) => String(row || "")).filter(Boolean)
+      : [],
+    commonMistakes: Array.isArray(item.commonMistakes ?? item.common_mistakes)
+      ? (item.commonMistakes ?? item.common_mistakes).map((row) => String(row || "")).filter(Boolean)
+      : []
+  };
+};
+
+const normalizeLearningCodeBlocks = (value, totalLines) => {
+  const source = Array.isArray(value) ? value : [];
+  const rows = source
+    .map((item) => normalizeLearningCodeBlock(item, totalLines))
+    .filter(Boolean)
+    .sort((a, b) => (a.startLine - b.startLine) || (a.endLine - b.endLine));
+  return rows;
+};
+
+const buildFallbackBlockExplanation = (lineNumber) => ({
+  startLine: lineNumber,
+  endLine: lineNumber,
+  blockTitle: "当前代码片段",
+  blockType: "LINE_BLOCK",
+  blockExplanation: "暂未生成代码块讲解。点击“开始讲解”后，将基于整段代码生成结构化分块说明。",
+  keyPoints: ["可先查看当前代码行讲解，再启动“开始讲解”获取块级解释。"],
+  commonMistakes: ["仅看单行容易忽略上下文依赖，建议结合代码块整体理解。"]
+});
+
+const resolveBlockByLine = (blocks, lineNumber, preferredBlock = null) => {
+  const normalizedLine = Math.max(1, Number(lineNumber || 1));
+  const sourceBlocks = Array.isArray(blocks) ? blocks : [];
+  const normalizedPreferred = normalizeLearningCodeBlock(preferredBlock, sourceBlocks.length || normalizedLine);
+  if (
+    normalizedPreferred &&
+    normalizedLine >= normalizedPreferred.startLine &&
+    normalizedLine <= normalizedPreferred.endLine
+  ) {
+    return normalizedPreferred;
+  }
+
+  let matched = null;
+  let bestSpan = Number.POSITIVE_INFINITY;
+  sourceBlocks.forEach((block) => {
+    if (normalizedLine < block.startLine || normalizedLine > block.endLine) {
+      return;
+    }
+    const span = Math.max(1, block.endLine - block.startLine + 1);
+    if (span < bestSpan) {
+      bestSpan = span;
+      matched = block;
+    }
+  });
+  if (matched) {
+    return matched;
+  }
+  if (normalizedPreferred) {
+    return normalizedPreferred;
+  }
+  return sourceBlocks[0] || null;
+};
+
+const applyLearningSelection = (lineNumber, lineText, { preferredBlock = null } = {}) => {
+  const normalizedLine = Math.max(1, Number(lineNumber || 1));
+  const resolvedLineText = String(lineText || resolveLineTextByNumber(form.code, normalizedLine));
+  const matchedLineExplanation = Array.isArray(learning.lineExplanations)
+    ? learning.lineExplanations.find((item) => Number(item?.lineNumber) === normalizedLine)
+    : null;
+  const fallbackLineExplanation = buildLineExplanation(normalizedLine, resolvedLineText);
+  const lineExplanation = matchedLineExplanation
+    ? {
+      lineNumber: normalizedLine,
+      lineText: String(matchedLineExplanation.lineText || resolvedLineText),
+      lineExplanation: String(matchedLineExplanation.lineExplanation || fallbackLineExplanation.lineExplanation),
+      syntaxPoint: String(matchedLineExplanation.syntaxPoint || fallbackLineExplanation.syntaxPoint),
+      commonMistake: String(matchedLineExplanation.commonMistake || fallbackLineExplanation.commonMistake)
+    }
+    : fallbackLineExplanation;
+
+  learning.selectedLine = normalizedLine;
+  learning.lineText = lineExplanation.lineText;
+  learning.lineExplanation = lineExplanation.lineExplanation;
+  learning.syntaxPoint = lineExplanation.syntaxPoint;
+  learning.commonMistake = lineExplanation.commonMistake;
+
+  const matchedBlock = resolveBlockByLine(learning.codeBlocks, normalizedLine, preferredBlock);
+  learning.selectedBlock = matchedBlock || buildFallbackBlockExplanation(normalizedLine);
+};
+
+const hydrateLearningFromCode = (code, { keepLineSelection = true } = {}) => {
+  const source = String(code || "");
+  const lines = source.split("\n");
+  const maxLine = Math.max(1, lines.length);
+  const nextFingerprint = computeCodeFingerprint(source);
+  if (
+    learning.explainedCodeFingerprint &&
+    learning.explainedCodeFingerprint !== nextFingerprint
+  ) {
+    learning.lineExplanations = [];
+    learning.codeBlocks = [];
+    learning.selectedBlock = null;
+    learning.explainedCodeFingerprint = "";
+  }
+
+  learning.steps = buildLearningSteps(source);
+  learning.programOutput = extractProgramOutput(source);
+  learning.knowledgePoints = buildKnowledgePoints(source);
+  learning.commonMistakes = buildCommonMistakes(source);
+
+  const targetLine = keepLineSelection
+    ? Math.max(1, Math.min(maxLine, Number(learning.selectedLine || 1)))
+    : 1;
+  const targetLineText = String(lines[targetLine - 1] || "");
+  applyLearningSelection(targetLine, targetLineText);
+};
+
+const applyLearningExplainResponse = (response, lineNumber, lineText) => {
+  const sourceCode = String(form.code || "");
+  const totalLines = Math.max(1, sourceCode.split("\n").length);
+  const lineExplanations = normalizeLearningLineExplanations(
+    response?.line_explanations ?? response?.lineExplanations,
+    totalLines
+  );
+  const codeBlocks = normalizeLearningCodeBlocks(
+    response?.code_blocks ?? response?.codeBlocks,
+    totalLines
+  );
+  const selectedBlock = normalizeLearningCodeBlock(
+    response?.selected_block ?? response?.selectedBlock,
+    totalLines
+  );
+
+  learning.lineExplanations = lineExplanations;
+  learning.codeBlocks = codeBlocks;
+  learning.explainedCodeFingerprint = computeCodeFingerprint(sourceCode);
+  applyLearningSelection(lineNumber, lineText, { preferredBlock: selectedBlock });
+};
+
+const handleCodeLineSelect = (payload) => {
+  const lineNumber = Math.max(1, Number(payload?.lineNumber || 1));
+  const lineText = String(payload?.lineText || "");
+  if (isLearningMode.value) {
+    applyLearningSelection(lineNumber, lineText);
+    return;
+  }
+  verification.selectedLine = lineNumber;
+  verification.lineText = lineText || resolveLineTextByNumber(form.code, lineNumber);
+};
+
+const handleVerificationLineSelectFromGraph = (lineNumber) => {
+  const normalizedLine = Math.max(1, Number(lineNumber || 1));
+  verification.selectedLine = normalizedLine;
+  verification.lineText = resolveLineTextByNumber(form.code, normalizedLine);
+};
+
+const buildVerificationSummaryFallback = ({
+  candidateFunction = "",
+  checkerStatus = "",
+  checkerVerdict = "",
+  checkerConclusion = "",
+  checkerMessage = "",
+  selectedLine = 1
+} = {}) => {
+  const line = Math.max(1, Number(selectedLine || 1));
+  const codeLine = resolveLineTextByNumber(form.code, line);
+  return {
+    status: "FALLBACK",
+    message: "后端图摘要暂不可用，已启用前端占位结构图。",
+    summaryText: [
+      `验证状态: ${checkerVerdict || checkerConclusion || checkerStatus || "UNKNOWN"}`,
+      `候选函数: ${candidateFunction || "（空）"}`,
+      "说明: 当前为前端兜底结构图，可继续查看代码切片与结论说明。"
+    ].join("\n"),
+    verificationStatus: checkerVerdict || checkerConclusion || checkerStatus || "NOT_PROVED",
+    candidateFunction,
+    focusLines: [line],
+    graph: {
+      nodes: [
+        {
+          id: "fallback-selected",
+          label: codeLine || "当前代码行",
+          type: "statement",
+          lineStart: line,
+          lineEnd: line,
+          status: "focus",
+          explanation: "当前选中代码行。"
+        }
+      ],
+      edges: []
+    },
+    slice: {
+      lines: [line],
+      code: codeLine
+    },
+    insight: {
+      target: `第 ${line} 行`,
+      checkerConclusion: checkerConclusion || checkerVerdict || "UNKNOWN",
+      proofOutcome: checkerVerdict || checkerConclusion || checkerStatus || "NOT_PROVED",
+      failureReason: checkerMessage || "无",
+      highlightExplanation: "橙色节点表示当前定位焦点。"
+    }
+  };
+};
+
+const requestVerificationSummary = async ({
+  candidateFunction = "",
+  checkerStatus = "",
+  checkerVerdict = "",
+  checkerConclusion = "",
+  checkerMessage = "",
+  checkerCounterexample = "",
+  selectedLine = 1
+} = {}) => {
+  const normalizedSelectedLine = Math.max(1, Number(selectedLine || 1));
+  try {
+    const summary = await buildVerificationSummaryGraph({
+      code: String(form.code || ""),
+      language: String(form.language || ""),
+      candidateFunction: String(candidateFunction || ""),
+      checkerStatus: String(checkerStatus || ""),
+      checkerVerdict: String(checkerVerdict || ""),
+      checkerConclusion: String(checkerConclusion || ""),
+      checkerMessage: String(checkerMessage || ""),
+      checkerCounterexample: String(checkerCounterexample || ""),
+      selectedLine: normalizedSelectedLine
+    });
+    result.verificationSummary = summary || buildVerificationSummaryFallback({
+      candidateFunction,
+      checkerStatus,
+      checkerVerdict,
+      checkerConclusion,
+      checkerMessage,
+      selectedLine: normalizedSelectedLine
+    });
+  } catch (error) {
+    appendLog(`可视化摘要生成失败，已回退占位图: ${error?.message || "未知错误"}`);
+    result.verificationSummary = buildVerificationSummaryFallback({
+      candidateFunction,
+      checkerStatus,
+      checkerVerdict,
+      checkerConclusion,
+      checkerMessage,
+      selectedLine: normalizedSelectedLine
+    });
+  }
+};
+
+const handleModeChange = (mode) => {
+  currentMode.value = mode === "verification" ? "verification" : "learning";
+  if (currentMode.value === "learning") {
+    form.batchMode = false;
+    hydrateLearningFromCode(form.code, { keepLineSelection: true });
+    if (!learning.lineExplanation) {
+      handleCodeLineSelect({ lineNumber: 1, lineText: String(form.code || "").split("\n")[0] || "" });
+    }
+    return;
+  }
+  verification.selectedLine = Math.max(1, Number(verification.selectedLine || 1));
+  verification.lineText = resolveLineTextByNumber(form.code, verification.selectedLine);
+  if (!result.verificationSummary && String(form.code || "").trim()) {
+    result.verificationSummary = buildVerificationSummaryFallback({
+      candidateFunction: result.candidateFunctions,
+      checkerStatus: result.checkerStatus,
+      checkerVerdict: result.checkerVerdict,
+      checkerConclusion: result.checkerConclusion,
+      checkerMessage: result.checkerMessage,
+      selectedLine: verification.selectedLine
+    });
+  }
 };
 
 const resolveBatchDataset = () => {
@@ -207,6 +795,7 @@ const clearOutput = () => {
   result.checkerRawOutput = "";
   result.checkerFeedback = "";
   result.artifactSummary = "";
+  result.verificationSummary = null;
   result.batchMode = false;
   result.batchProgress.total = 0;
   result.batchProgress.completed = 0;
@@ -219,6 +808,8 @@ const clearOutput = () => {
   result.batchProgress.stopCount = 0;
   result.batchResults = [];
   result.batchResultPath = "";
+  verification.selectedLine = 1;
+  verification.lineText = "";
 };
 
 const normalizeCheckerStatus = (value) => {
@@ -653,6 +1244,7 @@ const resetForm = () => {
   selectedFileName.value = "";
   resetCaseSourceMeta();
   clearOutput();
+  resetLearningPanels();
 };
 
 const handleFileChange = (file) => {
@@ -661,6 +1253,9 @@ const handleFileChange = (file) => {
   const reader = new FileReader();
   reader.onload = () => {
     form.code = String(reader.result || "");
+    if (isLearningMode.value) {
+      hydrateLearningFromCode(form.code, { keepLineSelection: false });
+    }
   };
   reader.readAsText(file.raw);
 };
@@ -759,6 +1354,25 @@ watch(
 );
 
 watch(
+  () => form.code,
+  (code) => {
+    if (!isLearningMode.value) {
+      const lines = String(code || "").split("\n");
+      const maxLine = Math.max(1, lines.length);
+      verification.selectedLine = Math.max(1, Math.min(maxLine, Number(verification.selectedLine || 1)));
+      verification.lineText = String(lines[verification.selectedLine - 1] || "");
+      result.verificationSummary = null;
+      return;
+    }
+    if (!String(code || "").trim()) {
+      resetLearningPanels();
+      return;
+    }
+    hydrateLearningFromCode(code, { keepLineSelection: true });
+  }
+);
+
+watch(
   () => runtimeState,
   () => {
     schedulePersist();
@@ -782,6 +1396,55 @@ const handleDisplayScroll = () => {
 };
 
 const submitTask = async () => {
+  if (isLearningMode.value) {
+    if (!String(form.code || "").trim()) {
+      ElMessage.warning("请先输入代码，再开始讲解");
+      return;
+    }
+    submitting.value = true;
+    appendLog("开始讲解：正在解析代码结构与执行顺序。");
+    try {
+      hydrateLearningFromCode(form.code, { keepLineSelection: true });
+      const targetLine = Math.max(1, Number(learning.selectedLine || 1));
+      const targetLineText = resolveLineTextByNumber(form.code, targetLine);
+
+      appendLog("正在调用后端讲解服务：生成逐行解释与代码分块。");
+      const response = await explainLearningCode({
+        code: String(form.code || ""),
+        model: String(form.model || ""),
+        language: String(form.language || ""),
+        fileName: String(selectedFileName.value || ""),
+        selectedLine: targetLine
+      });
+
+      if (response?.log) {
+        logs.value = logs.value ? `${logs.value}\n${response.log}` : response.log;
+      }
+
+      applyLearningExplainResponse(response, targetLine, targetLineText);
+      const status = String(response?.status || "").toUpperCase();
+      if (status === "SUCCESS") {
+        appendLog("讲解生成完成：当前代码行讲解与当前代码块讲解已更新。");
+        ElMessage.success("讲解内容已更新");
+      } else if (status === "FALLBACK") {
+        appendLog("模型讲解未成功，已切换为后端兜底讲解结果。");
+        ElMessage.warning(response?.message || "已回退到兜底讲解结果");
+      } else {
+        appendLog("讲解请求已完成，但返回状态未标记为 SUCCESS。");
+        ElMessage.info(response?.message || "讲解结果已返回");
+      }
+    } catch (error) {
+      const readable = error?.message || "讲解请求失败";
+      appendLog(`讲解生成失败：${readable}`);
+      const fallbackLine = Math.max(1, Number(learning.selectedLine || 1));
+      applyLearningSelection(fallbackLine, resolveLineTextByNumber(form.code, fallbackLine));
+      ElMessage.error(readable);
+    } finally {
+      submitting.value = false;
+    }
+    return;
+  }
+
   const hasCodeInput = Boolean(form.code.trim());
   const hasUploadedFile = Boolean(selectedFileName.value.trim());
   const hasSelectedCase = Boolean(form.benchmark && form.benchmark !== "none");
@@ -938,6 +1601,17 @@ const submitTask = async () => {
     result.checkerMessage = checkerMessage;
     result.checkerCounterexample = checkerCounterexample;
     result.checkerRawOutput = checkerRawOutput;
+    verification.selectedLine = Math.max(1, Number(verification.selectedLine || 1));
+    verification.lineText = resolveLineTextByNumber(form.code, verification.selectedLine);
+    await requestVerificationSummary({
+      candidateFunction: result.candidateFunctions,
+      checkerStatus,
+      checkerVerdict,
+      checkerConclusion,
+      checkerMessage,
+      checkerCounterexample,
+      selectedLine: verification.selectedLine
+    });
 
     if (status === "SUCCESS") {
       result.checkerFeedback = checkerFeedback || [
@@ -987,6 +1661,14 @@ const submitTask = async () => {
     const readable = error.message || "调用失败";
     appendLog(`调用失败: ${readable}`);
     result.checkerFeedback = `调用失败：${readable}`;
+    result.verificationSummary = buildVerificationSummaryFallback({
+      candidateFunction: result.candidateFunctions,
+      checkerStatus: result.checkerStatus,
+      checkerVerdict: result.checkerVerdict,
+      checkerConclusion: result.checkerConclusion,
+      checkerMessage: readable,
+      selectedLine: verification.selectedLine
+    });
     ElMessage.error(readable);
   } finally {
     singleRunAbortController = null;
@@ -1022,6 +1704,32 @@ onMounted(() => {
         0.34
       );
   });
+  if (!runtimeState.ui.mode) {
+    runtimeState.ui.mode = "learning";
+  }
+  verification.selectedLine = Math.max(1, Number(verification.selectedLine || 1));
+  verification.lineText = resolveLineTextByNumber(form.code, verification.selectedLine);
+  if (String(form.code || "").trim()) {
+    if (isLearningMode.value) {
+      hydrateLearningFromCode(form.code, { keepLineSelection: true });
+      if (!learning.lineExplanation) {
+        handleCodeLineSelect({ lineNumber: 1, lineText: String(form.code || "").split("\n")[0] || "" });
+      }
+    } else if (!result.verificationSummary) {
+      result.verificationSummary = buildVerificationSummaryFallback({
+        candidateFunction: result.candidateFunctions,
+        checkerStatus: result.checkerStatus,
+        checkerVerdict: result.checkerVerdict,
+        checkerConclusion: result.checkerConclusion,
+        checkerMessage: result.checkerMessage,
+        selectedLine: verification.selectedLine
+      });
+    }
+  } else {
+    if (isLearningMode.value) {
+      resetLearningPanels();
+    }
+  }
   void recoverBatchTaskState();
 });
 
