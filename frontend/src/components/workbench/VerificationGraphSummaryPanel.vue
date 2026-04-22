@@ -71,9 +71,130 @@ const emit = defineEmits(["select-line"]);
 
 const activeNodeId = ref("");
 
+const parseTokens = (text) => {
+  const source = String(text || "");
+  const matches = source.match(/[A-Za-z_][A-Za-z0-9_]*/g) || [];
+  const stop = new Set([
+    "for", "while", "do", "if", "else", "switch", "case", "return",
+    "int", "long", "short", "float", "double", "char", "bool", "boolean",
+    "void", "class", "public", "private", "protected", "static", "new",
+    "true", "false", "null", "and", "or", "not", "max", "min", "relu"
+  ]);
+  return matches
+    .map((item) => item.toLowerCase())
+    .filter((item) => !stop.has(item));
+};
+
+const parsePositiveGuardTokens = (text) => {
+  const source = String(text || "");
+  const regex = /([A-Za-z_][A-Za-z0-9_]*)\s*(?:>|>=)\s*(?:0|1)/g;
+  const result = new Set();
+  let match = regex.exec(source);
+  while (match) {
+    result.add(String(match[1] || "").toLowerCase());
+    match = regex.exec(source);
+  }
+  return result;
+};
+
+const parseAssignmentInfo = (line) => {
+  let source = String(line || "").trim();
+  if (!source) {
+    return null;
+  }
+  if (source.endsWith(";")) {
+    source = source.slice(0, -1).trim();
+  }
+  let m = source.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(\+\+|--)$/);
+  if (m) {
+    return { left: m[1], operator: m[2], right: "1" };
+  }
+  m = source.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*([+\-*/%])=\s*(.+)$/);
+  if (m) {
+    return { left: m[1], operator: `${m[2]}=`, right: m[3] };
+  }
+  m = source.match(/^(?:[A-Za-z_][A-Za-z0-9_<>\[\]]*\s+)*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/);
+  if (m) {
+    return { left: m[1], operator: "=", right: m[2] };
+  }
+  return null;
+};
+
+const looksLikeInputInit = (assignment, line, lastLoopLine) => {
+  if (!assignment) {
+    return false;
+  }
+  if (lastLoopLine > 0 && line >= lastLoopLine) {
+    return false;
+  }
+  const rhs = String(assignment.right || "").toLowerCase();
+  return rhs.includes("args[")
+    || rhs.includes("argv[")
+    || rhs.includes("scanner")
+    || rhs.includes("stdin")
+    || rhs.includes("getline")
+    || rhs.includes("readline")
+    || rhs.includes("input(");
+};
+
+const isPositiveDelta = (delta, positiveTokens) => {
+  const value = String(delta || "").toLowerCase().replace(/\s+/g, "");
+  if (!value) {
+    return false;
+  }
+  if (/^\d+(\.\d+)?$/.test(value)) {
+    return Number(value) > 0;
+  }
+  return positiveTokens.has(value);
+};
+
+const looksLikeSupportUpdate = (assignment, inLoopNeighborhood, loopTokens, positiveTokens) => {
+  if (!assignment || !inLoopNeighborhood) {
+    return false;
+  }
+  const lhs = String(assignment.left || "").toLowerCase();
+  if (!loopTokens.has(lhs)) {
+    return false;
+  }
+  const op = String(assignment.operator || "");
+  if (op === "--") {
+    return true;
+  }
+  if (op === "-=") {
+    return isPositiveDelta(assignment.right, positiveTokens);
+  }
+  if (op !== "=") {
+    return false;
+  }
+  const rhs = String(assignment.right || "").toLowerCase().replace(/\s+/g, "");
+  const prefix = `${lhs}-`;
+  if (!rhs.startsWith(prefix)) {
+    return false;
+  }
+  return isPositiveDelta(rhs.slice(prefix.length), positiveTokens);
+};
+
+const edgeStatusFromNodeStatus = (fromStatus, toStatus) => {
+  const a = String(fromStatus || "").toLowerCase();
+  const b = String(toStatus || "").toLowerCase();
+  if (["unsupport", "high-risk", "risk"].includes(a) || ["unsupport", "high-risk", "risk"].includes(b)) {
+    return "risk";
+  }
+  if (a === "support" || b === "support") {
+    return "support";
+  }
+  if (a === "input" || b === "input") {
+    return "highlight";
+  }
+  return "normal";
+};
+
 const fallbackGraph = computed(() => {
   const lines = String(props.code || "").split("\n");
   const nodes = [];
+  const loopTokens = new Set();
+  const positiveGuardTokens = new Set();
+  let lastLoopLine = -1;
   let index = 0;
   lines.forEach((raw, i) => {
     const line = i + 1;
@@ -82,18 +203,42 @@ const fallbackGraph = computed(() => {
       return;
     }
     let type = "statement";
+    let status = "normal";
+    let explanation = "基于本地代码结构生成的占位节点。";
     if (/\b(for|while|do)\b/i.test(trimmed)) type = "loop_guard";
     else if (/\b(if|else if|elif|switch|case)\b/i.test(trimmed)) type = "condition";
     else if (/\breturn\b/i.test(trimmed)) type = "return";
     else if (/(?<![=!<>])=(?!=)|\+=|-=|\*=|\/=|%=|\+\+|--/.test(trimmed)) type = "variable_update";
+
+    if (type === "loop_guard") {
+      status = "support";
+      parseTokens(trimmed).forEach((token) => loopTokens.add(token));
+      parsePositiveGuardTokens(trimmed).forEach((token) => positiveGuardTokens.add(token));
+      lastLoopLine = line;
+      explanation = "循环守卫条件节点，直接影响终止性证明链条。";
+    } else if (type === "variable_update" || type === "candidate_update") {
+      const assignment = parseAssignmentInfo(trimmed);
+      const inLoopNeighborhood = lastLoopLine > 0 && line > lastLoopLine && (line - lastLoopLine) <= 10;
+      if (looksLikeInputInit(assignment, line, lastLoopLine)) {
+        status = "input";
+        explanation = "输入初始化/前置数据供给节点。";
+      } else if (looksLikeSupportUpdate(assignment, inLoopNeighborhood, loopTokens, positiveGuardTokens)) {
+        status = "support";
+        type = "candidate_update";
+        explanation = "循环内部直接推动终止性证明的关键更新语句。";
+      } else {
+        status = "normal";
+        explanation = "普通更新节点。";
+      }
+    }
     nodes.push({
       id: `fallback-${index + 1}`,
       label: trimmed.length > 44 ? `${trimmed.slice(0, 44)}...` : trimmed,
       type,
       lineStart: line,
       lineEnd: line,
-      status: line === Number(props.selectedLine || 1) ? "focus" : "normal",
-      explanation: "基于本地代码结构生成的占位节点。"
+      status,
+      explanation
     });
     index += 1;
   });
@@ -103,7 +248,7 @@ const fallbackGraph = computed(() => {
       source: nodes[i].id,
       target: nodes[i + 1].id,
       type: "syntax_flow",
-      status: "normal"
+      status: edgeStatusFromNodeStatus(nodes[i].status, nodes[i + 1].status)
     });
   }
   for (let i = 0; i < nodes.length; i += 1) {
@@ -125,7 +270,7 @@ const fallbackGraph = computed(() => {
         source: from.id,
         target: to.id,
         type: "control_dep",
-        status: "highlight"
+        status: edgeStatusFromNodeStatus(from.status, to.status)
       });
     }
   }
@@ -243,6 +388,7 @@ const handleNodeClick = (node) => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
+  align-items: stretch;
 }
 
 @media (max-width: 1280px) {

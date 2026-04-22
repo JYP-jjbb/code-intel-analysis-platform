@@ -25,7 +25,7 @@ public class SiliconFlowSettingsService {
     private static final String DEEPSEEK_API_KEY_UPDATED_AT_FIELD = "deepseekApiKeyUpdatedAt";
     private static final String MOONSHOT_SERVICE_TARGET = "Moonshot Official Chat Completions";
     private static final String HUNYUAN_SERVICE_TARGET = "Tencent Hunyuan Official Chat Completions";
-    private static final String DEEPSEEK_SERVICE_TARGET = "DeepSeek Official Chat Completions";
+    private static final String DEEPSEEK_SERVICE_TARGET = "DeepSeek Official Chat/Reasoner (Scenario Routed)";
     private static final String QWEN_SERVICE_TARGET = "Qwen Official (DashScope Compatible) Chat Completions";
 
     private final ObjectMapper objectMapper;

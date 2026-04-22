@@ -76,22 +76,78 @@ def _resolve_javachecker_jar(root: pathlib.Path) -> str:
 def _resolve_z3_jar(root: pathlib.Path) -> Optional[str]:
     return _first_existing(
         [
+            os.environ.get("NUTERA_Z3_JAR"),
             str(root / "libs" / "share" / "java" / "com.microsoft.z3.jar"),
             "/workspace/libs/share/java/com.microsoft.z3.jar",
         ]
     )
 
 
+def _build_native_dir_candidates(root: pathlib.Path, is_windows: bool) -> List[pathlib.Path]:
+    platform_dir = "windows-x64" if is_windows else "linux-x64"
+    candidates: List[pathlib.Path] = []
+
+    env_dir = (os.environ.get("NUTERA_Z3_NATIVE_DIR") or "").strip().strip("\"'")
+    if env_dir:
+        candidates.append(pathlib.Path(env_dir))
+
+    candidates.extend(
+        [
+            root / "libs" / platform_dir,
+            root / platform_dir,
+            root / "libs",
+            root / "lib",
+            root / "bin",
+            root,
+            root / "libs" / "z3-z3-4.11.0" / "build",
+            root / "libs" / "z3-z3-4.11.0" / "build" / "bin",
+            root / "libs" / "z3-z3-4.11.0" / "build" / "lib",
+        ]
+    )
+
+    workspace_root = pathlib.Path("/workspace")
+    candidates.extend(
+        [
+            workspace_root / "libs" / platform_dir,
+            workspace_root / "libs",
+        ]
+    )
+
+    unique: List[pathlib.Path] = []
+    seen = set()
+    for raw in candidates:
+        if raw is None:
+            continue
+        try:
+            normalized = raw.expanduser().resolve()
+        except Exception:
+            normalized = raw.expanduser()
+        key = str(normalized).lower() if os.name == "nt" else str(normalized)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(normalized)
+    return unique
+
+
 def _resolve_native_dir(root: pathlib.Path, is_windows: bool) -> pathlib.Path:
     platform_dir = "windows-x64" if is_windows else "linux-x64"
-    candidates = [
-        root / "libs" / platform_dir,
-        pathlib.Path("/workspace/libs") / platform_dir,
-    ]
-    for candidate in candidates:
-        if candidate.is_dir():
+    expected = (root / "libs" / platform_dir).resolve()
+    candidates = _build_native_dir_candidates(root, is_windows)
+    existing_dirs = [p for p in candidates if p.is_dir()]
+
+    for candidate in existing_dirs:
+        libz3, libz3java = _resolve_native_libs(candidate, is_windows)
+        if libz3.exists() and libz3java.exists():
             return candidate.resolve()
-    return candidates[0].resolve()
+
+    if expected.is_dir():
+        return expected
+
+    if existing_dirs:
+        return existing_dirs[0].resolve()
+
+    return expected
 
 
 def _build_classpath(root: pathlib.Path, z3_jar: Optional[str], javachecker_jar: str) -> List[str]:
@@ -215,6 +271,19 @@ def _resolve_native_libs(native_dir: pathlib.Path, is_windows: bool) -> Tuple[pa
         libz3 = next((p for p in libz3_candidates if p.exists()), libz3_candidates[0])
         libz3java = next((p for p in libz3java_candidates if p.exists()), libz3java_candidates[0])
     return libz3, libz3java
+
+
+def _collect_native_scan_report(candidates: List[pathlib.Path], is_windows: bool) -> str:
+    rows = []
+    for candidate in candidates:
+        if not candidate.is_dir():
+            continue
+        libz3, libz3java = _resolve_native_libs(candidate, is_windows)
+        rows.append(
+            f"{candidate} (libz3={'yes' if libz3.exists() else 'no'}, "
+            f"libz3java={'yes' if libz3java.exists() else 'no'})"
+        )
+    return " | ".join(rows) if rows else "(no existing candidate directories)"
 
 
 def _check_windows_layout(native_dir: pathlib.Path) -> None:
@@ -350,19 +419,29 @@ def ensure_runtime_prepared(print_diagnostics: bool = True) -> RuntimeBootstrap:
     javachecker_jar = _resolve_javachecker_jar(ROOT)
     z3_jar = _resolve_z3_jar(ROOT)
     classpath_entries = _build_classpath(ROOT, z3_jar, javachecker_jar)
+    native_candidates = _build_native_dir_candidates(ROOT, is_windows)
     native_dir = _resolve_native_dir(ROOT, is_windows)
 
     if not native_dir.is_dir():
         expected = "libs/windows-x64" if is_windows else "libs/linux-x64"
-        raise FileNotFoundError(f"Z3 native directory not found: {native_dir}. Expected {expected}.")
+        raise FileNotFoundError(
+            f"Z3 native directory not found: {native_dir}. Expected {expected}. "
+            f"Scanned candidates: {_collect_native_scan_report(native_candidates, is_windows)}"
+        )
     if is_windows:
         _check_windows_layout(native_dir)
 
     libz3_path, libz3java_path = _resolve_native_libs(native_dir, is_windows)
     if not libz3_path.exists():
-        raise FileNotFoundError(f"Missing native Z3 core library: {libz3_path}")
+        raise FileNotFoundError(
+            f"Missing native Z3 core library: {libz3_path}. "
+            f"Scanned candidates: {_collect_native_scan_report(native_candidates, is_windows)}"
+        )
     if not libz3java_path.exists():
-        raise FileNotFoundError(f"Missing native Z3 Java library: {libz3java_path}")
+        raise FileNotFoundError(
+            f"Missing native Z3 Java library: {libz3java_path}. "
+            f"Scanned candidates: {_collect_native_scan_report(native_candidates, is_windows)}"
+        )
 
     os.environ["JAVACHECKER_JAR"] = javachecker_jar
 

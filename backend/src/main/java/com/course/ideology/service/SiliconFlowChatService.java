@@ -25,6 +25,8 @@ public class SiliconFlowChatService {
     private static final String DEFAULT_MOONSHOT_MODEL = "kimi-k2.5";
     private static final String DEFAULT_HUNYUAN_MODEL = "hunyuan-2.0-thinking-20251109";
     private static final String DEFAULT_QWEN_MODEL = "qwen3.5-plus";
+    private static final String DEFAULT_DEEPSEEK_CHAT_MODEL = "deepseek-chat";
+    private static final String DEFAULT_DEEPSEEK_REASONER_MODEL = "deepseek-reasoner";
     private static final double DEEPSEEK_TEMPERATURE = 0.0;
     private static final double KIMI_TEMPERATURE = 1.0;
     private static final double HUNYUAN_TEMPERATURE = 0.0;
@@ -44,6 +46,8 @@ public class SiliconFlowChatService {
     private final String qwenModel;
     private final String deepSeekBaseUrl;
     private final String deepSeekApiKeyFromConfig;
+    private final String deepSeekChatModel;
+    private final String deepSeekReasonerModel;
     private final Duration timeout;
 
     public SiliconFlowChatService(ObjectMapper objectMapper,
@@ -59,6 +63,8 @@ public class SiliconFlowChatService {
                                   @Value("${app.qwen.model:${QWEN_MODEL:qwen3.5-plus}}") String qwenModel,
                                   @Value("${app.moonshot.timeoutSeconds:90}") long timeoutSeconds,
                                   @Value("${app.deepseek.base-url:${DEEPSEEK_BASE_URL:https://api.deepseek.com}}") String deepSeekBaseUrl,
+                                  @Value("${app.deepseek.chat-model:${DEEPSEEK_CHAT_MODEL:deepseek-chat}}") String deepSeekChatModel,
+                                  @Value("${app.deepseek.reasoner-model:${DEEPSEEK_REASONER_MODEL:${app.deepseek.model:${DEEPSEEK_MODEL:deepseek-reasoner}}}}") String deepSeekReasonerModel,
                                   @Value("${app.deepseek.api-key:${DEEPSEEK_API_KEY:}}") String deepSeekApiKey) {
         this.objectMapper = objectMapper;
         this.settingsService = settingsService;
@@ -72,13 +78,15 @@ public class SiliconFlowChatService {
         this.qwenApiKeyFromConfig = qwenApiKey == null ? "" : qwenApiKey.trim();
         this.qwenModel = normalizeQwenModel(qwenModel);
         this.deepSeekBaseUrl = normalizeBaseUrl(deepSeekBaseUrl);
+        this.deepSeekChatModel = normalizeDeepSeekChatModel(deepSeekChatModel);
+        this.deepSeekReasonerModel = normalizeDeepSeekReasonerModel(deepSeekReasonerModel);
         this.deepSeekApiKeyFromConfig = deepSeekApiKey == null ? "" : deepSeekApiKey.trim();
         this.timeout = Duration.ofSeconds(Math.max(30, timeoutSeconds));
         this.httpClient = HttpClient.newBuilder().connectTimeout(this.timeout).build();
     }
 
     public boolean hasApiCredentialForModel(String model, String preferredApiKey) {
-        RoutingDecision routing = routeModel(model);
+        RoutingDecision routing = routeModel(model, "credential-check");
         if (routing.baseUrl == null || routing.baseUrl.isBlank()) {
             log.warn("LLM credential check failed: provider={}, requested_model={}, reason=base_url_missing",
                     routing.providerName, routing.requestedModel);
@@ -95,7 +103,7 @@ public class SiliconFlowChatService {
     }
 
     public String buildMissingCredentialMessage(String model) {
-        RoutingDecision routing = routeModel(model);
+        RoutingDecision routing = routeModel(model, "credential-check");
         if (routing.baseUrl == null || routing.baseUrl.isBlank()) {
             if (routing.provider == Provider.DEEPSEEK_OFFICIAL) {
                 return "DeepSeek base URL is not configured. Set DEEPSEEK_BASE_URL (or app.deepseek.base-url).";
@@ -110,7 +118,7 @@ public class SiliconFlowChatService {
         }
         CredentialResolution credential = resolveCredential(routing, "");
         if (routing.provider == Provider.DEEPSEEK_OFFICIAL) {
-            return "DeepSeek Official API key is not configured. Missing at: " + credential.source + ".";
+            return "DeepSeek API key is not configured. Missing at: " + credential.source + ".";
         }
         if (routing.provider == Provider.HUNYUAN_OFFICIAL) {
             return "Tencent Hunyuan API key is not configured. Missing at: " + credential.source + ".";
@@ -122,29 +130,57 @@ public class SiliconFlowChatService {
     }
 
     Map<String, Object> buildDebugDispatchPreview(String model) {
-        RoutingDecision routing = routeModel(model);
+        RoutingDecision routing = routeModel(model, "unknown");
+        return routing.toDebugMap();
+    }
+
+    Map<String, Object> buildDebugDispatchPreview(String model, String requestModule) {
+        RoutingDecision routing = routeModel(model, requestModule);
         return routing.toDebugMap();
     }
 
     public ChatResult chatCompletion(String apiKey, String model, String systemPrompt, String userPrompt) {
-        RoutingDecision routing = routeModel(model);
+        return chatCompletion(apiKey, model, systemPrompt, userPrompt, "unknown");
+    }
+
+    public ChatResult chatCompletion(String apiKey,
+                                     String model,
+                                     String systemPrompt,
+                                     String userPrompt,
+                                     String requestModule) {
+        String module = requestModule == null || requestModule.isBlank() ? "unknown" : requestModule.trim();
+        RoutingDecision routing = routeModel(model, module);
+        int attemptIndex = extractAttemptIndex(module);
+        if (routing.provider == Provider.DEEPSEEK_OFFICIAL && routing.deepSeekModeForced) {
+            log.info(
+                    "DeepSeek scenario routing: module={}, requested_model={}, forced_mode={}, upstream_model={}",
+                    module,
+                    routing.requestedModel,
+                    routing.modeType,
+                    routing.upstreamModel
+            );
+        }
         CredentialResolution credential = resolveCredential(routing, apiKey);
         String resolvedApiKey = requireCredential(routing, credential);
         Map<String, Object> payload = buildChatCompletionPayload(routing, systemPrompt, userPrompt);
 
         try {
-            Map<String, Object> requestParams = extractRequestControlParams(payload);
+            Map<String, Object> requestParams = extractRequestControlParams(payload, routing, module);
             log.info(
-                    "LLM request dispatch: provider={}, base_url={}, requested_model={}, upstream_model={}, key_source={}, request_params={}",
+                    "LLM request dispatch: provider={}, module={}, mode_type={}, attempt_index={}, base_url={}, requested_model={}, upstream_model={}, reasoning={}, key_source={}, request_params={}",
                     routing.providerName,
+                    module,
+                    routing.modeType,
+                    attemptIndex,
                     routing.baseUrl,
                     routing.requestedModel,
                     routing.upstreamModel,
+                    routing.reasoning,
                     credential.source,
                     objectMapper.writeValueAsString(requestParams)
             );
             String body = objectMapper.writeValueAsString(payload);
-            return chatCompletionWithRetry(routing, resolvedApiKey, body);
+            return chatCompletionWithRetry(routing, resolvedApiKey, body, module);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException(routing.providerName + " request was interrupted.", ex);
@@ -172,30 +208,41 @@ public class SiliconFlowChatService {
         return payload;
     }
 
-    private Map<String, Object> extractRequestControlParams(Map<String, Object> payload) {
+    private Map<String, Object> extractRequestControlParams(Map<String, Object> payload,
+                                                            RoutingDecision routing,
+                                                            String requestModule) {
         LinkedHashMap<String, Object> control = new LinkedHashMap<>();
         control.put("model", payload.get("model"));
         control.put("temperature", payload.get("temperature"));
         control.put("extra_body", payload.get("extra_body"));
+        control.put("mode_type", routing.modeType);
+        control.put("reasoning", routing.reasoning);
+        control.put("deepseek_mode_forced", routing.deepSeekModeForced);
+        control.put("request_module", requestModule);
+        control.put("attempt_index", extractAttemptIndex(requestModule));
         return control;
     }
 
-    private RoutingDecision routeModel(String requestedModel) {
+    private RoutingDecision routeModel(String requestedModel, String requestModule) {
         String rawModel = requestedModel == null ? "" : requestedModel.trim();
         if (rawModel.isBlank()) {
             rawModel = moonshotModel;
         }
+        String module = requestModule == null ? "" : requestModule.trim();
         String normalized = normalizeModel(rawModel);
         if (isDeepSeekModel(normalized)) {
-            String upstream = normalized.contains("reasoner") ? "deepseek-reasoner" : "deepseek-chat";
+            DeepSeekModeDecision deepSeekModeDecision = resolveDeepSeekMode(rawModel, module);
             return new RoutingDecision(
                     Provider.DEEPSEEK_OFFICIAL,
                     "deepseek_official",
                     deepSeekBaseUrl,
                     rawModel,
-                    upstream,
+                    deepSeekModeDecision.upstreamModel,
                     DEEPSEEK_TEMPERATURE,
-                    false
+                    false,
+                    deepSeekModeDecision.reasoning,
+                    deepSeekModeDecision.modeType,
+                    deepSeekModeDecision.forcedByScenario
             );
         }
         if (isHunyuanModel(normalized)) {
@@ -206,6 +253,9 @@ public class SiliconFlowChatService {
                     rawModel,
                     resolveHunyuanUpstreamModel(rawModel),
                     HUNYUAN_TEMPERATURE,
+                    false,
+                    false,
+                    "chat",
                     false
             );
         }
@@ -217,7 +267,10 @@ public class SiliconFlowChatService {
                     rawModel,
                     resolveQwenUpstreamModel(rawModel),
                     QWEN_TEMPERATURE,
-                    true
+                    true,
+                    true,
+                    "reasoner",
+                    false
             );
         }
         return new RoutingDecision(
@@ -227,6 +280,9 @@ public class SiliconFlowChatService {
                 rawModel,
                 resolveMoonshotUpstreamModel(rawModel),
                 KIMI_TEMPERATURE,
+                false,
+                false,
+                "chat",
                 false
         );
     }
@@ -272,6 +328,93 @@ public class SiliconFlowChatService {
             return DEFAULT_QWEN_MODEL;
         }
         return model;
+    }
+
+    private String normalizeDeepSeekChatModel(String configuredModel) {
+        String model = configuredModel == null ? "" : configuredModel.trim();
+        if (model.isBlank()) {
+            return DEFAULT_DEEPSEEK_CHAT_MODEL;
+        }
+        String normalized = model.toLowerCase(Locale.ROOT);
+        if (normalized.contains("chat")) {
+            return DEFAULT_DEEPSEEK_CHAT_MODEL;
+        }
+        if (normalized.contains("deepseek")) {
+            log.warn("DeepSeek chat model '{}' is invalid, forcing '{}'.", model, DEFAULT_DEEPSEEK_CHAT_MODEL);
+            return DEFAULT_DEEPSEEK_CHAT_MODEL;
+        }
+        log.warn("Unsupported DeepSeek chat model token '{}', forcing '{}'.", model, DEFAULT_DEEPSEEK_CHAT_MODEL);
+        return DEFAULT_DEEPSEEK_CHAT_MODEL;
+    }
+
+    private String normalizeDeepSeekReasonerModel(String configuredModel) {
+        String model = configuredModel == null ? "" : configuredModel.trim();
+        if (model.isBlank()) {
+            return DEFAULT_DEEPSEEK_REASONER_MODEL;
+        }
+        String normalized = model.toLowerCase(Locale.ROOT);
+        if (normalized.contains("reasoner")) {
+            return DEFAULT_DEEPSEEK_REASONER_MODEL;
+        }
+        if (normalized.contains("deepseek")) {
+            log.warn("DeepSeek reasoner model '{}' is invalid, forcing '{}'.", model, DEFAULT_DEEPSEEK_REASONER_MODEL);
+            return DEFAULT_DEEPSEEK_REASONER_MODEL;
+        }
+        log.warn("Unsupported DeepSeek reasoner model token '{}', forcing '{}'.", model, DEFAULT_DEEPSEEK_REASONER_MODEL);
+        return DEFAULT_DEEPSEEK_REASONER_MODEL;
+    }
+
+    private DeepSeekModeDecision resolveDeepSeekMode(String requestedModel, String requestModule) {
+        String module = requestModule == null ? "" : requestModule.trim().toLowerCase(Locale.ROOT);
+        String requested = normalizeModelToken(requestedModel).toLowerCase(Locale.ROOT);
+        DeepSeekMode requestedMode = parseRequestedDeepSeekMode(requested);
+        boolean batchReasoner = isBatchVerificationModule(module);
+        DeepSeekMode targetMode = batchReasoner ? DeepSeekMode.REASONER : DeepSeekMode.CHAT;
+        boolean forcedByScenario = requestedMode != DeepSeekMode.UNSPECIFIED && requestedMode != targetMode;
+        String modeType = targetMode == DeepSeekMode.REASONER ? "reasoner" : "chat";
+        return new DeepSeekModeDecision(
+                targetMode == DeepSeekMode.REASONER ? deepSeekReasonerModel : deepSeekChatModel,
+                targetMode == DeepSeekMode.REASONER,
+                modeType,
+                forcedByScenario
+        );
+    }
+
+    private boolean isBatchVerificationModule(String module) {
+        if (module == null || module.isBlank()) {
+            return false;
+        }
+        return module.contains("nutera.batch.");
+    }
+
+    private DeepSeekMode parseRequestedDeepSeekMode(String normalizedRequestedModel) {
+        if (normalizedRequestedModel == null || normalizedRequestedModel.isBlank()) {
+            return DeepSeekMode.UNSPECIFIED;
+        }
+        if (normalizedRequestedModel.contains("reasoner")) {
+            return DeepSeekMode.REASONER;
+        }
+        if (normalizedRequestedModel.contains("chat")) {
+            return DeepSeekMode.CHAT;
+        }
+        return DeepSeekMode.UNSPECIFIED;
+    }
+
+    private int extractAttemptIndex(String requestModule) {
+        if (requestModule == null || requestModule.isBlank()) {
+            return 0;
+        }
+        String normalized = requestModule.trim().toLowerCase(Locale.ROOT);
+        int marker = normalized.lastIndexOf(".attempt-");
+        if (marker < 0) {
+            return 0;
+        }
+        String suffix = normalized.substring(marker + ".attempt-".length()).trim();
+        try {
+            return Math.max(0, Integer.parseInt(suffix));
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
     }
 
     private String resolveMoonshotUpstreamModel(String requestedModel) {
@@ -397,7 +540,7 @@ public class SiliconFlowChatService {
         }
         if (credential.apiKey.isBlank()) {
             if (routing.provider == Provider.DEEPSEEK_OFFICIAL) {
-                throw new IllegalStateException("DeepSeek Official API key is missing at source: " + credential.source + ".");
+                throw new IllegalStateException("DeepSeek API key is missing at source: " + credential.source + ".");
             }
             if (routing.provider == Provider.HUNYUAN_OFFICIAL) {
                 throw new IllegalStateException("Tencent Hunyuan API key is missing at source: " + credential.source + ".");
@@ -410,7 +553,7 @@ public class SiliconFlowChatService {
         return credential.apiKey;
     }
 
-    private ChatResult chatCompletionWithRetry(RoutingDecision routing, String apiKey, String body) throws Exception {
+    private ChatResult chatCompletionWithRetry(RoutingDecision routing, String apiKey, String body, String requestModule) throws Exception {
         for (int retryCount = 0; ; retryCount++) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(routing.baseUrl + "/chat/completions"))
@@ -432,10 +575,13 @@ public class SiliconFlowChatService {
                     throw new IllegalStateException("Model response is empty. No candidate function was generated.");
                 }
                 log.info(
-                        "{} response success: endpoint={}, upstream_model={}, content_preview={}",
+                        "{} response success: module={}, mode_type={}, endpoint={}, upstream_model={}, reasoning={}, content_preview={}",
                         routing.providerName,
+                        requestModule,
+                        routing.modeType,
                         routing.baseUrl + "/chat/completions",
                         routing.upstreamModel,
+                        routing.reasoning,
                         abbreviate(content)
                 );
                 return new ChatResult(content.trim(), raw);
@@ -535,6 +681,9 @@ public class SiliconFlowChatService {
         private final String upstreamModel;
         private final double temperature;
         private final boolean enableThinking;
+        private final boolean reasoning;
+        private final String modeType;
+        private final boolean deepSeekModeForced;
 
         private RoutingDecision(Provider provider,
                                 String providerName,
@@ -542,7 +691,10 @@ public class SiliconFlowChatService {
                                 String requestedModel,
                                 String upstreamModel,
                                 double temperature,
-                                boolean enableThinking) {
+                                boolean enableThinking,
+                                boolean reasoning,
+                                String modeType,
+                                boolean deepSeekModeForced) {
             this.provider = provider;
             this.providerName = providerName;
             this.baseUrl = baseUrl;
@@ -550,6 +702,9 @@ public class SiliconFlowChatService {
             this.upstreamModel = upstreamModel;
             this.temperature = temperature;
             this.enableThinking = enableThinking;
+            this.reasoning = reasoning;
+            this.modeType = modeType == null || modeType.isBlank() ? "chat" : modeType;
+            this.deepSeekModeForced = deepSeekModeForced;
         }
 
         private Map<String, Object> toDebugMap() {
@@ -560,7 +715,30 @@ public class SiliconFlowChatService {
             map.put("upstream_model", upstreamModel);
             map.put("temperature", temperature);
             map.put("enable_thinking", enableThinking);
+            map.put("mode_type", modeType);
+            map.put("reasoning", reasoning);
+            map.put("deepseek_mode_forced", deepSeekModeForced);
             return map;
+        }
+    }
+
+    private enum DeepSeekMode {
+        CHAT,
+        REASONER,
+        UNSPECIFIED
+    }
+
+    private static final class DeepSeekModeDecision {
+        private final String upstreamModel;
+        private final boolean reasoning;
+        private final String modeType;
+        private final boolean forcedByScenario;
+
+        private DeepSeekModeDecision(String upstreamModel, boolean reasoning, String modeType, boolean forcedByScenario) {
+            this.upstreamModel = upstreamModel;
+            this.reasoning = reasoning;
+            this.modeType = modeType;
+            this.forcedByScenario = forcedByScenario;
         }
     }
 

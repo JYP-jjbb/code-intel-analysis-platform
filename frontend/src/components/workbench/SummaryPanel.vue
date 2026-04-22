@@ -105,17 +105,21 @@
                         <span :class="verdictToneClass">{{ checkerVerdict || checkerVerdictFallback }}</span>
                       </div>
                     </div>
-                    <div class="wb-status-item">
-                      <div class="wb-status-key">结论</div>
-                      <div class="wb-status-value">
-                        <span :class="conclusionToneClass">{{ checkerConclusion || checkerConclusionFallback }}</span>
-                      </div>
-                    </div>
-                    <div class="wb-status-item wb-status-item-full" v-if="checkerMessage">
-                      <div class="wb-status-key">说明</div>
-                      <div class="wb-status-value">{{ checkerMessage }}</div>
+                  <div class="wb-status-item">
+                    <div class="wb-status-key">结论</div>
+                    <div class="wb-status-value">
+                      <span :class="conclusionToneClass">{{ checkerConclusion || checkerConclusionFallback }}</span>
                     </div>
                   </div>
+                  <div class="wb-status-item" v-if="singleAttemptLabel">
+                    <div class="wb-status-key">尝试轮次</div>
+                    <div class="wb-status-value">{{ singleAttemptLabel }}</div>
+                  </div>
+                  <div class="wb-status-item wb-status-item-full" v-if="checkerMessage">
+                    <div class="wb-status-key">说明</div>
+                    <div class="wb-status-value">{{ checkerMessage }}</div>
+                  </div>
+                </div>
                   <div class="wb-block" v-if="hasCounterexample">
                     <div class="wb-block-title">反例</div>
                     <pre class="wb-code-block">{{ normalizedCounterexample }}</pre>
@@ -307,6 +311,8 @@ const props = defineProps({
   checkerVerdict: { type: String, default: "" },
   checkerConclusion: { type: String, default: "" },
   checkerMessage: { type: String, default: "" },
+  singleAttemptCount: { type: Number, default: 0 },
+  singleMaxAttempts: { type: Number, default: 0 },
   checkerCounterexample: { type: String, default: "" },
   checkerRawOutput: { type: String, default: "" },
   checkerFeedback: { type: String, default: "" },
@@ -328,6 +334,17 @@ const emit = defineEmits(["update:selectedCaseKey", "select-verification-line", 
 
 const panelTitle = computed(() => (props.mode === "learning" ? "核心要点与易错提醒" : "候选函数与验证器反馈"));
 const showCollapseToggle = computed(() => props.mode === "learning" || props.collapsible);
+const singleAttemptLabel = computed(() => {
+  const attempt = Math.max(0, Number(props.singleAttemptCount || 0));
+  const maxAttempts = Math.max(0, Number(props.singleMaxAttempts || 0));
+  if (attempt <= 0) {
+    return "";
+  }
+  if (maxAttempts > 0) {
+    return `第 ${attempt}/${maxAttempts} 次`;
+  }
+  return `第 ${attempt} 次`;
+});
 const learningScrollRefs = new Set();
 let learningResizeObserver = null;
 

@@ -7,17 +7,23 @@
       </span>
     </div>
     <div class="wb-slice-scroll">
-      <div
-        v-for="row in normalizedRows"
-        :key="`${row.line}-${row.code}`"
-        class="wb-slice-row"
-        :class="{ 'is-focus': row.isFocus }"
-      >
-        <span class="wb-slice-line">{{ row.line }}</span>
-        <code class="wb-slice-code">{{ row.code || " " }}</code>
-      </div>
-      <div v-if="normalizedRows.length === 0" class="wb-slice-empty">
-        当前暂无切片内容。
+      <div class="wb-slice-scroll-inner">
+        <template v-if="normalizedRows.length === 0">
+          <div class="wb-slice-empty">
+            当前暂无切片内容。
+          </div>
+        </template>
+        <template v-else>
+          <div
+            v-for="row in normalizedRows"
+            :key="`${row.line}-${row.code}`"
+            class="wb-slice-row"
+            :class="{ 'is-focus': row.isFocus }"
+          >
+            <span class="wb-slice-line">{{ row.line }}</span>
+            <code class="wb-slice-code">{{ row.code || " " }}</code>
+          </div>
+        </template>
       </div>
     </div>
   </section>
@@ -75,6 +81,11 @@ const normalizedLinesText = computed(() => {
   border-radius: 14px;
   background: #f9fcff;
   padding: 10px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .wb-subpanel-head {
@@ -83,6 +94,7 @@ const normalizedLinesText = computed(() => {
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .wb-subpanel-head h4 {
@@ -97,11 +109,20 @@ const normalizedLinesText = computed(() => {
 }
 
 .wb-slice-scroll {
-  max-height: 190px;
-  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
+/* 行数少时铺满与右侧卡片对齐后的可视高度，下方由网格背景形成留白 */
+.wb-slice-scroll-inner {
+  min-height: 100%;
   display: grid;
   gap: 6px;
-  padding-right: 2px;
+  align-content: start;
+  box-sizing: border-box;
 }
 
 .wb-slice-row {

@@ -5,7 +5,7 @@
         <div class="settings-hero-main">
           <div class="settings-hero-copy">
             <h2>系统设置</h2>
-            <p>统一维护多模型供应商配置，支持 DeepSeek / Kimi / Hunyuan / Qwen。</p>
+            <p>统一维护多模型供应商配置，支持 DeepSeek（批量Reasoner，其余Chat）/ Kimi / Hunyuan / Qwen。</p>
           </div>
         </div>
       </el-card>
@@ -177,7 +177,7 @@ import gsap from "gsap";
 import { fetchProviderSettings, saveProviderSettings } from "../api/settingsApi.js";
 
 const providerOptions = [
-  { label: "DeepSeek", value: "deepseek" },
+  { label: "DeepSeek（场景分流）", value: "deepseek" },
   { label: "Hunyuan", value: "hunyuan" },
   { label: "Kimi", value: "kimi" },
   { label: "Qwen", value: "qwen" }

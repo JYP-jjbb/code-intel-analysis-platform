@@ -33,6 +33,8 @@ class MoonshotOfficialChatSmokeTest {
                 resolveEnvOrDefault("qwen3.5-plus", "QWEN_MODEL"),
                 90,
                 "https://api.deepseek.com",
+                resolveEnvOrDefault("deepseek-chat", "DEEPSEEK_CHAT_MODEL"),
+                resolveEnvOrDefault("deepseek-reasoner", "DEEPSEEK_MODEL"),
                 ""
         );
 

@@ -21,6 +21,7 @@ import re
 import zipfile
 import inspect
 import subprocess
+import importlib.util
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -664,6 +665,35 @@ def _get_vars_by_javap(jar_path, class_name, method_name):
     return names or None
 
 
+def _get_vars_by_java_source(jar_path, class_name, method_name):
+    """
+    Fallback: parse sibling Java source signature to recover parameter names.
+    """
+    java_path = _find_java_source(jar_path, class_name)
+    if not java_path:
+        return None
+
+    try:
+        src = open(java_path, "r", encoding="utf-8", errors="ignore").read()
+    except Exception:
+        return None
+
+    m_sig = re.search(rf"\b\w+\s+{re.escape(method_name)}\s*\((.*?)\)\s*\{{", src, re.S)
+    if not m_sig:
+        return None
+
+    sig_inside = m_sig.group(1)
+    parts = [p.strip() for p in sig_inside.split(",") if p.strip()]
+    names = []
+    for p in parts:
+        m_name = re.search(r"([A-Za-z_]\w*)\s*(?:\[\s*\])?\s*$", p)
+        if m_name:
+            name = m_name.group(1)
+            if name != "this":
+                names.append(name)
+    return names or None
+
+
 def get_input_vars_from_jar(jar_path, class_name, method_name,
                             samples=1, limit=10, sampling_strategy='pairanticorr',
                             tracing_seed=0,
@@ -675,9 +705,10 @@ def get_input_vars_from_jar(jar_path, class_name, method_name,
     when available (requires torch and psutil from the full checker environment).
     Fallback detection: uses javap LocalVariableTable (no extra dependencies).
     """
+    tracing_error = None
+
+    # 1) Enhanced variable detection via checker/checker_bridge/utils.py (trace-based).
     try:
-        # Enhanced variable detection via checker/checker_bridge/utils.py (trace-based).
-        # Falls through to javap fallback if checker_bridge/utils is not importable.
         from checker.checker_bridge.utils import get_and_layout_traces
 
         loop_heads = get_loop_heads(jar_path, class_name, method_name)
@@ -705,7 +736,6 @@ def get_input_vars_from_jar(jar_path, class_name, method_name,
             wanted_kwargs["trace_seed"] = tracing_seed
 
         call_kwargs = {k: v for k, v in wanted_kwargs.items() if k in params}
-
         ret = get_and_layout_traces(jar_path, class_name, method_name, **call_kwargs)
 
         cand1 = _extract_vars_from_obj(ret)
@@ -717,19 +747,44 @@ def get_input_vars_from_jar(jar_path, class_name, method_name,
             return cand2
 
         if isinstance(ret, dict) and "error" in ret:
-            print(f"Warning: tracing returned error: {ret['error']}", file=sys.stderr)
-        if isinstance(res, dict) and "error" in res:
-            print(f"Warning: tracing res contains error: {res['error']}", file=sys.stderr)
+            tracing_error = f"tracing returned error: {ret['error']}"
+        elif isinstance(res, dict) and "error" in res:
+            tracing_error = f"tracing res contains error: {res['error']}"
 
-        javap_vars = _get_vars_by_javap(jar_path, class_name, method_name)
-        if _vars_look_reasonable(javap_vars, expected_symbols):
-            return javap_vars
-
-        return None
-
+    except ModuleNotFoundError as e:
+        missing = getattr(e, "name", "") or str(e)
+        if missing == "torch" or "torch" in str(e):
+            tracing_error = "torch is not installed"
+        else:
+            tracing_error = str(e)
     except Exception as e:
-        print(f"Warning: Failed to auto-detect input vars: {e}", file=sys.stderr)
-        return None
+        tracing_error = str(e)
+
+    if tracing_error:
+        print(
+            f"Warning: tracing-based auto-detect unavailable: {tracing_error}. "
+            f"Falling back to javap/source-signature detection (checker verification still continues).",
+            file=sys.stderr
+        )
+
+    # 2) Bytecode metadata fallback (javap LocalVariableTable).
+    javap_vars = _get_vars_by_javap(jar_path, class_name, method_name)
+    if _vars_look_reasonable(javap_vars, expected_symbols):
+        return javap_vars
+
+    # 3) Source signature fallback (if sibling .java is present).
+    source_vars = _get_vars_by_java_source(jar_path, class_name, method_name)
+    if _vars_look_reasonable(source_vars, expected_symbols):
+        return source_vars
+
+    if importlib.util.find_spec("torch") is None:
+        print(
+            "Warning: torch is missing; auto-detect fell back to javap/source signature. "
+            "Install torch only if you need tracing-based variable inference.",
+            file=sys.stderr
+        )
+
+    return None
 
 
 def main():

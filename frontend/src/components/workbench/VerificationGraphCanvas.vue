@@ -173,9 +173,19 @@ const tooltip = ref({
   explanation: ""
 });
 
+/** 视图缩放范围（仅相机，与布局算法无关） */
+const MIN_VIEW_SCALE = 0.72;
+const MAX_VIEW_SCALE = 4;
+
+/** 首次进入 / 重置视图时的默认缩放（相对 1.0） */
+const INITIAL_VIEW_SCALE = 2;
+
 const viewScale = ref(1);
 const viewOffsetX = ref(0);
 const viewOffsetY = ref(0);
+
+/** 有节点后是否已套用过默认视图；图清空后再有数据会重新套用 */
+let defaultViewTransformApplied = false;
 
 const TONE_COLORS = {
   normal: {
@@ -193,6 +203,14 @@ const TONE_COLORS = {
     lineText: "#4f78aa",
     strokeWidth: 1.4,
     edge: "#7faee7"
+  },
+  input: {
+    fill: "#edf5ff",
+    stroke: "#8cb3e0",
+    typeText: "#28558f",
+    lineText: "#5a7fae",
+    strokeWidth: 1.35,
+    edge: "#8db4e6"
   },
   support: {
     fill: "#e8f6ee",
@@ -226,13 +244,23 @@ const viewBoxHeight = computed(() => {
   return clamp(estimated, 520, 1220);
 });
 
+const applyDefaultViewTransform = () => {
+  const s = clamp(INITIAL_VIEW_SCALE, MIN_VIEW_SCALE, MAX_VIEW_SCALE);
+  const cx = viewBoxWidth.value / 2;
+  const cy = viewBoxHeight.value / 2;
+  viewScale.value = s;
+  // 与 zoomBy 一致：绕 viewBox 中心缩放，避免图整体偏移
+  viewOffsetX.value = (1 - s) * cx;
+  viewOffsetY.value = (1 - s) * cy;
+};
+
 const viewportTransform = computed(() => (
   `translate(${viewOffsetX.value} ${viewOffsetY.value}) scale(${viewScale.value})`
 ));
 
 const zoomBy = (factor) => {
   const oldScale = viewScale.value;
-  const nextScale = clamp(oldScale * factor, 0.72, 2.4);
+  const nextScale = clamp(oldScale * factor, MIN_VIEW_SCALE, MAX_VIEW_SCALE);
   if (Math.abs(nextScale - oldScale) < 0.0001) {
     return;
   }
@@ -244,15 +272,14 @@ const zoomBy = (factor) => {
 };
 
 const panBy = (dx, dy) => {
-  const step = 58 / Math.max(0.72, viewScale.value);
+  const step = 58 / Math.max(MIN_VIEW_SCALE, viewScale.value);
   viewOffsetX.value += dx * step;
   viewOffsetY.value += dy * step;
 };
 
 const resetView = () => {
-  viewScale.value = 1;
-  viewOffsetX.value = 0;
-  viewOffsetY.value = 0;
+  applyDefaultViewTransform();
+  defaultViewTransformApplied = true;
 };
 
 const zoomIn = () => zoomBy(1.14);
@@ -299,7 +326,10 @@ const normalizeToneKey = (status) => {
   if (["support", "proof_support", "proved_support", "proved"].includes(normalized)) {
     return "support";
   }
-  if (["high-risk", "risk", "not_support", "not-support", "proof_unsupport", "unsupported"].includes(normalized)) {
+  if (["input", "input_feed", "input_init", "precondition_input", "pending_input"].includes(normalized)) {
+    return "input";
+  }
+  if (["high-risk", "risk", "unsupport", "not_support", "not-support", "proof_unsupport", "unsupported"].includes(normalized)) {
     return "unsupport";
   }
   if (["focus", "highlight", "pending", "unproved", "key", "critical"].includes(normalized)) {
@@ -309,6 +339,7 @@ const normalizeToneKey = (status) => {
 };
 
 const toneRoleLabel = (toneKey) => {
+  if (toneKey === "input") return "输入初始化/前置供给节点";
   if (toneKey === "pending") return "未证明关键节点";
   if (toneKey === "support") return "证明支持节点";
   if (toneKey === "unsupport") return "不支持证明节点";
@@ -341,6 +372,24 @@ const normalizedNodes = computed(() => {
     };
   });
 });
+
+watch(
+  () => normalizedNodes.value.length,
+  (len) => {
+    if (len === 0) {
+      defaultViewTransformApplied = false;
+      viewScale.value = 1;
+      viewOffsetX.value = 0;
+      viewOffsetY.value = 0;
+      return;
+    }
+    if (!defaultViewTransformApplied) {
+      applyDefaultViewTransform();
+      defaultViewTransformApplied = true;
+    }
+  },
+  { immediate: true }
+);
 
 const normalizedEdges = computed(() => {
   const rows = Array.isArray(props.graph?.edges) ? props.graph.edges : [];

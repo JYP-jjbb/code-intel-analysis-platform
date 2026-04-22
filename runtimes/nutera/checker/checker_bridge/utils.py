@@ -1,11 +1,10 @@
 import psutil
-import torch
 
 from .termination import tracing, cegs_tracing
 
 
 
-processes = psutil.cpu_count(logical=False)
+processes = psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True) or 1
 
 
 
@@ -37,6 +36,10 @@ def get_and_layout_traces(jarfile, classname, methodname, samples, limit, loop_h
 
 
 def add_new_traces(zero_input_before, zero_input_after, jarfile, classname, methodname, samples, limit, loop_heads, tracing_seed, res, cegs_file):
+    try:
+        import torch
+    except ModuleNotFoundError as e:
+        raise RuntimeError("torch is required for CEGS trace merge but is not installed.") from e
 
     res['tracing'], trace = cegs_tracing(jarfile, classname, methodname,
                                     samples, limit, loop_heads,

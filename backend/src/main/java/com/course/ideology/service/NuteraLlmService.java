@@ -14,15 +14,20 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class NuteraLlmService {
+    private static final int MAX_SINGLE_ATTEMPTS = 3;
     private static final int MAX_BATCH_ATTEMPTS = 5;
+    private static final String AFFINE_TEMPLATE_ERROR_CODE = "AFFINE_TEMPLATE_PRECHECK_FAILED";
+    private static final String AFFINE_TEMPLATE_USER_MESSAGE = "候选函数不符合当前验证器支持的线性模板，系统已自动重试。";
     private static final Pattern LEADING_CHECKER_TRACE_TAG = Pattern.compile("^\\s*(?:\\[checker-runtime-v\\d+\\]\\s*)+", Pattern.CASE_INSENSITIVE);
 
     private final SiliconFlowSettingsService settingsService;
@@ -85,72 +90,207 @@ public class NuteraLlmService {
         List<String> logs = new ArrayList<>();
         append(logs, "Analysis started.");
         append(logs, "Model: " + request.getModel() + ", language: " + request.getLanguage());
+        int finalAttemptCount = 0;
 
         try {
             append(logs, "Loading prompt file.");
             String prompt = promptLoaderService.loadPrompt();
             append(logs, "Prompt loaded.");
-
-            ModelGeneration generation = runModelGeneration(request, prompt, logs);
-
-            NuteraCheckerService.CheckerResult checkerResult;
             NuteraCaseSourceResponse caseSource = null;
             String dataset = nonNull(request.getCaseName()).trim();
-            if (dataset.isBlank() || "none".equalsIgnoreCase(dataset)) {
-                checkerResult = NuteraCheckerService.CheckerResult.skipped(
-                        "No dataset selected. Checker requires dataset program metadata."
-                );
-                append(logs, "Checker skipped: no dataset selected.");
-            } else {
+            boolean checkerEnabled = !(dataset.isBlank() || "none".equalsIgnoreCase(dataset));
+            if (checkerEnabled) {
                 append(logs, "Loading case metadata for checker: " + dataset);
                 caseSource = caseSourceService.loadCaseSource(dataset, 0);
                 appendCaseSourceLog(logs, caseSource.getLog(), "[case-source]");
-                checkerResult = checkerService.runChecker(generation.rankExpression, caseSource, logs);
+            }
+            RefinementContext refinementContext = null;
+            ModelGeneration lastGeneration = null;
+            NuteraCheckerService.CheckerResult lastCheckerResult = NuteraCheckerService.CheckerResult.skipped("");
+
+            for (int attempt = 1; attempt <= MAX_SINGLE_ATTEMPTS; attempt++) {
+                String module = "nutera.single.candidate-generation.attempt-" + attempt;
+                String previousErrorSummary = refinementContext == null ? "" : nonNull(refinementContext.getFailureReason());
+                append(logs, "Single verification attempt " + attempt + "/" + MAX_SINGLE_ATTEMPTS
+                        + " started. module=" + module + ", mode=chat, previous_error_summary="
+                        + (previousErrorSummary.isBlank() ? "-" : clip(previousErrorSummary, 320)));
+                try {
+                    ModelGeneration generation = runModelGeneration(request, prompt, logs, refinementContext, module);
+                    lastGeneration = generation;
+                    finalAttemptCount = attempt;
+                    NuteraCheckerService.CheckerResult checkerResult;
+                    if (!checkerEnabled) {
+                        checkerResult = NuteraCheckerService.CheckerResult.skipped(
+                                "No dataset selected. Checker requires dataset program metadata."
+                        );
+                        append(logs, "Checker skipped: no dataset selected.");
+                        return buildSingleResultResponse("SUCCESS", "Generation succeeded.", generation, checkerResult, caseSource, logs, attempt);
+                    }
+
+                    append(logs, "Attempt " + attempt + " candidate expression: " + clip(generation.rankExpression, 220));
+                    TemplatePrecheckResult precheck = precheckAffineReluTemplate(generation.rankExpression);
+                    if (!precheck.isValid()) {
+                        String detail = precheck.getDetail();
+                        append(logs, "Attempt " + attempt + " candidate precheck failed: " + detail);
+                        if (attempt < MAX_SINGLE_ATTEMPTS) {
+                            append(logs, "Attempt " + attempt + " precheck failed. Retrying with checker template feedback.");
+                            refinementContext = RefinementContext.fromFailure(
+                                    generation.candidateFunction,
+                                    precheckFeedback(detail),
+                                    "",
+                                    AFFINE_TEMPLATE_ERROR_CODE + ": " + detail,
+                                    attempt
+                            );
+                            continue;
+                        }
+                        checkerResult = NuteraCheckerService.CheckerResult.error(
+                                AFFINE_TEMPLATE_ERROR_CODE + ": " + AFFINE_TEMPLATE_USER_MESSAGE,
+                                detail
+                        );
+                        String finalFailure = "已自动尝试 " + MAX_SINGLE_ATTEMPTS + " 次，均未生成符合线性模板要求的候选函数。";
+                        append(logs, finalFailure);
+                        return buildSingleResultResponse(
+                                "FAILED",
+                                finalFailure,
+                                generation,
+                                checkerResult,
+                                caseSource,
+                                logs,
+                                attempt
+                        );
+                    }
+                    append(logs, "Attempt " + attempt + " candidate precheck passed.");
+
+                    checkerResult = checkerService.runChecker(generation.rankExpression, caseSource, logs);
+                    lastCheckerResult = checkerResult;
+                    String conclusion = normalizeConclusion(checkerResult);
+                    if ("YES".equalsIgnoreCase(conclusion)) {
+                        append(logs, "Single verification succeeded at attempt " + attempt + ".");
+                        return buildSingleResultResponse("SUCCESS", "Generation succeeded.", generation, checkerResult, caseSource, logs, attempt);
+                    }
+
+                    String checkerFailure = nonNull(checkerResult.getMessage()).isBlank()
+                            ? "Checker could not prove termination."
+                            : checkerResult.getMessage();
+                    append(logs, "Attempt " + attempt + " checker not proved: " + checkerFailure);
+                    if (attempt < MAX_SINGLE_ATTEMPTS) {
+                        append(logs, "Attempt " + attempt + " checker not proved. Retrying with checker feedback.");
+                        refinementContext = RefinementContext.fromFailure(
+                                generation.candidateFunction,
+                                buildCheckerFeedback(checkerResult),
+                                checkerResult.getCounterexample(),
+                                checkerFailure,
+                                attempt
+                        );
+                        continue;
+                    }
+
+                    append(logs, "Single verification exhausted attempts.");
+                    return buildSingleResultResponse(
+                            "FAILED",
+                            "Single verification failed after " + MAX_SINGLE_ATTEMPTS + " attempts.",
+                            generation,
+                            checkerResult,
+                            caseSource,
+                            logs,
+                            attempt
+                    );
+                } catch (Exception ex) {
+                    String readableMessage = normalizeErrorMessage(ex.getMessage());
+                    finalAttemptCount = attempt;
+                    append(logs, "Attempt " + attempt + " failed: " + readableMessage);
+                    if (attempt < MAX_SINGLE_ATTEMPTS) {
+                        append(logs, "Attempt " + attempt + " failed. Retrying with previous error summary.");
+                        String previousCandidate = lastGeneration == null ? "" : nonNull(lastGeneration.candidateFunction);
+                        String checkerFeedback = lastCheckerResult == null ? "" : buildCheckerFeedback(lastCheckerResult);
+                        String counterexample = lastCheckerResult == null ? "" : nonNull(lastCheckerResult.getCounterexample());
+                        refinementContext = RefinementContext.fromFailure(
+                                previousCandidate,
+                                checkerFeedback,
+                                counterexample,
+                                readableMessage,
+                                attempt
+                        );
+                        continue;
+                    }
+
+                    ModelGeneration fallbackGeneration = lastGeneration == null ? new ModelGeneration("", "", "") : lastGeneration;
+                    NuteraCheckerService.CheckerResult fallbackChecker =
+                            lastCheckerResult == null
+                                    ? NuteraCheckerService.CheckerResult.error("CALL_FAILED: " + readableMessage, readableMessage)
+                                    : lastCheckerResult;
+                    return buildSingleFailureResponse(fallbackGeneration, fallbackChecker, caseSource, logs, readableMessage, attempt);
+                }
             }
 
-            NuteraGenerateResponse response = new NuteraGenerateResponse();
-            response.setStatus("SUCCESS");
-            response.setCandidateFunction(generation.candidateFunction);
-            response.setRawResponse(generation.rawResponse);
-            response.setLog(String.join("\n", logs));
-            response.setCheckerStatus(checkerResult.getStatus());
-            response.setCheckerMessage(checkerResult.getMessage());
-            response.setCheckerRawOutput(checkerResult.getRawOutput());
-            response.setCheckerDebugMessage(checkerResult.getDebugMessage());
-            response.setCheckerTraceTag(checkerResult.getTraceTag());
-            response.setCheckerVerdict(normalizeVerificationStatus(checkerResult));
-            response.setCheckerConclusion(normalizeConclusion(checkerResult));
-            response.setCheckerCounterexample(checkerResult.getCounterexample());
-            response.setCheckerFeedback(buildCheckerFeedback(checkerResult));
-            response.setFinalSummary(buildFinalSummary(caseSource, checkerResult));
-            response.setMessage("Generation succeeded.");
-            response.setBatchMode(false);
-            response.setBatchResults(List.of());
-            return response;
+            return buildSingleFailureResponse(
+                    lastGeneration == null ? new ModelGeneration("", "", "") : lastGeneration,
+                    lastCheckerResult,
+                    caseSource,
+                    logs,
+                    "Single verification failed after retries.",
+                    finalAttemptCount <= 0 ? MAX_SINGLE_ATTEMPTS : finalAttemptCount
+            );
         } catch (Exception ex) {
             String readableMessage = normalizeErrorMessage(ex.getMessage());
             append(logs, "Generation failed: " + readableMessage);
-
-            NuteraGenerateResponse response = new NuteraGenerateResponse();
-            response.setStatus("FAILED");
-            response.setCandidateFunction("");
-            response.setRawResponse("");
-            response.setLog(String.join("\n", logs));
-            response.setCheckerStatus("CHECKER_ERROR");
-            response.setCheckerMessage(readableMessage);
-            response.setCheckerRawOutput("");
-            response.setCheckerDebugMessage("");
-            response.setCheckerTraceTag("");
-            response.setCheckerVerdict("CHECKER_ERROR");
-            response.setCheckerConclusion("ERROR");
-            response.setCheckerCounterexample("");
-            response.setCheckerFeedback("Model call failed. Please check runtime logs and Moonshot/DeepSeek settings.");
-            response.setFinalSummary("Generation failed. Checker was not executed.");
-            response.setMessage(readableMessage);
-            response.setBatchMode(false);
-            response.setBatchResults(List.of());
-            return response;
+            return buildSingleFailureResponse(
+                    new ModelGeneration("", "", ""),
+                    NuteraCheckerService.CheckerResult.error("VALIDATION_ERROR: " + readableMessage, readableMessage),
+                    null,
+                    logs,
+                    readableMessage,
+                    finalAttemptCount
+            );
         }
+    }
+
+    private NuteraGenerateResponse buildSingleResultResponse(String status,
+                                                             String message,
+                                                             ModelGeneration generation,
+                                                             NuteraCheckerService.CheckerResult checkerResult,
+                                                             NuteraCaseSourceResponse caseSource,
+                                                             List<String> logs,
+                                                             int attemptCount) {
+        NuteraCheckerService.CheckerResult safeChecker =
+                checkerResult == null
+                        ? NuteraCheckerService.CheckerResult.error("VALIDATION_ERROR: " + nonNull(message), nonNull(message))
+                        : checkerResult;
+        NuteraGenerateResponse response = new NuteraGenerateResponse();
+        response.setStatus(nonNull(status).isBlank() ? "FAILED" : status);
+        response.setCandidateFunction(generation == null ? "" : nonNull(generation.candidateFunction));
+        response.setRawResponse(generation == null ? "" : nonNull(generation.rawResponse));
+        response.setLog(String.join("\n", logs));
+        response.setCheckerStatus(nonNull(safeChecker.getStatus()));
+        response.setCheckerMessage(nonNull(safeChecker.getMessage()));
+        response.setCheckerRawOutput(nonNull(safeChecker.getRawOutput()));
+        response.setCheckerDebugMessage(nonNull(safeChecker.getDebugMessage()));
+        response.setCheckerTraceTag(nonNull(safeChecker.getTraceTag()));
+        response.setCheckerVerdict(normalizeVerificationStatus(safeChecker));
+        response.setCheckerConclusion(normalizeConclusion(safeChecker));
+        response.setCheckerCounterexample(nonNull(safeChecker.getCounterexample()));
+        response.setCheckerFeedback(buildCheckerFeedback(safeChecker));
+        response.setFinalSummary(buildFinalSummary(caseSource, safeChecker));
+        response.setMessage(nonNull(message).isBlank() ? "Generation finished." : message);
+        response.setAttemptCount(Math.max(0, attemptCount));
+        response.setMaxAttempts(MAX_SINGLE_ATTEMPTS);
+        response.setBatchMode(false);
+        response.setBatchResults(List.of());
+        return response;
+    }
+
+    private NuteraGenerateResponse buildSingleFailureResponse(ModelGeneration generation,
+                                                              NuteraCheckerService.CheckerResult checkerResult,
+                                                              NuteraCaseSourceResponse caseSource,
+                                                              List<String> logs,
+                                                              String failureMessage,
+                                                              int attemptCount) {
+        String message = nonNull(failureMessage).isBlank() ? "Generation failed." : failureMessage;
+        NuteraCheckerService.CheckerResult fallbackChecker =
+                checkerResult == null
+                        ? NuteraCheckerService.CheckerResult.error("CALL_FAILED: " + message, message)
+                        : checkerResult;
+        return buildSingleResultResponse("FAILED", message, generation, fallbackChecker, caseSource, logs, attemptCount);
     }
 
     private NuteraGenerateResponse generateBatchRankingFunction(NuteraGenerateRequest request,
@@ -226,7 +366,13 @@ public class NuteraLlmService {
                         NuteraGenerateRequest caseRequest = buildCaseRequest(request, caseSource, caseName);
                         ModelGeneration generation;
                         try {
-                            generation = runModelGeneration(caseRequest, prompt, caseLogs, refinementContext);
+                            generation = runModelGeneration(
+                                    caseRequest,
+                                    prompt,
+                                    caseLogs,
+                                    refinementContext,
+                                    "nutera.batch.candidate-generation.attempt-" + attempt
+                            );
                         } catch (Exception ex) {
                             String readable = normalizeErrorMessage(ex.getMessage());
                             attemptStates.set(attempt - 1, "NOT_PROVED");
@@ -247,6 +393,35 @@ public class NuteraLlmService {
                                     String.join("\n", caseLogs), attempt, attemptStates);
                             append(caseLogs, "Attempt " + attempt + " returned NO_RELU_SOLUTION.");
                             break;
+                        }
+
+                        TemplatePrecheckResult precheck = precheckAffineReluTemplate(generation.rankExpression);
+                        if (!precheck.isValid()) {
+                            String detail = precheck.getDetail();
+                            attemptStates.set(attempt - 1, "NOT_PROVED");
+                            append(caseLogs, "Attempt " + attempt + " candidate precheck failed: " + detail);
+                            refinementContext = RefinementContext.fromFailure(
+                                    generation.candidateFunction,
+                                    precheckFeedback(detail),
+                                    "",
+                                    AFFINE_TEMPLATE_ERROR_CODE + ": " + detail,
+                                    attempt
+                            );
+                            if (attempt == MAX_BATCH_ATTEMPTS) {
+                                finalCaseResult = buildNotProvedCaseResult(
+                                        caseName,
+                                        generation.candidateFunction,
+                                        detail,
+                                        AFFINE_TEMPLATE_USER_MESSAGE,
+                                        "",
+                                        String.join("\n", caseLogs),
+                                        attempt,
+                                        attemptStates,
+                                        AFFINE_TEMPLATE_ERROR_CODE,
+                                        "affine-template-precheck"
+                                );
+                            }
+                            continue;
                         }
 
                         try {
@@ -512,20 +687,39 @@ public class NuteraLlmService {
     }
 
     private ModelGeneration runModelGeneration(NuteraGenerateRequest request, String prompt, List<String> logs) {
-        return runModelGeneration(request, prompt, logs, null);
+        return runModelGeneration(request, prompt, logs, null, request.isBatchMode()
+                ? "nutera.batch.candidate-generation"
+                : "nutera.single.candidate-generation");
     }
 
     private ModelGeneration runModelGeneration(NuteraGenerateRequest request,
                                                String prompt,
                                                List<String> logs,
                                                RefinementContext refinementContext) {
+        return runModelGeneration(
+                request,
+                prompt,
+                logs,
+                refinementContext,
+                request.isBatchMode() ? "nutera.batch.candidate-generation" : "nutera.single.candidate-generation"
+        );
+    }
+
+    private ModelGeneration runModelGeneration(NuteraGenerateRequest request,
+                                               String prompt,
+                                               List<String> logs,
+                                               RefinementContext refinementContext,
+                                               String requestModule) {
         String userMessage = buildUserMessage(request, refinementContext);
-        append(logs, "Calling LLM Chat Completions.");
+        String previousErrorSummary = refinementContext == null ? "" : nonNull(refinementContext.getFailureReason());
+        append(logs, "Calling LLM Chat Completions. module=" + nonNull(requestModule)
+                + ", previous_error_summary=" + (previousErrorSummary.isBlank() ? "-" : clip(previousErrorSummary, 320)));
         SiliconFlowChatService.ChatResult chatResult = chatService.chatCompletion(
                 settingsService.getApiKey(),
                 request.getModel(),
                 prompt,
-                userMessage
+                userMessage,
+                requestModule
         );
 
         String candidate = nonNull(chatResult.getContent()).trim();
@@ -754,6 +948,20 @@ public class NuteraLlmService {
         sb.append("```").append(nonNull(request.getLanguage())).append("\n");
         sb.append(nonNull(request.getCode())).append("\n");
         sb.append("```\n");
+        sb.append("\n");
+        sb.append("STRICT TEMPLATE CONSTRAINTS (MUST FOLLOW):\n");
+        sb.append("1) Candidate must be affine/linear ReLU template only.\n");
+        sb.append("2) Allowed forms only:\n");
+        sb.append("   - ReLU(a1*x1 + a2*x2 + ... + b)\n");
+        sb.append("   - [ReLU(a1*x1 + ... + b1), ReLU(a1*x1 + ... + b2), ...]\n");
+        sb.append("3) Forbidden structures:\n");
+        sb.append("   - variable*variable (x*y, X*y, Y*x)\n");
+        sb.append("   - high-order terms (x^2, y^2)\n");
+        sb.append("   - division/fraction, abs, min/max, conditional expression\n");
+        sb.append("   - any non-affine transform\n");
+        sb.append("4) Prioritize simple and checker-verifiable linear expressions.\n");
+        sb.append("5) Return only candidate function expression, no explanation, no markdown list.\n");
+        sb.append("6) If no valid affine ReLU template can be found, return exactly: NO_RELU_SOLUTION\n");
         if (refinementContext != null && !refinementContext.isEmpty()) {
             sb.append("\n");
             sb.append("Previous attempt index: ").append(refinementContext.getAttempt()).append("\n");
@@ -777,6 +985,175 @@ public class NuteraLlmService {
             sb.append("Do not repeat the previous candidate unchanged.\n");
         }
         return sb.toString();
+    }
+
+    private String precheckFeedback(String detail) {
+        return "Checker template precheck failed: " + detail + "\n"
+                + "Allowed template: ReLU(a1*x1 + ... + b) or [ReLU(...), ReLU(...)] with affine terms only.\n"
+                + "Forbidden: variable*variable, high-order terms, division/fraction, abs/min/max, conditional operators.";
+    }
+
+    private TemplatePrecheckResult precheckAffineReluTemplate(String rankExpression) {
+        String expression = nonNull(rankExpression).trim();
+        if (expression.isBlank()) {
+            return TemplatePrecheckResult.invalid("empty expression.");
+        }
+        if (isNoReluSolutionCandidate(expression)) {
+            return TemplatePrecheckResult.valid();
+        }
+        String compact = expression.replace("`", "").trim();
+        compact = unwrapOuterParentheses(compact);
+        if (compact.isBlank()) {
+            return TemplatePrecheckResult.invalid("empty expression after normalization.");
+        }
+
+        List<String> reluTerms;
+        if (compact.startsWith("[") && compact.endsWith("]")) {
+            String payload = compact.substring(1, compact.length() - 1).trim();
+            if (payload.isBlank()) {
+                return TemplatePrecheckResult.invalid("vector expression is empty.");
+            }
+            reluTerms = splitTopLevel(payload, ',');
+            if (reluTerms.isEmpty()) {
+                return TemplatePrecheckResult.invalid("vector expression has no ReLU terms.");
+            }
+        } else {
+            reluTerms = List.of(compact);
+        }
+
+        for (String rawTerm : reluTerms) {
+            String term = unwrapOuterParentheses(nonNull(rawTerm).trim());
+            Matcher reluMatcher = Pattern.compile("(?i)^relu\\s*\\((.*)\\)$").matcher(term);
+            if (!reluMatcher.matches()) {
+                return TemplatePrecheckResult.invalid("term is not ReLU(...): " + clip(term, 120));
+            }
+            TemplatePrecheckResult affineResult = validateAffineBody(reluMatcher.group(1));
+            if (!affineResult.isValid()) {
+                return affineResult;
+            }
+        }
+        return TemplatePrecheckResult.valid();
+    }
+
+    private TemplatePrecheckResult validateAffineBody(String body) {
+        String compact = nonNull(body).replace("`", "").replaceAll("\\s+", "");
+        compact = unwrapOuterParentheses(compact);
+        if (compact.isBlank()) {
+            return TemplatePrecheckResult.invalid("ReLU body is empty.");
+        }
+
+        if (Pattern.compile("(?i)relu\\s*\\(").matcher(compact).find()) {
+            return TemplatePrecheckResult.invalid("nested ReLU is not allowed.");
+        }
+        if (Pattern.compile("(?i)\\b(min|max|abs|if|else|where|pow|sqrt|log|exp|sin|cos|tan)\\b").matcher(compact).find()) {
+            return TemplatePrecheckResult.invalid("non-linear function/operator detected.");
+        }
+        if (Pattern.compile("(\\^|/|\\?|:|&&|\\|\\||<=|>=|==|!=|<|>|%)").matcher(compact).find()) {
+            return TemplatePrecheckResult.invalid("unsupported operator detected.");
+        }
+        if (Pattern.compile("(?i)\\b[a-z_][a-z0-9_]*\\b\\*\\b[a-z_][a-z0-9_]*\\b").matcher(compact).find()) {
+            return TemplatePrecheckResult.invalid("variable*variable is not allowed.");
+        }
+        if (!Pattern.compile("^[A-Za-z0-9_+\\-*.()]+$").matcher(compact).matches()) {
+            return TemplatePrecheckResult.invalid("unsupported token detected.");
+        }
+
+        List<String> terms = splitSignedTerms(compact);
+        if (terms.isEmpty()) {
+            return TemplatePrecheckResult.invalid("no affine terms detected.");
+        }
+        for (String rawTerm : terms) {
+            String term = unwrapOuterParentheses(nonNull(rawTerm).trim());
+            if (term.isBlank()) {
+                continue;
+            }
+            if (term.matches("^[+-]?\\d+(?:\\.\\d+)?$")) {
+                continue;
+            }
+            if (term.matches("^[+-]?[A-Za-z_][A-Za-z0-9_]*$")) {
+                continue;
+            }
+            if (term.matches("^[+-]?\\d+(?:\\.\\d+)?\\*[A-Za-z_][A-Za-z0-9_]*$")) {
+                continue;
+            }
+            return TemplatePrecheckResult.invalid("non-affine term detected: " + clip(term, 80));
+        }
+        return TemplatePrecheckResult.valid();
+    }
+
+    private List<String> splitTopLevel(String text, char delimiter) {
+        List<String> parts = new ArrayList<>();
+        if (text == null || text.isBlank()) {
+            return parts;
+        }
+        int depth = 0;
+        StringBuilder current = new StringBuilder();
+        for (int i = 0; i < text.length(); i += 1) {
+            char ch = text.charAt(i);
+            if (ch == '(') {
+                depth += 1;
+            } else if (ch == ')') {
+                depth = Math.max(0, depth - 1);
+            }
+            if (ch == delimiter && depth == 0) {
+                parts.add(current.toString().trim());
+                current.setLength(0);
+                continue;
+            }
+            current.append(ch);
+        }
+        if (current.length() > 0) {
+            parts.add(current.toString().trim());
+        }
+        return parts;
+    }
+
+    private List<String> splitSignedTerms(String expression) {
+        List<String> terms = new ArrayList<>();
+        if (expression == null || expression.isBlank()) {
+            return terms;
+        }
+        int depth = 0;
+        StringBuilder current = new StringBuilder();
+        for (int i = 0; i < expression.length(); i += 1) {
+            char ch = expression.charAt(i);
+            if (ch == '(') {
+                depth += 1;
+            } else if (ch == ')') {
+                depth = Math.max(0, depth - 1);
+            }
+            if ((ch == '+' || ch == '-') && i > 0 && depth == 0) {
+                terms.add(current.toString());
+                current.setLength(0);
+            }
+            current.append(ch);
+        }
+        if (current.length() > 0) {
+            terms.add(current.toString());
+        }
+        return terms;
+    }
+
+    private String unwrapOuterParentheses(String text) {
+        String normalized = nonNull(text).trim();
+        while (normalized.length() >= 2 && normalized.startsWith("(") && normalized.endsWith(")")) {
+            int depth = 0;
+            boolean matchedAtEnd = false;
+            for (int i = 0; i < normalized.length(); i += 1) {
+                char ch = normalized.charAt(i);
+                if (ch == '(') depth += 1;
+                if (ch == ')') depth -= 1;
+                if (depth == 0) {
+                    matchedAtEnd = i == normalized.length() - 1;
+                    break;
+                }
+            }
+            if (!matchedAtEnd) {
+                break;
+            }
+            normalized = normalized.substring(1, normalized.length() - 1).trim();
+        }
+        return normalized;
     }
 
     private List<String> emptyAttemptStates() {
@@ -967,6 +1344,32 @@ public class NuteraLlmService {
         return result;
     }
 
+    private static final class TemplatePrecheckResult {
+        private final boolean valid;
+        private final String detail;
+
+        private TemplatePrecheckResult(boolean valid, String detail) {
+            this.valid = valid;
+            this.detail = detail == null ? "" : detail.trim();
+        }
+
+        private static TemplatePrecheckResult valid() {
+            return new TemplatePrecheckResult(true, "");
+        }
+
+        private static TemplatePrecheckResult invalid(String detail) {
+            return new TemplatePrecheckResult(false, detail);
+        }
+
+        private boolean isValid() {
+            return valid;
+        }
+
+        private String getDetail() {
+            return detail;
+        }
+    }
+
     private static final class RefinementContext {
         private final String candidateFunction;
         private final String checkerFeedback;
@@ -1044,16 +1447,21 @@ public class NuteraLlmService {
             return "";
         }
 
+        Set<String> candidates = new LinkedHashSet<>();
         Matcher fenced = Pattern.compile("```(?:[a-zA-Z0-9_-]+)?\\s*([\\s\\S]*?)```").matcher(text);
-        if (fenced.find()) {
-            text = fenced.group(1).trim();
+        while (fenced.find()) {
+            String fencedBody = nonNull(fenced.group(1)).trim();
+            if (!fencedBody.isBlank()) {
+                candidates.add(fencedBody);
+            }
         }
 
         String vectorExpr = firstRegex(text, "\\[[^\\[\\]]*ReLU[^\\[\\]]*\\]");
         if (!vectorExpr.isBlank()) {
-            return vectorExpr.trim();
+            candidates.add(vectorExpr.trim());
         }
 
+        candidates.add(text);
         String[] lines = text.split("\\R");
         for (String raw : lines) {
             String line = raw.trim();
@@ -1072,8 +1480,10 @@ public class NuteraLlmService {
                 int eq = line.indexOf('=');
                 line = line.substring(eq + 1).trim();
             }
-            if (line.contains("ReLU(") || line.contains("relu(") || line.contains("Max(") || line.contains("max(")) {
-                return line;
+            if (line.contains("ReLU(") || line.contains("relu(")
+                    || line.contains("Max(") || line.contains("max(")
+                    || isNoReluSolutionCandidate(line)) {
+                candidates.add(line);
             }
         }
 
@@ -1082,7 +1492,29 @@ public class NuteraLlmService {
             int eq = first.indexOf('=');
             first = first.substring(eq + 1).trim();
         }
-        return first;
+        if (!first.isBlank()) {
+            candidates.add(first);
+        }
+
+        for (String candidateExpr : candidates) {
+            String normalized = nonNull(candidateExpr).trim();
+            if (normalized.isBlank()) {
+                continue;
+            }
+            if (isNoReluSolutionCandidate(normalized)) {
+                return normalized;
+            }
+            if (precheckAffineReluTemplate(normalized).isValid()) {
+                return normalized;
+            }
+        }
+        for (String candidateExpr : candidates) {
+            String normalized = nonNull(candidateExpr).trim();
+            if (!normalized.isBlank()) {
+                return normalized;
+            }
+        }
+        return "";
     }
 
     private String firstRegex(String text, String pattern) {

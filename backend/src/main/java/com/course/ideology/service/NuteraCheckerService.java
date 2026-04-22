@@ -33,6 +33,8 @@ public class NuteraCheckerService {
     private static final long PROBE_TIMEOUT_SECONDS = 8L;
     private static final int MAX_RAW_OUTPUT = 12000;
     private static final int MAX_SUPPORTED_CLASS_MAJOR = 55; // Java 11
+    private static final String CHECKER_PYDEPS_DIR_NAME = ".pydeps";
+    private static final String WINDOWS_IREV_PYTHON = "C:\\Windows\\System32\\iRev\\Scripts\\python.exe";
 
     private final Path projectRoot;
     private final Path runtimeRoot;
@@ -118,7 +120,8 @@ public class NuteraCheckerService {
                     "Checked JAVACHECKER_JAR and runtimes/nutera/deps|libs locations.");
         }
 
-        PythonResolution python = resolvePythonCommand(logs);
+        Map<String, String> checkerPythonEnv = buildCheckerPythonEnv(logs);
+        PythonResolution python = resolvePythonCommand(logs, checkerPythonEnv);
         if (!python.available()) {
             return CheckerResult.error(versioned("Checker startup failed: Python interpreter is unavailable."), python.detail);
         }
@@ -152,6 +155,13 @@ public class NuteraCheckerService {
         Map<String, String> env = pb.environment();
         env.put("PYTHONIOENCODING", "UTF-8");
         env.put("JAVACHECKER_JAR", javacheckerJar.toString());
+        Path rootLibz3 = runtimeRoot.resolve("libz3.dll");
+        Path rootLibz3Java = runtimeRoot.resolve("libz3java.dll");
+        if (Files.exists(rootLibz3) && Files.exists(rootLibz3Java)) {
+            env.put("NUTERA_Z3_NATIVE_DIR", runtimeRoot.toString());
+            append(logs, "Checker native dir override: " + normalizePath(runtimeRoot));
+        }
+        env.putAll(checkerPythonEnv);
         env.putAll(javaRuntime.childEnv);
 
         Process process;
@@ -704,11 +714,20 @@ public class NuteraCheckerService {
         return null;
     }
 
-    private PythonResolution resolvePythonCommand(List<String> logs) {
+    private PythonResolution resolvePythonCommand(List<String> logs, Map<String, String> envOverrides) {
         List<List<String>> candidates = new ArrayList<>();
         if (!configuredPythonCommand.isBlank()) {
             List<String> configured = parseCommandTokens(configuredPythonCommand);
             if (!configured.isEmpty()) candidates.add(configured);
+        }
+        if (isWindows()) {
+            addPythonCandidateIfExists(candidates, Path.of(WINDOWS_IREV_PYTHON));
+            addPythonCandidateIfExists(candidates, runtimeRoot.resolve(".venv").resolve("Scripts").resolve("python.exe"));
+            addPythonCandidateIfExists(candidates, projectRoot.resolve(".venv").resolve("Scripts").resolve("python.exe"));
+            addPythonCandidateIfExists(candidates, projectRoot.resolve(".tools").resolve("python-3.12.7-embed-amd64").resolve("python.exe"));
+        } else {
+            addPythonCandidateIfExists(candidates, runtimeRoot.resolve(".venv").resolve("bin").resolve("python3"));
+            addPythonCandidateIfExists(candidates, projectRoot.resolve(".venv").resolve("bin").resolve("python3"));
         }
         if (isWindows()) {
             candidates.add(List.of("py", "-3"));
@@ -723,15 +742,69 @@ public class NuteraCheckerService {
         for (List<String> base : unique) {
             List<String> probe = new ArrayList<>(base);
             probe.add("--version");
-            ProbeResult result = runProbe(probe, runtimeRoot, PROBE_TIMEOUT_SECONDS, null);
+            ProbeResult result = runProbe(probe, runtimeRoot, PROBE_TIMEOUT_SECONDS, envOverrides);
             detail.append("[").append(formatCommand(probe)).append("] ").append(result.message).append(System.lineSeparator());
             if (result.success) {
+                List<String> importProbe = new ArrayList<>(base);
+                importProbe.add("-c");
+                importProbe.add("import sympy,numpy,jnius;print('nutera-checker-pydeps-ok')");
+                ProbeResult importResult = runProbe(importProbe, runtimeRoot, PROBE_TIMEOUT_SECONDS, envOverrides);
+                detail.append("[").append(formatCommand(importProbe)).append("] ")
+                        .append(importResult.message).append(System.lineSeparator());
+                if (!importResult.success) {
+                    continue;
+                }
                 List<String> resolved = absolutizeCommand(base);
                 append(logs, "Python command (resolved): " + formatCommand(resolved));
                 return new PythonResolution(resolved, detail.toString().trim());
             }
         }
         return new PythonResolution(List.of(), detail.toString().trim());
+    }
+
+    private Map<String, String> buildCheckerPythonEnv(List<String> logs) {
+        Map<String, String> env = new LinkedHashMap<>();
+        Path pydeps = runtimeRoot.resolve(CHECKER_PYDEPS_DIR_NAME).normalize();
+        if (!Files.isDirectory(pydeps)) {
+            append(logs, "Checker Python deps directory not found: " + normalizePath(pydeps));
+            return env;
+        }
+        String existing = firstNonBlank(System.getenv("PYTHONPATH"), "");
+        String merged = prependPathEntry(pydeps.toString(), existing, isWindows());
+        env.put("PYTHONPATH", merged);
+        append(logs, "Checker PYTHONPATH: " + (merged.length() > 220 ? merged.substring(0, 220) + "..." : merged));
+        return env;
+    }
+
+    private String prependPathEntry(String entry, String existing, boolean windows) {
+        String separator = windows ? ";" : ":";
+        List<String> parts = new ArrayList<>();
+        parts.add(entry);
+        if (existing != null && !existing.isBlank()) {
+            String[] existingParts = existing.split(Pattern.quote(separator));
+            String entryKey = windows ? entry.toLowerCase(Locale.ROOT) : entry;
+            for (String raw : existingParts) {
+                String p = trim(raw);
+                if (p.isBlank()) {
+                    continue;
+                }
+                String key = windows ? p.toLowerCase(Locale.ROOT) : p;
+                if (!key.equals(entryKey)) {
+                    parts.add(p);
+                }
+            }
+        }
+        return String.join(separator, parts);
+    }
+
+    private void addPythonCandidateIfExists(List<List<String>> candidates, Path executable) {
+        if (executable == null) {
+            return;
+        }
+        Path normalized = executable.toAbsolutePath().normalize();
+        if (Files.isRegularFile(normalized)) {
+            candidates.add(List.of(normalized.toString()));
+        }
     }
 
     private ProbeResult runProbe(List<String> command, Path cwd, long timeoutSec, Map<String, String> envOverrides) {
@@ -1021,6 +1094,10 @@ public class NuteraCheckerService {
 
         public static CheckerResult error(String message, String rawOutput) {
             return new CheckerResult("CHECKER_ERROR", message, rawOutput, "", "", "", "", CHECKER_TRACE_VERSION);
+        }
+
+        public static CheckerResult error(String message) {
+            return error("CHECKER_ERROR", message);
         }
 
         public CheckerResult withExternalMessage(String userMessage, String debugMessage, String traceTag) {

@@ -58,7 +58,8 @@ public class LlmProviderSettingsService {
                 hasAnyConfigChange = true;
             }
             if (update.getModelName() != null) {
-                settings.put(meta.modelNameField(), update.getModelName().trim());
+                String normalizedModel = normalizeModelNameForProvider(meta, update.getModelName().trim(), true);
+                settings.put(meta.modelNameField(), normalizedModel);
                 hasAnyConfigChange = true;
             }
             if (update.getBaseUrl() != null) {
@@ -66,7 +67,8 @@ public class LlmProviderSettingsService {
                 hasAnyConfigChange = true;
             }
             if (update.getEnableThinking() != null) {
-                settings.put(meta.enableThinkingField(), update.getEnableThinking());
+                Boolean normalizedEnableThinking = normalizeEnableThinkingForProvider(meta, update.getEnableThinking(), true);
+                settings.put(meta.enableThinkingField(), normalizedEnableThinking);
                 hasAnyConfigChange = true;
             }
             if (update.getTemperature() != null) {
@@ -119,6 +121,7 @@ public class LlmProviderSettingsService {
         if (modelName.isBlank()) {
             modelName = meta.defaultModelName;
         }
+        modelName = normalizeModelNameForProvider(meta, modelName, false);
         if (baseUrl.isBlank()) {
             baseUrl = meta.defaultBaseUrl;
         }
@@ -127,6 +130,7 @@ public class LlmProviderSettingsService {
         }
 
         Boolean enableThinking = readBoolean(settings.get(meta.enableThinkingField()), meta.defaultEnableThinking);
+        enableThinking = normalizeEnableThinkingForProvider(meta, enableThinking, false);
         Double temperature = readDouble(settings.get(meta.temperatureField()), meta.defaultTemperature);
         Integer maxTokens = readInt(settings.get(meta.maxTokensField()), meta.defaultMaxTokens);
         Boolean stream = readBoolean(settings.get(meta.streamField()), meta.defaultStream);
@@ -226,6 +230,37 @@ public class LlmProviderSettingsService {
             return "****";
         }
         return key.substring(0, 4) + "****" + key.substring(key.length() - 4);
+    }
+
+    private String normalizeModelNameForProvider(ProviderMeta meta, String rawModelName, boolean strictInput) {
+        if (!"deepseek".equals(meta.providerId)) {
+            return rawModelName;
+        }
+        String model = rawModelName == null ? "" : rawModelName.trim();
+        if (model.isBlank()) {
+            return meta.defaultModelName;
+        }
+        String normalized = model.toLowerCase(Locale.ROOT);
+        if (normalized.contains("reasoner")) {
+            return "deepseek-reasoner";
+        }
+        if (normalized.contains("chat") || normalized.contains("deepseek")) {
+            return "deepseek-chat";
+        }
+        if (strictInput) {
+            throw new IllegalArgumentException("Unsupported DeepSeek model. Allowed: deepseek-chat / deepseek-reasoner.");
+        }
+        return "deepseek-chat";
+    }
+
+    private Boolean normalizeEnableThinkingForProvider(ProviderMeta meta, Boolean enableThinking, boolean strictInput) {
+        if (!"deepseek".equals(meta.providerId)) {
+            return enableThinking;
+        }
+        if (enableThinking == null) {
+            return false;
+        }
+        return enableThinking;
     }
 
     private Path resolveSettingsPath(String configuredPath) {
@@ -521,8 +556,8 @@ public class LlmProviderSettingsService {
                             "deepseekApiKey",
                             "deepseekApiKeyUpdatedAt",
                             false,
-                            "DeepSeek Official Chat Completions",
-                            "deepseek-ai/DeepSeek-V3.2",
+                            "DeepSeek Official Chat/Reasoner (Scenario Routed)",
+                            "deepseek-chat",
                             "https://api.deepseek.com",
                             false,
                             0.0,

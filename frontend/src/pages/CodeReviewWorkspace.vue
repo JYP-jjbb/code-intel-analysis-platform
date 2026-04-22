@@ -220,7 +220,7 @@ const DEFAULT_CODE_PREVIEW = `// 请上传源码文件或填写 GitHub 仓库地
 const treeProps = { label: "label", children: "children" };
 const modelOptions = [
   { label: "Kimi", value: "kimi-k2.5" },
-  { label: "DeepSeek", value: "deepseek-ai/DeepSeek-V3.2" },
+  { label: "DeepSeek Chat", value: "deepseek-chat" },
   { label: "Hunyuan", value: "hunyuan-2.0-thinking-20251109" },
   { label: "Qwen", value: "qwen3.5-plus" }
 ];

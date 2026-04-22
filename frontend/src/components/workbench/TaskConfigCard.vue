@@ -118,6 +118,25 @@
     </div>
 
     <div class="wb-action-row wb-main-actions">
+      <template v-if="mode === 'learning'">
+        <el-tooltip
+          :content="learningRunTooltip"
+          placement="top"
+          :disabled="!learningRunTooltip"
+        >
+          <span class="wb-tooltip-host">
+            <el-button
+              class="wb-run-code-btn"
+              :class="{ 'is-running': learningCodeRunState === 'running' }"
+              :disabled="learningRunInteractionDisabled"
+              @click="$emit('run-code')"
+            >
+              <el-icon><Cpu /></el-icon>
+              {{ learningRunLabel }}
+            </el-button>
+          </span>
+        </el-tooltip>
+      </template>
       <el-button
         class="wb-primary-btn"
         :class="{
@@ -148,7 +167,7 @@
 
 <script setup>
 import { computed, nextTick, ref, watch } from "vue";
-import { Brush, Check, UploadFilled, VideoPause, VideoPlay } from "@element-plus/icons-vue";
+import { Brush, Check, Cpu, UploadFilled, VideoPause, VideoPlay } from "@element-plus/icons-vue";
 
 const gutterRef = ref(null);
 const textareaRef = ref(null);
@@ -156,7 +175,7 @@ const selectedLineNumber = ref(1);
 
 const modelOptions = [
   { label: "Kimi", value: "kimi-k2.5" },
-  { label: "DeepSeek", value: "deepseek-ai/DeepSeek-V3.2" },
+  { label: "DeepSeek（批量自动Reasoner）", value: "deepseek-chat" },
   { label: "Hunyuan", value: "hunyuan-2.0-thinking-20251109" },
   { label: "Qwen", value: "qwen3.5-plus" }
 ];
@@ -204,15 +223,51 @@ const props = defineProps({
   codeBlocks: {
     type: Array,
     default: () => []
+  },
+  /** learning mode: idle | running */
+  learningCodeRunState: {
+    type: String,
+    default: "idle"
+  },
+  /** learning mode: whether current language can use the run button */
+  learningCodeRunnable: {
+    type: Boolean,
+    default: true
   }
 });
 
-const emit = defineEmits(["submit", "pause", "reset", "file-change", "update:mode", "line-select"]);
+const emit = defineEmits(["submit", "pause", "reset", "file-change", "update:mode", "line-select", "run-code"]);
 
 const isLanguageLocked = computed(() => props.form.benchmark && props.form.benchmark !== "none");
 const lastCustomLanguage = ref("python");
 const isRunningState = computed(() => props.runState === "running" || props.runState === "pausing");
 const shouldShowPauseAction = computed(() => props.mode === "verification" && isRunningState.value);
+
+const learningRunLabel = computed(() =>
+  props.learningCodeRunState === "running" ? "运行中…" : "运行代码"
+);
+
+const learningRunBaseDisabled = computed(() => {
+  if (props.mode !== "learning") return true;
+  if (!props.learningCodeRunnable) return true;
+  if (!String(props.form.code || "").trim()) return true;
+  return false;
+});
+
+const learningRunInteractionDisabled = computed(
+  () => learningRunBaseDisabled.value || props.learningCodeRunState === "running"
+);
+
+const learningRunTooltip = computed(() => {
+  if (props.mode !== "learning") return "";
+  if (!props.learningCodeRunnable) {
+    return "当前语言暂不支持一键运行，请使用本地环境执行。";
+  }
+  if (!String(props.form.code || "").trim()) {
+    return "请先输入代码";
+  }
+  return "";
+});
 
 const primaryLabel = computed(() => {
   if (props.mode === "learning") {

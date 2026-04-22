@@ -74,6 +74,14 @@ export function explainLearningCode(payload) {
   });
 }
 
+/** Learning workbench: execute snippet (optional backend). Response may include stdout, stderr, message. */
+export function runLearningCodeSnippet(payload) {
+  return request("/api/nutera/learning/run-code", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
 export function buildVerificationSummaryGraph(payload) {
   return request("/api/nutera/verification/summary-graph", {
     method: "POST",

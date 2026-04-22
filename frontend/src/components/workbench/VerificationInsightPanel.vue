@@ -103,6 +103,11 @@ const proofToneClass = computed(() => {
   border-radius: 14px;
   background: #f9fcff;
   padding: 10px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .wb-subpanel-head {
@@ -110,6 +115,7 @@ const proofToneClass = computed(() => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .wb-subpanel-head h4 {
@@ -122,6 +128,7 @@ const proofToneClass = computed(() => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px 10px;
+  flex-shrink: 0;
 }
 
 .wb-insight-item {
@@ -171,5 +178,7 @@ const proofToneClass = computed(() => {
   color: #2c4f77;
   white-space: pre-wrap;
   word-break: break-word;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 </style>

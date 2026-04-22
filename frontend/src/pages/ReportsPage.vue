@@ -209,6 +209,8 @@ const toModelDisplay = (raw) => {
   const text = clean(raw);
   if (!text) return "-";
   const lower = text.toLowerCase();
+  if (lower.includes("deepseek-reasoner")) return "DeepSeek Reasoner";
+  if (lower.includes("deepseek-chat")) return "DeepSeek Chat";
   if (lower.includes("deepseek")) return "DeepSeek";
   if (lower.includes("hunyuan")) return "Hunyuan";
   if (lower.includes("qwen")) return "Qwen";

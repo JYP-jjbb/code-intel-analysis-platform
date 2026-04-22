@@ -49,6 +49,8 @@ app:
   deepseek:
     base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
     api-key: ${DEEPSEEK_API_KEY:}
+    chat-model: ${DEEPSEEK_CHAT_MODEL:deepseek-chat}
+    reasoner-model: ${DEEPSEEK_REASONER_MODEL:${DEEPSEEK_MODEL:deepseek-reasoner}}
   demo:
     enabled: true
 

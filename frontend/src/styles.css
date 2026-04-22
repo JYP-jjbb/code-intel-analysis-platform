@@ -2520,6 +2520,40 @@ body.landing-mode {
   box-shadow: 0 12px 24px rgba(220, 150, 66, 0.2);
 }
 
+.wb-tooltip-host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.wb-task-config-card .wb-main-actions .wb-run-code-btn.el-button {
+  background: linear-gradient(135deg, #2bbf7a, #1fa865);
+  border: 1px solid rgba(32, 168, 101, 0.38);
+  color: #f4fff8;
+  box-shadow: 0 10px 22px rgba(32, 168, 101, 0.2);
+}
+
+.wb-task-config-card .wb-main-actions .wb-run-code-btn.el-button:hover:not(.is-disabled) {
+  background: linear-gradient(135deg, #35cf88, #24b56e);
+  border-color: rgba(32, 168, 101, 0.48);
+  color: #fff;
+}
+
+.wb-task-config-card .wb-main-actions .wb-run-code-btn.el-button.is-running,
+.wb-task-config-card .wb-main-actions .wb-run-code-btn.el-button.is-running.is-disabled {
+  background: linear-gradient(135deg, #f26a6a, #de3f3f);
+  border: 1px solid rgba(222, 63, 63, 0.42);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(222, 63, 63, 0.22);
+  opacity: 1;
+  cursor: default;
+}
+
+.wb-task-config-card .wb-main-actions .wb-run-code-btn.el-button.is-disabled:not(.is-running) {
+  opacity: 0.52;
+  filter: grayscale(0.12);
+  box-shadow: none;
+}
+
 .wb-soft-btn.el-button {
   border: 1px solid rgba(44, 107, 255, 0.22);
   background: rgba(44, 107, 255, 0.08);
@@ -2829,6 +2863,23 @@ body.landing-mode {
   background: rgba(68, 125, 207, 0.32);
 }
 
+/* 学习模式「输入与输出」：折叠区内双栏撑满正文高度（保留 grid，供折叠动画） */
+.workbench-main.is-nutera-route .wb-program-output-card .wb-collapsible-wrap {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.workbench-main.is-nutera-route .wb-program-output-card .wb-collapsible-inner {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .workbench-main.is-nutera-route .wb-summary-card > .el-card__body {
   min-height: 0;
   flex: 1;
@@ -2862,10 +2913,12 @@ body.landing-mode {
 }
 
 .workbench-main.is-nutera-route .wb-program-output-card > .el-card__body {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  flex: 1 1 0;
+  justify-content: flex-start;
+  overflow: hidden;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;

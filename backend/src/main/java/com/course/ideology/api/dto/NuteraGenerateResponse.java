@@ -46,6 +46,12 @@ public class NuteraGenerateResponse {
     @JsonProperty("final_summary")
     private String finalSummary;
 
+    @JsonProperty("attempt_count")
+    private int attemptCount;
+
+    @JsonProperty("max_attempts")
+    private int maxAttempts;
+
     private String message;
 
     @JsonProperty("batch_mode")
@@ -175,6 +181,22 @@ public class NuteraGenerateResponse {
 
     public void setFinalSummary(String finalSummary) {
         this.finalSummary = finalSummary;
+    }
+
+    public int getAttemptCount() {
+        return attemptCount;
+    }
+
+    public void setAttemptCount(int attemptCount) {
+        this.attemptCount = attemptCount;
+    }
+
+    public int getMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
     }
 
     public String getCheckerConclusion() {

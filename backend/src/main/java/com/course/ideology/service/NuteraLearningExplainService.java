@@ -45,7 +45,8 @@ public class NuteraLearningExplainService {
                     "",
                     request.getModel(),
                     buildSystemPrompt(),
-                    buildUserPrompt(request, selectedLine)
+                    buildUserPrompt(request, selectedLine),
+                    "nutera.learning.code-explain"
             );
 
             JsonNode root = parseJson(chatResult.getContent());
@@ -590,4 +591,3 @@ public class NuteraLearningExplainService {
         logs.add("[" + Instant.now() + "] " + message);
     }
 }
-

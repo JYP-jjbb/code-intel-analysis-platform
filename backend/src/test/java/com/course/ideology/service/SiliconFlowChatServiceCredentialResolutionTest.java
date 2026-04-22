@@ -30,6 +30,8 @@ class SiliconFlowChatServiceCredentialResolutionTest {
                 "qwen3.5-plus",
                 90,
                 "https://api.deepseek.com",
+                "deepseek-chat",
+                "deepseek-reasoner",
                 ""
         );
 
@@ -57,6 +59,8 @@ class SiliconFlowChatServiceCredentialResolutionTest {
                 "qwen3.5-plus",
                 90,
                 "https://api.deepseek.com",
+                "deepseek-chat",
+                "deepseek-reasoner",
                 ""
         );
 
@@ -83,6 +87,8 @@ class SiliconFlowChatServiceCredentialResolutionTest {
                 "qwen3.5-plus",
                 90,
                 "https://api.deepseek.com",
+                "deepseek-chat",
+                "deepseek-reasoner",
                 ""
         );
 
@@ -110,6 +116,8 @@ class SiliconFlowChatServiceCredentialResolutionTest {
                 "qwen3.5-plus",
                 90,
                 "https://api.deepseek.com",
+                "deepseek-chat",
+                "deepseek-reasoner",
                 ""
         );
 

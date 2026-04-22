@@ -9,12 +9,15 @@
           :mode="currentMode"
           :external-selected-line="activeEditorLine"
           :code-blocks="isLearningMode ? learning.codeBlocks : []"
+          :learning-code-run-state="learningCodeRunState"
+          :learning-code-runnable="isLearningCodeRunnable"
           @file-change="handleFileChange"
           @line-select="handleCodeLineSelect"
           @update:mode="handleModeChange"
           @submit="submitTask"
           @pause="pauseTask"
           @reset="resetForm"
+          @run-code="handleLearningRunCode"
         />
       </section>
 
@@ -36,6 +39,8 @@
             @toggle-collapse="logCollapsed = !logCollapsed"
           />
           <ProgramOutputPanel
+            :source-code="form.code"
+            :language="form.language"
             :output="learning.programOutput"
             :collapsed="outputCollapsed"
             @toggle-collapse="outputCollapsed = !outputCollapsed"
@@ -65,6 +70,8 @@
             :checker-verdict="result.checkerVerdict"
             :checker-conclusion="result.checkerConclusion"
             :checker-message="result.checkerMessage"
+            :single-attempt-count="result.attemptCount"
+            :single-max-attempts="result.maxAttempts"
             :checker-counterexample="result.checkerCounterexample"
             :checker-raw-output="result.checkerRawOutput"
             :checker-feedback="result.checkerFeedback"
@@ -113,6 +120,7 @@ import {
   generateRankingFunction,
   loadCaseSource,
   pauseBatchTask,
+  runLearningCodeSnippet,
   startBatchTask
 } from "../api/nuteraApi.js";
 import { useNuteraRuntimeStore } from "../stores/nuteraRuntimeStore.js";
@@ -167,6 +175,18 @@ const currentMode = computed({
 });
 
 const isLearningMode = computed(() => currentMode.value === "learning");
+
+const learningCodeRunState = ref("idle");
+const LEARNING_RUN_SUPPORTED_LANGS = new Set(["python", "java", "c", "cpp", "go"]);
+const isLearningCodeRunnable = computed(() =>
+  LEARNING_RUN_SUPPORTED_LANGS.has(String(form.language || "").toLowerCase())
+);
+
+watch(isLearningMode, (on) => {
+  if (!on) {
+    learningCodeRunState.value = "idle";
+  }
+});
 
 // ── Collapse state for the three learning-mode right-column cards ──────────
 const logCollapsed = ref(false);
@@ -263,6 +283,7 @@ const appendLog = (message) => {
 };
 
 const resetLearningPanels = () => {
+  learningCodeRunState.value = "idle";
   learning.selectedLine = 1;
   learning.lineText = "";
   learning.lineExplanation = "";
@@ -285,35 +306,6 @@ const resolveLanguageLabel = () => {
   if (normalized === "java") return "Java";
   if (normalized === "go") return "Go";
   return "Python";
-};
-
-const extractProgramOutput = (code) => {
-  const source = String(code || "");
-  const outputs = [];
-  const lines = source.split("\n");
-  const printRegex = /(print\s*\(|console\.log\s*\(|cout\s*<<|System\.out\.print(?:ln)?\s*\()/;
-  const literalRegex = /["'`](.*?)["'`]/g;
-  lines.forEach((line) => {
-    if (!printRegex.test(line)) {
-      return;
-    }
-    const literals = [];
-    let match = literalRegex.exec(line);
-    while (match) {
-      literals.push(match[1]);
-      match = literalRegex.exec(line);
-    }
-    literalRegex.lastIndex = 0;
-    if (literals.length > 0) {
-      outputs.push(literals.join(""));
-    } else {
-      outputs.push("（该输出语句依赖变量运行结果）");
-    }
-  });
-  if (outputs.length === 0) {
-    return "（暂无可推断输出，请根据执行过程观察变量变化）";
-  }
-  return outputs.join("\n");
 };
 
 const buildKnowledgePoints = (code) => {
@@ -601,7 +593,7 @@ const hydrateLearningFromCode = (code, { keepLineSelection = true } = {}) => {
   }
 
   learning.steps = buildLearningSteps(source);
-  learning.programOutput = extractProgramOutput(source);
+  learning.programOutput = "";
   learning.knowledgePoints = buildKnowledgePoints(source);
   learning.commonMistakes = buildCommonMistakes(source);
 
@@ -865,6 +857,8 @@ const clearOutput = () => {
   result.checkerVerdict = "";
   result.checkerConclusion = "";
   result.checkerMessage = "";
+  result.attemptCount = 0;
+  result.maxAttempts = 0;
   result.checkerCounterexample = "";
   result.checkerRawOutput = "";
   result.checkerFeedback = "";
@@ -928,6 +922,25 @@ const sanitizeCheckerUserMessage = (value) => {
     return "";
   }
   return source.replace(/^\s*(?:\[checker-runtime-v\d+\]\s*)+/i, "").trim();
+};
+
+const isAffineTemplatePrecheckFailure = (value) => {
+  const source = String(value || "");
+  if (!source) {
+    return false;
+  }
+  return /AFFINE_TEMPLATE_PRECHECK_FAILED|affine\s*template|linear\s*template|non-affine|variable\*variable|unsupported operator/i.test(source);
+};
+
+const summarizeCheckerFacingMessage = (value) => {
+  const normalized = sanitizeCheckerUserMessage(value);
+  if (!normalized) {
+    return "";
+  }
+  if (isAffineTemplatePrecheckFailure(normalized)) {
+    return "候选函数不符合当前验证器支持的线性模板，系统已自动重试。";
+  }
+  return normalized.length > 180 ? `${normalized.slice(0, 180)}...` : normalized;
 };
 
 const normalizeVerificationStatus = (value, conclusion, executionStatus) => {
@@ -1159,7 +1172,8 @@ const applyBatchStatusSnapshot = (snapshot) => {
     currentAttemptStates.push("");
   }
   const status = String(snapshot.status || "").toUpperCase();
-  const message = sanitizeCheckerUserMessage(snapshot.message || "");
+  const messageRaw = sanitizeCheckerUserMessage(snapshot.message || "");
+  const message = summarizeCheckerFacingMessage(messageRaw);
   const resultPath = snapshot.resultPath || snapshot.result_path || snapshot.batch_result_path || "";
 
   result.batchMode = true;
@@ -1175,13 +1189,15 @@ const applyBatchStatusSnapshot = (snapshot) => {
   result.batchProgress.stopCount = stopCount;
   result.batchResultPath = resultPath;
   result.candidateFunctions = "";
+  result.attemptCount = 0;
+  result.maxAttempts = 0;
   result.checkerStatus = status || "RUNNING";
   result.checkerVerdict = "";
   result.checkerConclusion = "";
   result.checkerMessage = message || "";
   result.checkerCounterexample = "";
   result.checkerRawOutput = "";
-  result.checkerFeedback = message || "";
+  result.checkerFeedback = messageRaw || message || "";
   result.artifactSummary = resultPath ? `批量结果文件: ${resultPath}` : "批量处理中...";
 
   if (completedCases > lastBatchCompletedCases.value) {
@@ -1210,8 +1226,8 @@ const applyBatchStatusSnapshot = (snapshot) => {
     result.checkerMessage = message || "暂停请求已提交：当前案例完成后将暂停后续案例。";
     result.checkerFeedback = result.checkerMessage;
   } else if (status === "FAILED") {
-    appendLog(`批量处理失败: ${message || "未知错误"}`);
-    ElMessage.error(message || "批量处理失败");
+    appendLog(`批量处理失败: ${messageRaw || "未知错误"}`);
+    ElMessage.error(message || "批量处理失败，请查看运行日志。");
     submitting.value = false;
     stopBatchPolling({ clearTaskContext: true });
   }
@@ -1469,6 +1485,69 @@ const handleDisplayScroll = () => {
   schedulePersist();
 };
 
+const handleLearningRunCode = async () => {
+  if (!isLearningMode.value || learningCodeRunState.value === "running") {
+    return;
+  }
+  if (!String(form.code || "").trim()) {
+    ElMessage.warning("请先输入代码");
+    return;
+  }
+  if (!isLearningCodeRunnable.value) {
+    ElMessage.info("当前语言暂不支持在此面板一键运行，请使用本地环境执行。");
+    return;
+  }
+
+  learningCodeRunState.value = "running";
+  learning.programOutput = "";
+  const minVisibleMs = 520;
+  const started = Date.now();
+
+  const finishRunning = () => {
+    const elapsed = Date.now() - started;
+    if (elapsed < minVisibleMs) {
+      window.setTimeout(() => {
+        learningCodeRunState.value = "idle";
+      }, minVisibleMs - elapsed);
+    } else {
+      learningCodeRunState.value = "idle";
+    }
+  };
+
+  try {
+    const data = await runLearningCodeSnippet({
+      code: String(form.code || ""),
+      language: String(form.language || "")
+    });
+    const stdout = data && data.stdout != null ? String(data.stdout) : "";
+    const stderr = data && data.stderr != null ? String(data.stderr) : "";
+    const merged = [stdout, stderr].map((s) => s.trim()).filter(Boolean).join("\n").trim();
+    const fallbackMsg = data && data.message != null ? String(data.message).trim() : "";
+    learning.programOutput = merged || fallbackMsg || "（无输出）";
+    appendLog("运行代码：后端已返回执行结果。");
+    ElMessage.success("运行完成");
+  } catch (error) {
+    const msg = String(error?.message || "运行失败");
+    const serviceMissing =
+      /\b404\b|405|Not Found|接口不可用|run-code|Failed to fetch|NetworkError|LOAD_FAILED/i.test(msg);
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, minVisibleMs);
+    });
+    if (serviceMissing) {
+      learning.programOutput =
+        "（演示）后端执行接口未就绪，暂无真实输出。接入运行服务后，结果将显示在此。";
+      appendLog("运行代码：后端执行接口不可用，已展示占位说明。");
+      ElMessage.info("运行服务暂未接入，可在本地环境执行代码。");
+    } else {
+      learning.programOutput = `运行失败：${msg}`;
+      appendLog(`运行代码失败：${msg}`);
+      ElMessage.warning("运行失败，请查看输出区说明");
+    }
+  } finally {
+    finishRunning();
+  }
+};
+
 const submitTask = async () => {
   if (isLearningMode.value) {
     if (!String(form.code || "").trim()) {
@@ -1586,6 +1665,8 @@ const submitTask = async () => {
     if (isBatchMode) {
       appendLog(`批量模式已启用，预计处理 ${caseSource.totalEntries || 0} 个案例`);
       result.batchMode = true;
+      result.attemptCount = 0;
+      result.maxAttempts = 0;
       result.batchProgress.total = caseSource.totalEntries || 0;
       result.batchProgress.completed = 0;
       result.batchProgress.currentIndex = caseSource.entryIndex || 0;
@@ -1648,11 +1729,14 @@ const submitTask = async () => {
     const checkerConclusion = normalizeCheckerConclusion(checkerConclusionRaw, checkerStatusRaw);
     const checkerVerdictRaw = response.checker_verdict || response.checkerVerdict || "";
     const checkerVerdict = normalizeCheckerVerdict(checkerVerdictRaw, checkerConclusion);
-    const checkerMessage = sanitizeCheckerUserMessage(response.checker_message || response.checkerMessage || "");
+    const checkerMessageRaw = sanitizeCheckerUserMessage(response.checker_message || response.checkerMessage || "");
+    const checkerMessage = summarizeCheckerFacingMessage(checkerMessageRaw);
     const checkerRawOutput = response.checker_raw_output || response.checkerRawOutput || "";
     const checkerCounterexample = response.checker_counterexample || response.checkerCounterexample || "";
     const checkerFeedback = response.checker_feedback || response.checkerFeedback || "";
     const finalSummary = response.final_summary || response.finalSummary || "";
+    const attemptCount = Math.max(0, Number(response.attempt_count ?? response.attemptCount ?? 0));
+    const maxAttempts = Math.max(0, Number(response.max_attempts ?? response.maxAttempts ?? 0));
 
     result.batchMode = false;
     result.batchResults = [];
@@ -1666,6 +1750,8 @@ const submitTask = async () => {
     result.batchProgress.provedCount = 0;
     result.batchProgress.notProvedCount = 0;
     result.batchProgress.stopCount = 0;
+    result.attemptCount = attemptCount;
+    result.maxAttempts = maxAttempts;
 
     result.candidateFunctions = candidateFunction || "模型未返回候选函数，请检查运行日志。";
     result.artifactSummary = finalSummary || rawResponse || "无结果摘要。";
@@ -1688,15 +1774,19 @@ const submitTask = async () => {
     });
 
     if (status === "SUCCESS") {
-      result.checkerFeedback = checkerFeedback || [
-        checkerStatus ? `执行状态: ${checkerStatus}` : "",
-        checkerVerdict ? `验证结果: ${checkerVerdict}` : "",
-        checkerConclusion ? `结论: ${checkerConclusion}` : "",
-        checkerMessage ? `信息: ${checkerMessage}` : "",
-        checkerCounterexample ? `反例:\n${checkerCounterexample}` : "",
-        checkerRawOutput ? `\n${checkerRawOutput}` : ""
-      ].filter(Boolean).join("\n") || "验证器未返回有效输出。";
+    result.checkerFeedback = checkerFeedback || [
+      checkerStatus ? `执行状态: ${checkerStatus}` : "",
+      checkerVerdict ? `验证结果: ${checkerVerdict}` : "",
+      checkerConclusion ? `结论: ${checkerConclusion}` : "",
+      attemptCount > 0 ? `尝试轮次: ${maxAttempts > 0 ? `${attemptCount}/${maxAttempts}` : attemptCount}` : "",
+      checkerMessageRaw ? `信息: ${checkerMessageRaw}` : "",
+      checkerCounterexample ? `反例:\n${checkerCounterexample}` : "",
+      checkerRawOutput ? `\n${checkerRawOutput}` : ""
+    ].filter(Boolean).join("\n") || "验证器未返回有效输出。";
 
+      if (attemptCount > 0) {
+        appendLog(`单程序最终采用第 ${maxAttempts > 0 ? `${attemptCount}/${maxAttempts}` : attemptCount} 轮结果`);
+      }
       if (checkerStatus === "COMPLETED" && checkerConclusion === "YES") {
         appendLog("Checker completed: PROVED (YES)");
         ElMessage.success("候选函数生成并通过验证");
@@ -1704,8 +1794,8 @@ const submitTask = async () => {
         appendLog("Checker completed: 验证未通过，已得到反例或无法证明终止");
         ElMessage.warning("Checker completed：候选函数未能证明终止");
       } else if (checkerStatus === "CHECKER_ERROR") {
-        appendLog(`生成完成，但验证器执行失败: ${checkerMessage || "未知错误"}`);
-        ElMessage.error(checkerMessage || "验证器执行失败");
+        appendLog(`生成完成，但验证器执行失败: ${checkerMessageRaw || "未知错误"}`);
+        ElMessage.error(checkerMessage || "验证器执行失败，请查看运行日志。");
       } else if (checkerStatus === "SKIPPED") {
         appendLog("生成完成，验证器已跳过");
         ElMessage.warning(checkerMessage || "验证器未执行");
@@ -1717,9 +1807,18 @@ const submitTask = async () => {
         ElMessage.success("候选函数生成完成");
       }
     } else {
+      if (attemptCount > 0 && maxAttempts > 0) {
+        appendLog(`单程序已自动尝试 ${attemptCount}/${maxAttempts} 次后仍失败`);
+      }
+      if (isAffineTemplatePrecheckFailure(checkerMessageRaw) && attemptCount >= Math.max(1, maxAttempts || 3)) {
+        result.checkerMessage = `已自动尝试 ${attemptCount} 次，均未生成符合线性模板要求的候选函数。`;
+      }
       result.checkerFeedback = checkerFeedback || message || checkerMessage || "模型调用失败，请检查运行日志。";
       appendLog(`生成失败: ${result.checkerFeedback}`);
-      ElMessage.error(result.checkerFeedback);
+      const failureSummary = result.checkerMessage
+        || summarizeCheckerFacingMessage(result.checkerFeedback)
+        || "任务执行失败，请查看运行日志。";
+      ElMessage.error(failureSummary);
     }
   } catch (error) {
     if (error?.name === "AbortError") {
@@ -1743,7 +1842,7 @@ const submitTask = async () => {
       checkerMessage: readable,
       selectedLine: verification.selectedLine
     });
-    ElMessage.error(readable);
+    ElMessage.error(summarizeCheckerFacingMessage(readable) || "任务执行失败，请查看运行日志。");
   } finally {
     singleRunAbortController = null;
     if (!keepSubmittingForBatch) {

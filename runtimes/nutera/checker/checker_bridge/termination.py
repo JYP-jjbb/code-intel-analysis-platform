@@ -3,8 +3,6 @@ from .loopheads import get_loop_heads
 
 from .tracing.utils import *
 
-import torch.optim as optim
-
 
 from .tracing.trace_handle import Trace
 

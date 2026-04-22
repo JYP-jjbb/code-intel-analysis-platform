@@ -74,7 +74,13 @@ public class CodeReviewExecutor {
             } else {
                 stage(logPath, timeline, "LLM", "RUNNING", "调用模型执行工程审查", 58);
                 try {
-                    SiliconFlowChatService.ChatResult chatResult = chatService.chatCompletion("", request.getModel(), buildSystemPrompt(), buildUserPrompt(request, root, scan));
+                    SiliconFlowChatService.ChatResult chatResult = chatService.chatCompletion(
+                            "",
+                            request.getModel(),
+                            buildSystemPrompt(),
+                            buildUserPrompt(request, root, scan),
+                            "code-review.project-audit"
+                    );
                     parsed = parse(chatResult.getContent(), scan);
                     stage(logPath, timeline, "LLM", "DONE", "模型返回结构化结果，问题数 " + parsed.issues.size(), 82);
                 } catch (Exception ex) {
