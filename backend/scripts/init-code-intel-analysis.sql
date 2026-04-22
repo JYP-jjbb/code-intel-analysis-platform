@@ -104,6 +104,35 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID(N'dbo.code_run_tasks', N'U') IS NULL
+BEGIN
+    PRINT N'Creating table [dbo].[code_run_tasks]...';
+    CREATE TABLE dbo.code_run_tasks (
+        id BIGINT IDENTITY(1,1) PRIMARY KEY,
+        task_id NVARCHAR(64) NOT NULL UNIQUE,
+        language NVARCHAR(20) NOT NULL,
+        source_code NVARCHAR(MAX) NULL,
+        stdin_text NVARCHAR(MAX) NULL,
+        task_status NVARCHAR(20) NOT NULL,
+        compile_status NVARCHAR(20) NULL,
+        run_status NVARCHAR(30) NULL,
+        stdout_text NVARCHAR(MAX) NULL,
+        stderr_text NVARCHAR(MAX) NULL,
+        exit_code INT NULL,
+        time_ms BIGINT NULL,
+        error_message NVARCHAR(1000) NULL,
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        start_time DATETIME2 NULL,
+        finish_time DATETIME2 NULL,
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    );
+END
+ELSE
+BEGIN
+    PRINT N'Table [dbo].[code_run_tasks] already exists.';
+END
+GO
+
 IF COL_LENGTH('dbo.batch_reports', 'stop_count') IS NULL
 BEGIN
     ALTER TABLE dbo.batch_reports ADD stop_count INT NOT NULL CONSTRAINT DF_batch_reports_stop_count DEFAULT 0;

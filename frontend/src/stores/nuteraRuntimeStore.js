@@ -8,6 +8,7 @@ const LEARNING_CODE_BLOCK_LIMIT = 300;
 
 const createDefaultForm = () => ({
   code: "",
+  stdin: "",
   benchmark: "none",
   model: "kimi-k2.5",
   language: "python",
@@ -270,6 +271,7 @@ const applySnapshot = (snapshot) => {
   const form = snapshot?.form || {};
   Object.assign(state.form, createDefaultForm(), {
     code: asString(form.code),
+    stdin: asString(form.stdin),
     benchmark: asString(form.benchmark, "none") || "none",
     model: asString(form.model, "kimi-k2.5") || "kimi-k2.5",
     language: asString(form.language, "python") || "python",
@@ -372,6 +374,7 @@ const buildSnapshot = () => ({
   updatedAt: new Date().toISOString(),
   form: {
     code: asString(state.form.code),
+    stdin: asString(state.form.stdin),
     benchmark: asString(state.form.benchmark, "none") || "none",
     model: asString(state.form.model, "kimi-k2.5"),
     language: asString(state.form.language, "python"),

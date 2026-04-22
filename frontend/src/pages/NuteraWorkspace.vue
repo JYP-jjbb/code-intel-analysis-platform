@@ -41,8 +41,10 @@
           <ProgramOutputPanel
             :source-code="form.code"
             :language="form.language"
+            :stdin="form.stdin"
             :output="learning.programOutput"
             :collapsed="outputCollapsed"
+            @update:stdin="(value) => { form.stdin = value; }"
             @toggle-collapse="outputCollapsed = !outputCollapsed"
           />
           <SummaryPanel
@@ -115,12 +117,13 @@ import SummaryPanel from "../components/workbench/SummaryPanel.vue";
 import LeaveTaskConfirmDialog from "../components/workbench/LeaveTaskConfirmDialog.vue";
 import {
   buildVerificationSummaryGraph,
+  createLearningCodeRunTask,
   explainLearningCode,
+  fetchLearningCodeRunTask,
   fetchBatchStatus,
   generateRankingFunction,
   loadCaseSource,
   pauseBatchTask,
-  runLearningCodeSnippet,
   startBatchTask
 } from "../api/nuteraApi.js";
 import { useNuteraRuntimeStore } from "../stores/nuteraRuntimeStore.js";
@@ -177,7 +180,7 @@ const currentMode = computed({
 const isLearningMode = computed(() => currentMode.value === "learning");
 
 const learningCodeRunState = ref("idle");
-const LEARNING_RUN_SUPPORTED_LANGS = new Set(["python", "java", "c", "cpp", "go"]);
+const LEARNING_RUN_SUPPORTED_LANGS = new Set(["python", "java", "cpp", "c++"]);
 const isLearningCodeRunnable = computed(() =>
   LEARNING_RUN_SUPPORTED_LANGS.has(String(form.language || "").toLowerCase())
 );
@@ -781,6 +784,7 @@ const applyCaseSourceToEditor = (response, dataset, entryIndex) => {
     return false;
   }
   form.code = String(response.code);
+  form.stdin = String(response.stdin ?? response.input ?? form.stdin ?? "");
   selectedFileName.value = "";
   caseSource.dataset = dataset;
   caseSource.csvPath = response.csvPath || caseSource.csvPath;
@@ -1327,6 +1331,7 @@ const resetCaseSourceMeta = () => {
 const resetForm = () => {
   caseLoadToken += 1;
   form.code = "";
+  form.stdin = "";
   form.benchmark = "none";
   form.model = "kimi-k2.5";
   form.language = "python";
@@ -1343,6 +1348,7 @@ const handleFileChange = (file) => {
   const reader = new FileReader();
   reader.onload = () => {
     form.code = String(reader.result || "");
+    learning.programOutput = "";
     if (isLearningMode.value) {
       hydrateLearningFromCode(form.code, { keepLineSelection: false });
     }
@@ -1381,6 +1387,7 @@ const loadCaseProgramSource = async (dataset) => {
     }
 
     form.code = response.code;
+    form.stdin = String(response.stdin ?? response.input ?? form.stdin ?? "");
     selectedFileName.value = "";
     caseSource.csvPath = response.csvPath || "";
     caseSource.programPath = response.programPath || "";
@@ -1463,6 +1470,20 @@ watch(
 );
 
 watch(
+  () => form.language,
+  () => {
+    if (!isLearningMode.value) {
+      return;
+    }
+    if (!String(form.code || "").trim()) {
+      resetLearningPanels();
+      return;
+    }
+    hydrateLearningFromCode(form.code, { keepLineSelection: true });
+  }
+);
+
+watch(
   () => runtimeState,
   () => {
     schedulePersist();
@@ -1485,6 +1506,63 @@ const handleDisplayScroll = () => {
   schedulePersist();
 };
 
+const sleep = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+const normalizeCodeRunTaskState = (value) => String(value || "").toUpperCase();
+
+const normalizeCodeRunCompileState = (value) => String(value || "").toUpperCase();
+
+const normalizeCodeRunExecState = (value) => String(value || "").toUpperCase();
+
+const maskLocalPath = (value) => String(value || "")
+  .replace(/[A-Za-z]:\\(?:[^\\\r\n]+\\)*[^\\\r\n]*/g, "【本机路径】")
+  .replace(/\/(?:Users|home|var|tmp|private)(?:\/[^\s\r\n:])+/g, "【本机路径】");
+
+const buildLearningRunOutput = (detail) => {
+  const compileStatus = normalizeCodeRunCompileState(detail?.compileStatus);
+  const runStatus = normalizeCodeRunExecState(detail?.runStatus);
+  const stdout = maskLocalPath(detail?.stdout || "");
+  const stderr = maskLocalPath(detail?.stderr || "");
+  const message = maskLocalPath(detail?.message || "");
+  const errorMessage = maskLocalPath(detail?.errorMessage || "");
+  const elapsed = Number(detail?.timeMs || 0);
+  const elapsedLine = elapsed > 0 ? `\n\n耗时: ${elapsed} ms` : "";
+
+  if (compileStatus === "ERROR") {
+    return `【编译错误】\n${stderr || errorMessage || message || "编译失败，未返回详细信息。"}${elapsedLine}`.trim();
+  }
+
+  if (runStatus === "TIMEOUT") {
+    return `【运行超时】\n${stderr || errorMessage || message || "程序执行超时。"}${elapsedLine}`.trim();
+  }
+
+  if (runStatus === "RUNTIME_ERROR" || runStatus === "SYSTEM_ERROR") {
+    return `【运行错误】\n${stderr || errorMessage || message || "程序运行失败。"}${elapsedLine}`.trim();
+  }
+
+  if (stdout.trim()) {
+    return `【标准输出】\n${stdout}${elapsedLine}`.trim();
+  }
+
+  return `【标准输出】\n（无输出）${elapsedLine}`.trim();
+};
+
+const pollLearningCodeRunTaskUntilDone = async (taskId) => {
+  const maxRounds = 150;
+  for (let round = 1; round <= maxRounds; round += 1) {
+    const detail = await fetchLearningCodeRunTask(taskId);
+    const taskStatus = normalizeCodeRunTaskState(detail?.taskStatus);
+    if (taskStatus === "SUCCESS" || taskStatus === "FAILED") {
+      return detail;
+    }
+    if (round === 1 || round % 6 === 0) {
+      appendLog(`运行代码：任务进行中（taskId=${taskId}，状态=${taskStatus || "RUNNING"}）`);
+    }
+    await sleep(400);
+  }
+  throw new Error("运行任务超时：长时间未完成，请稍后查看日志。");
+};
+
 const handleLearningRunCode = async () => {
   if (!isLearningMode.value || learningCodeRunState.value === "running") {
     return;
@@ -1494,12 +1572,12 @@ const handleLearningRunCode = async () => {
     return;
   }
   if (!isLearningCodeRunnable.value) {
-    ElMessage.info("当前语言暂不支持在此面板一键运行，请使用本地环境执行。");
+    ElMessage.info("学习模式当前仅支持 C++ / Java / Python 运行。");
     return;
   }
 
   learningCodeRunState.value = "running";
-  learning.programOutput = "";
+  learning.programOutput = "正在创建运行任务，请稍候...";
   const minVisibleMs = 520;
   const started = Date.now();
 
@@ -1515,34 +1593,37 @@ const handleLearningRunCode = async () => {
   };
 
   try {
-    const data = await runLearningCodeSnippet({
-      code: String(form.code || ""),
-      language: String(form.language || "")
+    appendLog("运行代码：提交后端任务创建请求。");
+    const createResp = await createLearningCodeRunTask({
+      sourceCode: String(form.code || ""),
+      language: String(form.language || ""),
+      stdin: String(form.stdin || "")
     });
-    const stdout = data && data.stdout != null ? String(data.stdout) : "";
-    const stderr = data && data.stderr != null ? String(data.stderr) : "";
-    const merged = [stdout, stderr].map((s) => s.trim()).filter(Boolean).join("\n").trim();
-    const fallbackMsg = data && data.message != null ? String(data.message).trim() : "";
-    learning.programOutput = merged || fallbackMsg || "（无输出）";
-    appendLog("运行代码：后端已返回执行结果。");
-    ElMessage.success("运行完成");
-  } catch (error) {
-    const msg = String(error?.message || "运行失败");
-    const serviceMissing =
-      /\b404\b|405|Not Found|接口不可用|run-code|Failed to fetch|NetworkError|LOAD_FAILED/i.test(msg);
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, minVisibleMs);
-    });
-    if (serviceMissing) {
-      learning.programOutput =
-        "（演示）后端执行接口未就绪，暂无真实输出。接入运行服务后，结果将显示在此。";
-      appendLog("运行代码：后端执行接口不可用，已展示占位说明。");
-      ElMessage.info("运行服务暂未接入，可在本地环境执行代码。");
-    } else {
-      learning.programOutput = `运行失败：${msg}`;
-      appendLog(`运行代码失败：${msg}`);
-      ElMessage.warning("运行失败，请查看输出区说明");
+    const taskId = String(createResp?.taskId || "");
+    if (!taskId) {
+      throw new Error(createResp?.message || "运行任务创建失败：未返回 taskId");
     }
+    appendLog(`运行代码：任务已创建（taskId=${taskId}）。`);
+
+    const detail = await pollLearningCodeRunTaskUntilDone(taskId);
+    learning.programOutput = buildLearningRunOutput(detail);
+
+    const taskStatus = normalizeCodeRunTaskState(detail?.taskStatus);
+    const compileStatus = normalizeCodeRunCompileState(detail?.compileStatus);
+    const runStatus = normalizeCodeRunExecState(detail?.runStatus);
+    appendLog(`运行代码完成：taskStatus=${taskStatus}，compileStatus=${compileStatus}，runStatus=${runStatus}`);
+    if (compileStatus === "ERROR") {
+      ElMessage.warning("编译失败，请检查错误信息");
+    } else if (runStatus === "RUNTIME_ERROR" || runStatus === "SYSTEM_ERROR" || runStatus === "TIMEOUT") {
+      ElMessage.warning("运行结束，但程序执行未成功");
+    } else {
+      ElMessage.success("运行完成");
+    }
+  } catch (error) {
+    const msg = maskLocalPath(error?.message || "运行失败");
+    learning.programOutput = `【系统错误】\n${msg}`;
+    appendLog(`运行代码失败：${msg}`);
+    ElMessage.warning("运行失败，请查看输出区说明");
   } finally {
     finishRunning();
   }

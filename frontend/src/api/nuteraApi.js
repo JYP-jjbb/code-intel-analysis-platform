@@ -74,12 +74,17 @@ export function explainLearningCode(payload) {
   });
 }
 
-/** Learning workbench: execute snippet (optional backend). Response may include stdout, stderr, message. */
-export function runLearningCodeSnippet(payload) {
-  return request("/api/nutera/learning/run-code", {
+/** Learning workbench: create code run task. */
+export function createLearningCodeRunTask(payload) {
+  return request("/api/code-run/tasks", {
     method: "POST",
     body: JSON.stringify(payload)
   });
+}
+
+/** Learning workbench: query code run task detail. */
+export function fetchLearningCodeRunTask(taskId) {
+  return request(`/api/code-run/tasks/${encodeURIComponent(String(taskId || ""))}`);
 }
 
 export function buildVerificationSummaryGraph(payload) {
@@ -168,4 +173,3 @@ export function fetchTaskLogs(taskId) {
 export function fetchTaskResult(taskId) {
   return request(`/api/tasks/${taskId}/result`);
 }
-

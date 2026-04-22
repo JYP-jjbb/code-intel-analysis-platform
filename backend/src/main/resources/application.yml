@@ -33,6 +33,17 @@ app:
       password: ${NUTERA_SQLSERVER_PASSWORD:123456}
       startup-check:
         strict: ${NUTERA_REPORT_DB_STARTUP_CHECK_STRICT:true}
+  code-run:
+    max-source-chars: ${CODE_RUN_MAX_SOURCE_CHARS:120000}
+    max-stdin-chars: ${CODE_RUN_MAX_STDIN_CHARS:60000}
+    compile-timeout-seconds: ${CODE_RUN_COMPILE_TIMEOUT_SECONDS:15}
+    run-timeout-seconds: ${CODE_RUN_TIMEOUT_SECONDS:5}
+    max-output-chars: ${CODE_RUN_MAX_OUTPUT_CHARS:120000}
+    commands:
+      gpp: ${CODE_RUN_GPP_COMMAND:g++}
+      javac: ${CODE_RUN_JAVAC_COMMAND:javac}
+      java: ${CODE_RUN_JAVA_COMMAND:java}
+      python: ${CODE_RUN_PYTHON_COMMAND:python}
   moonshot:
     base-url: ${MOONSHOT_BASE_URL:${OPENAI_BASE_URL:https://api.moonshot.cn/v1}}
     api-key: ${MOONSHOT_API_KEY:${OPENAI_API_KEY:}}
