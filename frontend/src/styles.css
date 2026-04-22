@@ -2103,7 +2103,12 @@ body.landing-mode {
 
 .wb-task-config-card .wb-config-toolbar {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 文件上传收窄；语言设置获得更多横向空间 */
+  grid-template-columns:
+    minmax(108px, 0.52fr)
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(200px, 1.48fr);
   gap: 10px;
   margin-bottom: 14px;
 }
@@ -2134,12 +2139,36 @@ body.landing-mode {
   flex: none;
 }
 
+.wb-task-config-card .wb-config-chip-upload {
+  padding: 8px 8px;
+  gap: 8px;
+}
+
+.wb-task-config-card .wb-config-chip-language {
+  gap: 8px 10px;
+  min-width: 0;
+}
+
+/* 语言下拉与说明并排时，避免 max-width:68% 把选中值挤省略 */
+.wb-task-config-card .wb-config-chip-language .wb-chip-control {
+  max-width: none;
+  flex: 1 1 0;
+}
+
 .wb-task-config-card .wb-chip-control,
 .wb-task-config-card .wb-chip-upload {
   width: 100%;
   flex: 1;
   min-width: 0;
   max-width: 68%;
+}
+
+/* 上传区仅图标按钮：控件区随内容收缩，不再占满半行 */
+.wb-task-config-card .wb-config-chip-upload .wb-chip-upload {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  max-width: none;
 }
 
 .wb-task-config-card .wb-chip-control .el-input__wrapper,
@@ -2158,8 +2187,23 @@ body.landing-mode {
   padding: 7px 10px;
 }
 
+.wb-task-config-card .wb-config-chip-upload .wb-chip-upload-btn.el-button {
+  width: 32px;
+  min-width: 32px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
 .wb-task-config-card .wb-chip-upload-btn .el-icon {
   margin-right: 6px;
+}
+
+.wb-task-config-card .wb-config-chip-upload .wb-chip-upload-btn .el-icon {
+  margin-right: 0;
 }
 
 .wb-task-config-card .wb-code-group {
@@ -2961,7 +3005,7 @@ body.landing-mode {
   }
 
   .wb-task-config-card .wb-config-toolbar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
   }
 
   .workbench-main.is-nutera-route .nutera-workbench,

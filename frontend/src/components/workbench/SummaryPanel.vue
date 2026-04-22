@@ -797,21 +797,59 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 
+/*
+ * 验证模式：正文区在 .el-card__body 上整体滚动（标题栏固定）。
+ * 之前 .wb-collapsible-wrap 使用 flex:1 + 内层 overflow:hidden + height:100%，
+ * 溢出被裁切在内部，body 的 scrollHeight 永远等于可视高度，最外层纵向滚动条不会出现。
+ */
 .wb-summary-card:not(.is-learning-mode) :deep(.el-card__body) {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.wb-summary-card:not(.is-learning-mode) :deep(.el-card__body):hover {
+  scrollbar-color: rgba(68, 125, 207, 0.3) transparent;
+}
+
+.wb-summary-card:not(.is-learning-mode) :deep(.el-card__body)::-webkit-scrollbar {
+  width: 5px;
+}
+
+.wb-summary-card:not(.is-learning-mode) :deep(.el-card__body)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wb-summary-card:not(.is-learning-mode) :deep(.el-card__body)::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.wb-summary-card:not(.is-learning-mode) :deep(.el-card__body):hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.3);
 }
 
 .wb-summary-card:not(.is-learning-mode) .wb-collapsible-wrap {
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
+  overflow: visible;
+}
+
+.wb-summary-card:not(.is-learning-mode) .wb-collapsible-wrap.is-collapsed {
+  overflow: hidden;
 }
 
 .wb-summary-collapsible-inner {
   min-height: 0;
-  height: 100%;
+  height: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }

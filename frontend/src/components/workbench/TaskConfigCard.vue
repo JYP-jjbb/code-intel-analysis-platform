@@ -26,9 +26,14 @@
           :show-file-list="false"
           :on-change="(file) => $emit('file-change', file)"
         >
-          <el-button class="wb-chip-upload-btn" size="small">
+          <el-button
+            class="wb-chip-upload-btn"
+            size="small"
+            round
+            title="选择文件"
+            aria-label="选择文件"
+          >
             <el-icon><UploadFilled /></el-icon>
-            <span>选择文件</span>
           </el-button>
         </el-upload>
       </div>
