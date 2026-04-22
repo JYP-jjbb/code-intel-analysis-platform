@@ -19,6 +19,12 @@ public class NuteraVerificationSummaryService {
     private static final Pattern RETURN_PATTERN = Pattern.compile("\\breturn\\b", Pattern.CASE_INSENSITIVE);
     private static final Pattern ASSIGNMENT_PATTERN = Pattern.compile("(?<![=!<>])=(?!=)|\\+=|-=|\\*=|/=|%=|\\+\\+|--");
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*");
+    private static final Set<String> IDENTIFIER_STOPWORDS = Set.of(
+            "for", "while", "do", "if", "else", "switch", "case", "return",
+            "int", "long", "short", "float", "double", "char", "bool", "boolean",
+            "void", "class", "public", "private", "protected", "static", "new",
+            "true", "false", "null", "and", "or", "not", "max", "min", "relu"
+    );
 
     public NuteraVerificationSummaryResponse buildSummary(NuteraVerificationSummaryRequest request) {
         String source = safe(request.getCode());
@@ -57,6 +63,7 @@ public class NuteraVerificationSummaryService {
                                                                          int selectedLine) {
         List<NuteraVerificationSummaryResponse.GraphNode> nodes = new ArrayList<>();
         Set<String> candidateTokens = parseCandidateTokens(request.getCandidateFunction());
+        Set<String> loopGuardTokens = new LinkedHashSet<>();
         String verificationStatus = resolveVerificationStatus(request);
 
         int entryLine = findFirstNonBlankLine(lines);
@@ -80,25 +87,28 @@ public class NuteraVerificationSummaryService {
             int line = i + 1;
 
             if (LOOP_PATTERN.matcher(trimmed).find()) {
+                loopGuardTokens.addAll(parseStructureTokens(trimmed));
                 nodes.add(newNode(
                         "loop-" + line,
                         clipLabel(trimmed),
                         "loop_guard",
                         line,
                         line,
-                        mapFocusStatus(verificationStatus, "loop_guard", line == selectedLine),
+                        resolveLoopStatus(verificationStatus, line == selectedLine),
                         "循环守卫条件，直接影响终止性证明。"
                 ));
                 continue;
             }
             if (CONDITION_PATTERN.matcher(trimmed).find()) {
+                boolean conditionRelated = containsCandidateToken(trimmed, candidateTokens)
+                        || containsCandidateToken(trimmed, loopGuardTokens);
                 nodes.add(newNode(
                         "cond-" + line,
                         clipLabel(trimmed),
                         "condition",
                         line,
                         line,
-                        line == selectedLine ? "focus" : "normal",
+                        resolveConditionStatus(verificationStatus, line == selectedLine, conditionRelated),
                         "分支判断节点，可能改变循环路径与变量约束。"
                 ));
                 continue;
@@ -110,19 +120,32 @@ public class NuteraVerificationSummaryService {
                         "return",
                         line,
                         line,
-                        "support",
-                        "返回语句，常作为终止路径证据。"
+                        line == selectedLine ? "focus" : "normal",
+                        "返回语句作为背景结构节点，不直接代表证明支持。"
                 ));
                 continue;
             }
             if (ASSIGNMENT_PATTERN.matcher(trimmed).find()) {
                 boolean candidateRelated = containsCandidateToken(trimmed, candidateTokens);
-                String status = candidateRelated
-                        ? mapFocusStatus(verificationStatus, "candidate_update", line == selectedLine)
-                        : (line == selectedLine ? "focus" : "normal");
-                String explanation = candidateRelated
-                        ? "该变量更新与候选函数变量相关，需重点关注。"
-                        : "变量更新节点，可能影响 ranking function 单调性。";
+                boolean guardRelated = containsCandidateToken(trimmed, loopGuardTokens);
+                boolean progressUpdate = looksLikeProgressUpdate(trimmed, loopGuardTokens);
+                String status = resolveUpdateStatus(
+                        verificationStatus,
+                        line == selectedLine,
+                        candidateRelated,
+                        guardRelated,
+                        progressUpdate
+                );
+                String explanation;
+                if ("support".equals(status)) {
+                    explanation = "该变量更新与候选函数/循环守卫直接相关，可作为终止性证明支撑证据。";
+                } else if ("high-risk".equals(status)) {
+                    explanation = "该变量更新暂不支持当前证明链条，可能导致无法证明终止。";
+                } else if ("focus".equals(status)) {
+                    explanation = "该变量更新是当前循环证明的关键观察位置，需结合候选函数判断下降关系。";
+                } else {
+                    explanation = "普通变量更新节点，用于补全程序结构上下文。";
+                }
                 nodes.add(newNode(
                         "upd-" + line,
                         clipLabel(trimmed),
@@ -193,7 +216,7 @@ public class NuteraVerificationSummaryService {
                             node.getId(),
                             candidate.getId(),
                             "control_dep",
-                            "highlight"
+                            edgeStatusByNode(node, candidate)
                     ));
                 }
             }
@@ -254,7 +277,7 @@ public class NuteraVerificationSummaryService {
         insight.setProofOutcome(resolveVerificationStatus(request));
         String checkerMessage = safe(request.getCheckerMessage());
         insight.setFailureReason(checkerMessage.isBlank() ? "无" : checkerMessage);
-        insight.setHighlightExplanation("橙色/红色节点表示当前验证重点与潜在风险位置，绿色表示支持证明的关键路径。");
+        insight.setHighlightExplanation("灰蓝表示普通结构，浅蓝表示当前未证明关键点，绿色表示证明支持路径，红色表示不支持证明或可能导致非终止的位置。");
         return insight;
     }
 
@@ -268,13 +291,13 @@ public class NuteraVerificationSummaryService {
         if (focusLines.isEmpty()) {
             focusRange = "未检测到显式焦点行，已退化为主流程结构展示。";
         } else {
-            focusRange = "焦点行: " + focusLines.get(0) + (focusLines.size() > 1 ? ("-" + focusLines.get(focusLines.size() - 1)) : "");
+            focusRange = "焦点行 " + focusLines.get(0) + (focusLines.size() > 1 ? ("-" + focusLines.get(focusLines.size() - 1)) : "");
         }
         return "验证状态: " + status + "\n"
                 + "候选函数: " + nonBlankOrFallback(request.getCandidateFunction(), "（空）") + "\n"
                 + "结构概览: 循环节点 " + loopCount + " 个，变量更新节点 " + updateCount + " 个。\n"
                 + focusRange + "\n"
-                + "说明: 图面板已高亮循环守卫、条件分支与变量更新关系，可结合代码切片定位证明关键点。";
+                + "说明: 图面板会高亮循环守卫、条件分支与变量更新关系，可结合代码切片定位证明关键点。";
     }
 
     private int findFirstNonBlankLine(List<String> lines) {
@@ -286,18 +309,88 @@ public class NuteraVerificationSummaryService {
         return 1;
     }
 
-    private String mapFocusStatus(String verificationStatus, String nodeType, boolean selected) {
+    private String resolveLoopStatus(String verificationStatus, boolean selected) {
         if (selected) {
             return "focus";
         }
         String normalized = safe(verificationStatus).toUpperCase(Locale.ROOT);
         if ("PROVED".equals(normalized)) {
-            return "candidate_update".equalsIgnoreCase(nodeType) ? "support" : "focus";
+            return "focus";
         }
         if ("NOT_PROVED".equals(normalized) || "STOP".equals(normalized)) {
-            return "candidate_update".equalsIgnoreCase(nodeType) ? "high-risk" : "focus";
+            return "focus";
         }
         return "focus";
+    }
+
+    private String resolveConditionStatus(String verificationStatus, boolean selected, boolean conditionRelated) {
+        if (selected) {
+            return "focus";
+        }
+        if (!conditionRelated) {
+            return "normal";
+        }
+        String normalized = safe(verificationStatus).toUpperCase(Locale.ROOT);
+        if ("PROVED".equals(normalized)) {
+            return "support";
+        }
+        return "focus";
+    }
+
+    private String resolveUpdateStatus(String verificationStatus,
+                                       boolean selected,
+                                       boolean candidateRelated,
+                                       boolean guardRelated,
+                                       boolean progressUpdate) {
+        if (selected) {
+            return "focus";
+        }
+        String normalized = safe(verificationStatus).toUpperCase(Locale.ROOT);
+        if ("PROVED".equals(normalized)) {
+            if (candidateRelated && (progressUpdate || guardRelated)) {
+                return "support";
+            }
+            if (candidateRelated) {
+                return "support";
+            }
+            if (guardRelated) {
+                return progressUpdate ? "support" : "focus";
+            }
+            return "normal";
+        }
+        if ("NOT_PROVED".equals(normalized) || "STOP".equals(normalized)) {
+            if (candidateRelated && !progressUpdate) {
+                return "high-risk";
+            }
+            if (guardRelated && !progressUpdate) {
+                return "high-risk";
+            }
+            if (candidateRelated || guardRelated) {
+                return "focus";
+            }
+            return "normal";
+        }
+        if (candidateRelated || guardRelated) {
+            return "focus";
+        }
+        return "normal";
+    }
+
+    private boolean looksLikeProgressUpdate(String line, Set<String> loopGuardTokens) {
+        String text = safe(line);
+        if (text.isBlank() || loopGuardTokens.isEmpty()) {
+            return false;
+        }
+        for (String token : loopGuardTokens) {
+            String quoted = Pattern.quote(token);
+            if (text.matches("(?i).*\\b" + quoted + "\\b\\s*(\\+\\+|--|\\+=|-=|\\*=|/=|%=).*")) {
+                return true;
+            }
+            if (text.matches("(?i).*\\b" + quoted + "\\b\\s*=\\s*\\b" + quoted + "\\b\\s*[+\\-*/].*")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String edgeStatusByNode(NuteraVerificationSummaryResponse.GraphNode from,
@@ -307,8 +400,10 @@ public class NuteraVerificationSummaryService {
         if ("high-risk".equals(fromStatus) || "high-risk".equals(toStatus)) {
             return "risk";
         }
-        if ("focus".equals(fromStatus) || "focus".equals(toStatus)
-                || "support".equals(fromStatus) || "support".equals(toStatus)) {
+        if ("support".equals(fromStatus) || "support".equals(toStatus)) {
+            return "support";
+        }
+        if ("focus".equals(fromStatus) || "focus".equals(toStatus)) {
             return "highlight";
         }
         return "normal";
@@ -333,15 +428,21 @@ public class NuteraVerificationSummaryService {
         while (matcher.find()) {
             String token = matcher.group();
             String normalized = token.toLowerCase(Locale.ROOT);
-            if (normalized.length() <= 1) {
+            if (IDENTIFIER_STOPWORDS.contains(normalized)) {
                 continue;
             }
-            if (normalized.equals("relu")
-                    || normalized.equals("max")
-                    || normalized.equals("min")
-                    || normalized.equals("and")
-                    || normalized.equals("or")
-                    || normalized.equals("not")) {
+            tokens.add(token);
+        }
+        return tokens;
+    }
+
+    private Set<String> parseStructureTokens(String expression) {
+        Set<String> tokens = new LinkedHashSet<>();
+        Matcher matcher = IDENTIFIER_PATTERN.matcher(safe(expression));
+        while (matcher.find()) {
+            String token = matcher.group();
+            String normalized = token.toLowerCase(Locale.ROOT);
+            if (IDENTIFIER_STOPWORDS.contains(normalized)) {
                 continue;
             }
             tokens.add(token);
@@ -454,4 +555,3 @@ public class NuteraVerificationSummaryService {
         return a.isBlank() ? fallback : a;
     }
 }
-

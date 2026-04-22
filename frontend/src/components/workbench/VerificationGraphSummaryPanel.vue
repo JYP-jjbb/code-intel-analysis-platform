@@ -106,6 +106,29 @@ const fallbackGraph = computed(() => {
       status: "normal"
     });
   }
+  for (let i = 0; i < nodes.length; i += 1) {
+    const from = nodes[i];
+    if (!["loop_guard", "condition"].includes(String(from.type || "").toLowerCase())) {
+      continue;
+    }
+    for (let j = i + 1; j < nodes.length; j += 1) {
+      const to = nodes[j];
+      const fromLine = Number(from.lineStart || 1);
+      const toLine = Number(to.lineStart || 1);
+      if (toLine - fromLine > 8) {
+        break;
+      }
+      if (!["variable_update", "candidate_update"].includes(String(to.type || "").toLowerCase())) {
+        continue;
+      }
+      edges.push({
+        source: from.id,
+        target: to.id,
+        type: "control_dep",
+        status: "highlight"
+      });
+    }
+  }
   return { nodes, edges };
 });
 

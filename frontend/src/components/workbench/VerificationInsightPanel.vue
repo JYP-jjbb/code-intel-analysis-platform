@@ -21,11 +21,11 @@
         <span class="wb-insight-value" :class="proofToneClass">{{ proofOutcomeText }}</span>
       </div>
       <div class="wb-insight-item wb-insight-item-full">
-        <span class="wb-insight-key">失败原因/提示</span>
+        <span class="wb-insight-key">失败原因 / 提示</span>
         <span class="wb-insight-value">{{ failureReasonText }}</span>
       </div>
       <div class="wb-insight-item wb-insight-item-full">
-        <span class="wb-insight-key">高亮结构说明</span>
+        <span class="wb-insight-key">节点语义说明</span>
         <span class="wb-insight-value">{{ highlightExplanationText }}</span>
       </div>
     </div>
@@ -68,15 +68,25 @@ const props = defineProps({
 const insight = computed(() => props.summaryData?.insight || {});
 
 const targetText = computed(() => String(insight.value?.target || "当前程序核心控制流"));
-const candidateFunctionText = computed(() => String(props.summaryData?.candidateFunction || props.fallbackCandidateFunction || "（空）"));
-const checkerConclusionText = computed(() => String(insight.value?.checkerConclusion || props.fallbackCheckerConclusion || "UNKNOWN"));
-const proofOutcomeText = computed(() => String(insight.value?.proofOutcome || props.summaryData?.verificationStatus || props.fallbackVerificationStatus || "NOT_PROVED"));
-const failureReasonText = computed(() => String(insight.value?.failureReason || props.fallbackCheckerMessage || "无"));
+const candidateFunctionText = computed(() => String(
+  props.summaryData?.candidateFunction || props.fallbackCandidateFunction || "（空）"
+));
+const checkerConclusionText = computed(() => String(
+  insight.value?.checkerConclusion || props.fallbackCheckerConclusion || "UNKNOWN"
+));
+const proofOutcomeText = computed(() => String(
+  insight.value?.proofOutcome || props.summaryData?.verificationStatus || props.fallbackVerificationStatus || "NOT_PROVED"
+));
+const failureReasonText = computed(() => String(
+  insight.value?.failureReason || props.fallbackCheckerMessage || "无"
+));
 const highlightExplanationText = computed(() => String(
   insight.value?.highlightExplanation
-  || "橙色表示验证重点，红色表示高风险或未证明关键点，绿色表示支持证明的证据路径。"
+  || "灰蓝表示普通结构，浅蓝表示未证明关键点，绿色表示证明支持路径，红色表示不支持证明或可能导致非终止的位置。"
 ));
-const summaryText = computed(() => String(props.summaryData?.summaryText || props.fallbackSummaryText || "暂无结构化摘要。"));
+const summaryText = computed(() => String(
+  props.summaryData?.summaryText || props.fallbackSummaryText || "暂无结构化摘要。"
+));
 
 const proofToneClass = computed(() => {
   const normalized = String(proofOutcomeText.value || "").toUpperCase();
@@ -163,4 +173,3 @@ const proofToneClass = computed(() => {
   word-break: break-word;
 }
 </style>
-

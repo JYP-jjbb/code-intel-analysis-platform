@@ -8,7 +8,7 @@
       <div class="wb-card-head wb-card-head-split">
         <h3>{{ panelTitle }}</h3>
         <button
-          v-if="mode === 'learning'"
+          v-if="showCollapseToggle"
           class="wb-collapse-btn"
           :class="{ 'is-collapsed': collapsed }"
           :title="collapsed ? '展开' : '收起'"
@@ -27,7 +27,7 @@
             <div class="wb-learning-line-card">
               <p class="wb-learning-line-title">
                 第 {{ normalizedLineExplanation.lineNumber }} 行
-                <code>{{ normalizedLineExplanation.lineText || "(空行)" }}</code>
+                <code>{{ normalizedLineExplanation.lineText || '(空行)' }}</code>
               </p>
               <p>{{ normalizedLineExplanation.lineExplanation }}</p>
               <p><strong>语法点：</strong>{{ normalizedLineExplanation.syntaxPoint }}</p>
@@ -66,12 +66,16 @@
     </template>
 
     <template v-else>
-      <div class="wb-block wb-block-log-only">
-        <pre
-          ref="logRef"
-          class="wb-code-block wb-log-scroll"
-          @scroll="handleScroll"
-        >{{ logs || "执行日志将在任务运行后显示在这里" }}</pre>
+      <div class="wb-collapsible-wrap" :class="{ 'is-collapsed': collapsed }">
+        <div class="wb-collapsible-inner wb-log-collapsible-inner">
+          <div class="wb-block wb-block-log-only">
+            <pre
+              ref="logRef"
+              class="wb-code-block wb-log-scroll"
+              @scroll="handleScroll"
+            >{{ logs || '执行日志将在任务运行后显示在这里' }}</pre>
+          </div>
+        </div>
       </div>
     </template>
   </el-card>
@@ -105,19 +109,24 @@ const props = defineProps({
   collapsed: {
     type: Boolean,
     default: false
+  },
+  collapsible: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emit = defineEmits(["toggle-collapse"]);
+defineEmits(["toggle-collapse"]);
 
 const panelTitle = computed(() => (props.mode === "learning" ? "代码速通" : "运行日志"));
+const showCollapseToggle = computed(() => props.mode === "learning" || props.collapsible);
 
 const normalizedLineExplanation = computed(() => {
   const source = props.lineExplanation || {};
   return {
     lineNumber: Number(source.lineNumber || 1),
     lineText: String(source.lineText || ""),
-    lineExplanation: String(source.lineExplanation || "点击左侧代码行后，这里会展示该行的作用。"),
+    lineExplanation: String(source.lineExplanation || "点击左侧代码行后，这里会显示该行的作用。"),
     syntaxPoint: String(source.syntaxPoint || "暂未识别到特定语法点。"),
     commonMistake: String(source.commonMistake || "注意标点符号与缩进保持一致。")
   };
@@ -152,7 +161,7 @@ const normalizedBlockExplanation = computed(() => {
     blockTypeLabel: normalizeBlockTypeLabel(source.blockType),
     blockExplanation: String(source.blockExplanation || "点击左侧代码行后，这里会显示该行所属代码块的整体说明。"),
     keyPointsText: keyPoints.length > 0 ? keyPoints.join("；") : "建议结合上下文关注此代码块的数据流与控制流。",
-    commonMistakesText: commonMistakes.length > 0 ? commonMistakes.join("；") : "只看单行而忽略块级上下文，容易误解代码真实行为。"
+    commonMistakesText: commonMistakes.length > 0 ? commonMistakes.join("；") : "仅看单行而忽略块级上下文，容易误解代码真实行为。"
   };
 });
 
@@ -246,6 +255,19 @@ onMounted(() => {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+.wb-log-card:not(.is-learning-mode) .wb-collapsible-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wb-log-card:not(.is-learning-mode) .wb-log-collapsible-inner {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .wb-learning-block-card {

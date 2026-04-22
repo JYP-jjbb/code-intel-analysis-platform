@@ -22,7 +22,7 @@
         ref="displayRef"
         class="nutera-display"
         :class="{ 'is-learning-mode': isLearningMode }"
-        :style="isLearningMode ? { gridTemplateRows: learningDisplayGridRows } : {}"
+        :style="displayGridStyle"
         data-nutera-right
       >
         <template v-if="isLearningMode">
@@ -49,9 +49,17 @@
           />
         </template>
         <template v-else>
-          <LogPanel :logs="logs" mode="verification" />
+          <LogPanel
+            :logs="logs"
+            mode="verification"
+            :collapsed="verificationLogCollapsed"
+            :collapsible="true"
+            @toggle-collapse="verificationLogCollapsed = !verificationLogCollapsed"
+          />
           <SummaryPanel
             mode="verification"
+            :collapsed="verificationSummaryCollapsed"
+            :collapsible="true"
             :candidate-functions="result.candidateFunctions"
             :checker-status="result.checkerStatus"
             :checker-verdict="result.checkerVerdict"
@@ -71,6 +79,7 @@
             :selected-case-key="selectedBatchCaseKey"
             @update:selected-case-key="handleSelectedCaseKeyUpdate"
             @select-verification-line="handleVerificationLineSelectFromGraph"
+            @toggle-collapse="verificationSummaryCollapsed = !verificationSummaryCollapsed"
           />
         </template>
       </section>
@@ -163,6 +172,8 @@ const isLearningMode = computed(() => currentMode.value === "learning");
 const logCollapsed = ref(false);
 const outputCollapsed = ref(false);
 const summaryCollapsed = ref(false);
+const verificationLogCollapsed = ref(false);
+const verificationSummaryCollapsed = ref(false);
 
 /**
  * Dynamic grid-template-rows for the .nutera-display column in learning mode.
@@ -189,6 +200,28 @@ const learningDisplayGridRows = computed(() => {
   const row = (expanded, fr) => expanded ? `minmax(0, ${fr}fr)` : "auto";
   return `${row(l, logFr)} ${row(o, outputFr)} ${row(s, summaryFr)}`;
 });
+
+const verificationDisplayGridRows = computed(() => {
+  const l = !verificationLogCollapsed.value;
+  const s = !verificationSummaryCollapsed.value;
+
+  if (l && s) {
+    return "minmax(0, 35fr) minmax(0, 65fr)";
+  }
+  if (!l && !s) {
+    return "auto auto";
+  }
+  if (l) {
+    return "minmax(0, 1fr) auto";
+  }
+  return "auto minmax(0, 1fr)";
+});
+
+const displayGridStyle = computed(() => ({
+  gridTemplateRows: isLearningMode.value
+    ? learningDisplayGridRows.value
+    : verificationDisplayGridRows.value
+}));
 
 const learningLineExplanation = computed(() => ({
   lineNumber: Number(learning.selectedLine || 1),

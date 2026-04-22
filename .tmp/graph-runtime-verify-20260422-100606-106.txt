@@ -1,0 +1,17 @@
+﻿DEV_UP=true
+PORT=5191
+PAGE_STATUS=200
+HAS_TOOLBAR=True
+HAS_VIEWPORT_TRANSFORM=True
+HAS_FORCE_LAYOUT=True
+HAS_MIN_NODE_DISTANCE=True
+HAS_STRAIGHT_EDGE=True
+HAS_THICK_EDGE=True
+HAS_NO_ARROW_MARKER=True
+HAS_INLINE_COLOR_BIND=False
+RESULT_FILE=
+E:\UserData\13199\IdeaProjects\code-intel-analysis-platform\.tmp\graph-runtime-verify-20260422-100606-106.txt
+STDOUT_FILE=
+E:\UserData\13199\IdeaProjects\code-intel-analysis-platform\.tmp\graph-runtime-20260422-100606-106.out.log
+STDERR_FILE=
+E:\UserData\13199\IdeaProjects\code-intel-analysis-platform\.tmp\graph-runtime-20260422-100606-106.err.log

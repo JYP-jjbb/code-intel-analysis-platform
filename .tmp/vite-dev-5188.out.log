@@ -1,0 +1,19 @@
+
+> code-intel-analysis-platform-frontend@0.1.0 dev
+> vite --host 127.0.0.1 --port 5188 --strictPort
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m750[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5188[22m/[39m
+[2m09:54:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:55:42[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:56:00[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:56:11[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:56:23[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:56:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:57:05[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m09:57:57[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m10:02:13[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue, /src/components/workbench/VerificationGraphCanvas.vue?vue&type=style&index=0&scoped=6ece837d&lang.css[22m
+[2m10:10:18[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphCanvas.vue[22m
+[2m10:10:32[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/workbench/VerificationGraphSummaryPanel.vue[22m

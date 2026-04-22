@@ -1916,6 +1916,7 @@ body.landing-mode {
   min-height: 0;
   grid-template-rows: minmax(0, 35fr) minmax(0, 65fr);
   gap: 12px;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1), gap 0.22s ease;
 }
 
 .workbench-main.is-nutera-route .nutera-display.is-learning-mode {

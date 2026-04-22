@@ -1,14 +1,14 @@
 ﻿<template>
   <el-card
     class="wb-card wb-summary-card"
-    :class="{ 'is-learning-mode': mode === 'learning', 'is-collapsed': collapsed }"
+    :class="{ 'is-learning-mode': mode === 'learning', 'is-collapsed': mode === 'learning' && collapsed }"
     shadow="never"
   >
     <template #header>
       <div class="wb-card-head wb-card-head-split">
         <h3>{{ panelTitle }}</h3>
         <button
-          v-if="showCollapseToggle"
+          v-if="mode === 'learning'"
           class="wb-collapse-btn"
           :class="{ 'is-collapsed': collapsed }"
           :title="collapsed ? '展开' : '收起'"
@@ -79,217 +79,212 @@
       </div><!-- /wb-collapsible-wrap -->
     </template>
 
-    <template v-else>
-      <div class="wb-collapsible-wrap" :class="{ 'is-collapsed': collapsed }">
-        <div class="wb-collapsible-inner wb-summary-collapsible-inner">
-          <template v-if="!batchMode">
-            <div class="wb-verification-top-grid">
-              <div class="wb-block wb-verification-panel">
-                <div class="wb-block-title">候选函数</div>
-                <pre class="wb-code-block wb-verification-candidate">{{ candidateFunctions || "候选函数将在任务完成后显示" }}</pre>
-              </div>
-
-              <div class="wb-block wb-verification-panel">
-                <div class="wb-block-title">Checker 结果</div>
-                <div class="wb-verification-checker-scroll">
-                  <div class="wb-status-grid" v-if="checkerStatus">
-                    <div class="wb-status-item">
-                      <div class="wb-status-key">执行状态</div>
-                      <div class="wb-status-value">
-                        <span :class="statusToneClass">{{ checkerStatus }}</span>
-                      </div>
-                    </div>
-                    <div class="wb-status-item">
-                      <div class="wb-status-key">验证状态</div>
-                      <div class="wb-status-value">
-                        <span :class="verdictToneClass">{{ checkerVerdict || checkerVerdictFallback }}</span>
-                      </div>
-                    </div>
-                    <div class="wb-status-item">
-                      <div class="wb-status-key">结论</div>
-                      <div class="wb-status-value">
-                        <span :class="conclusionToneClass">{{ checkerConclusion || checkerConclusionFallback }}</span>
-                      </div>
-                    </div>
-                    <div class="wb-status-item wb-status-item-full" v-if="checkerMessage">
-                      <div class="wb-status-key">说明</div>
-                      <div class="wb-status-value">{{ checkerMessage }}</div>
-                    </div>
-                  </div>
-                  <div class="wb-block" v-if="hasCounterexample">
-                    <div class="wb-block-title">反例</div>
-                    <pre class="wb-code-block">{{ normalizedCounterexample }}</pre>
-                  </div>
-                  <pre class="wb-code-block" v-if="checkerFeedback">{{ checkerFeedback }}</pre>
-                  <div class="wb-code-block" v-else>Checker 输出将在任务完成后显示</div>
-                  <details class="wb-raw-details" v-if="checkerRawOutput">
-                    <summary>原始 Checker 输出</summary>
-                    <pre class="wb-code-block">{{ checkerRawOutput }}</pre>
-                  </details>
-                </div>
-              </div>
-            </div>
-
-            <div class="wb-block wb-verification-summary">
-              <VerificationGraphSummaryPanel
-                :summary-data="verificationSummaryData"
-                :code="verificationCode"
-                :selected-line="verificationSelectedLine"
-                :artifact-summary="artifactSummary"
-                :candidate-functions="candidateFunctions"
-                :checker-status="checkerStatus"
-                :checker-verdict="checkerVerdict"
-                :checker-conclusion="checkerConclusion"
-                :checker-message="checkerMessage"
-                @select-line="handleSelectVerificationLine"
-              />
-            </div>
-          </template>
-          <template v-else>
-            <div class="wb-block">
-              <div class="wb-block-title">批量进度</div>
-              <div class="wb-status-grid wb-batch-grid">
-                <div class="wb-status-item">
-                  <div class="wb-status-key">总案例数</div>
-                  <div class="wb-status-value"><span class="progress-pill is-total">{{ batchProgress.total || 0 }}</span></div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">已完成数</div>
-                  <div class="wb-status-value"><span class="progress-pill is-good">{{ batchProgress.completed || 0 }}</span></div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">PROVED 数</div>
-                  <div class="wb-status-value"><span class="progress-pill is-good">{{ batchProgress.provedCount || 0 }}</span></div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">NOT_PROVED 数</div>
-                  <div class="wb-status-value"><span class="progress-pill is-bad">{{ batchProgress.notProvedCount || 0 }}</span></div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">STOP 数</div>
-                  <div class="wb-status-value"><span class="progress-pill is-warn">{{ batchProgress.stopCount || 0 }}</span></div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">当前处理案例</div>
-                  <div class="wb-status-value"><span class="progress-pill is-neutral">{{ batchProgress.currentCase || "-" }}</span></div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">当前处理次数</div>
-                  <div class="wb-status-value"><span class="progress-pill is-neutral">{{ currentAttemptLabel }}</span></div>
-                </div>
-                <div class="wb-status-item wb-attempt-state-item">
-                  <div class="wb-status-key">当前处理情况</div>
-                  <div class="wb-status-value">
-                    <div class="attempt-circles">
-                      <span
-                        v-for="(state, idx) in normalizedCurrentAttemptStates"
-                        :key="`attempt-${idx}`"
-                        class="attempt-circle"
-                        :class="attemptCircleClass(state)"
-                        :title="`第 ${idx + 1} 轮: ${state || 'PENDING'}`"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="wb-batch-path" v-if="batchResultPath">
-                批次结果文件: {{ batchResultPath }}
-              </div>
-            </div>
-
-            <div class="wb-block">
-              <div class="wb-block-title">批量结果列表</div>
-              <el-table
-                :data="batchResults"
-                :row-key="resolveBatchCaseKey"
-                :current-row-key="selectedBatchCaseKeyResolved"
-                border
-                stripe
-                style="width: 100%"
-                highlight-current-row
-                @row-click="handleBatchRowClick"
-              >
-                <el-table-column prop="caseName" label="案例名" min-width="180" show-overflow-tooltip />
-                <el-table-column prop="candidateFunction" label="候选函数" min-width="220" show-overflow-tooltip />
-                <el-table-column prop="executionStatus" label="执行状态" min-width="130" />
-                <el-table-column prop="attemptCount" label="尝试次数" min-width="120" />
-                <el-table-column label="最终状态" min-width="130">
-                  <template #default="scope">
-                    <span :class="toneClassByFinalStatus(scope.row.finalStatus)">{{ scope.row.finalStatus || "-" }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="验证状态" min-width="140">
-                  <template #default="scope">
-                    <span :class="toneClassByVerification(scope.row.verificationStatus)">{{ scope.row.verificationStatus }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="结论" min-width="140">
-                  <template #default="scope">
-                    <span :class="toneClassByConclusion(scope.row.conclusion)">{{ scope.row.conclusion }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="stopReason" label="停止原因" min-width="180" show-overflow-tooltip />
-                <el-table-column prop="message" label="说明" min-width="260" show-overflow-tooltip />
-              </el-table>
-            </div>
-
-            <div class="wb-block" v-if="selectedBatchCase">
-              <div class="wb-block-title">案例详情: {{ selectedBatchCase.caseName }}</div>
-              <div class="wb-status-grid">
-                <div class="wb-status-item">
-                  <div class="wb-status-key">执行状态</div>
-                  <div class="wb-status-value">{{ selectedBatchCase.executionStatus }}</div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">尝试次数</div>
-                  <div class="wb-status-value">{{ selectedBatchCase.attemptCount || 0 }}</div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">最终状态</div>
-                  <div class="wb-status-value">
-                    <span :class="toneClassByFinalStatus(selectedBatchCase.finalStatus)">{{ selectedBatchCase.finalStatus || "-" }}</span>
-                  </div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">验证状态</div>
-                  <div class="wb-status-value">
-                    <span :class="toneClassByVerification(selectedBatchCase.verificationStatus)">{{ selectedBatchCase.verificationStatus }}</span>
-                  </div>
-                </div>
-                <div class="wb-status-item">
-                  <div class="wb-status-key">结论</div>
-                  <div class="wb-status-value">
-                    <span :class="toneClassByConclusion(selectedBatchCase.conclusion)">{{ selectedBatchCase.conclusion }}</span>
-                  </div>
-                </div>
-                <div class="wb-status-item wb-status-item-full" v-if="selectedBatchCase.stopReason">
-                  <div class="wb-status-key">停止原因</div>
-                  <div class="wb-status-value">{{ selectedBatchCase.stopReason }}</div>
-                </div>
-              </div>
-              <div class="wb-block">
-                <div class="wb-block-title">候选函数</div>
-                <pre class="wb-code-block">{{ selectedBatchCase.candidateFunction || "（空）" }}</pre>
-              </div>
-              <div class="wb-block" v-if="selectedBatchCase.counterexample">
-                <div class="wb-block-title">反例</div>
-                <pre class="wb-code-block">{{ normalizedBatchCounterexample }}</pre>
-              </div>
-              <div class="wb-block" v-if="selectedBatchCase.message">
-                <div class="wb-block-title">说明</div>
-                <pre class="wb-code-block">{{ selectedBatchCase.message }}</pre>
-              </div>
-              <details class="wb-raw-details" v-if="selectedBatchCase.checkerRawOutput">
-                <summary>stdout / stderr</summary>
-                <pre class="wb-code-block">{{ selectedBatchCase.checkerRawOutput }}</pre>
-              </details>
-              <details class="wb-raw-details" v-if="selectedBatchCase.log">
-                <summary>流程日志</summary>
-                <pre class="wb-code-block">{{ selectedBatchCase.log }}</pre>
-              </details>
-            </div>
-          </template>
+    <template v-else-if="!batchMode">
+      <div class="wb-verification-top-grid">
+        <div class="wb-block wb-verification-panel">
+          <div class="wb-block-title">候选函数</div>
+          <pre class="wb-code-block wb-verification-candidate">{{ candidateFunctions || "候选函数将在任务完成后显示" }}</pre>
         </div>
+
+        <div class="wb-block wb-verification-panel">
+          <div class="wb-block-title">Checker 结果</div>
+          <div class="wb-verification-checker-scroll">
+            <div class="wb-status-grid" v-if="checkerStatus">
+              <div class="wb-status-item">
+                <div class="wb-status-key">执行状态</div>
+                <div class="wb-status-value">
+                  <span :class="statusToneClass">{{ checkerStatus }}</span>
+                </div>
+              </div>
+              <div class="wb-status-item">
+                <div class="wb-status-key">验证状态</div>
+                <div class="wb-status-value">
+                  <span :class="verdictToneClass">{{ checkerVerdict || checkerVerdictFallback }}</span>
+                </div>
+              </div>
+              <div class="wb-status-item">
+                <div class="wb-status-key">结论</div>
+                <div class="wb-status-value">
+                  <span :class="conclusionToneClass">{{ checkerConclusion || checkerConclusionFallback }}</span>
+                </div>
+              </div>
+              <div class="wb-status-item wb-status-item-full" v-if="checkerMessage">
+                <div class="wb-status-key">说明</div>
+                <div class="wb-status-value">{{ checkerMessage }}</div>
+              </div>
+            </div>
+            <div class="wb-block" v-if="hasCounterexample">
+              <div class="wb-block-title">反例</div>
+              <pre class="wb-code-block">{{ normalizedCounterexample }}</pre>
+            </div>
+            <pre class="wb-code-block" v-if="checkerFeedback">{{ checkerFeedback }}</pre>
+            <div class="wb-code-block" v-else>Checker 输出将在任务完成后显示</div>
+            <details class="wb-raw-details" v-if="checkerRawOutput">
+              <summary>原始 Checker 输出</summary>
+              <pre class="wb-code-block">{{ checkerRawOutput }}</pre>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-block wb-verification-summary">
+        <VerificationGraphSummaryPanel
+          :summary-data="verificationSummaryData"
+          :code="verificationCode"
+          :selected-line="verificationSelectedLine"
+          :artifact-summary="artifactSummary"
+          :candidate-functions="candidateFunctions"
+          :checker-status="checkerStatus"
+          :checker-verdict="checkerVerdict"
+          :checker-conclusion="checkerConclusion"
+          :checker-message="checkerMessage"
+          @select-line="handleSelectVerificationLine"
+        />
+      </div>
+    </template>
+
+    <template v-else>
+      <div class="wb-block">
+        <div class="wb-block-title">批量进度</div>
+        <div class="wb-status-grid wb-batch-grid">
+          <div class="wb-status-item">
+            <div class="wb-status-key">总案例数</div>
+            <div class="wb-status-value"><span class="progress-pill is-total">{{ batchProgress.total || 0 }}</span></div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">已完成数</div>
+            <div class="wb-status-value"><span class="progress-pill is-good">{{ batchProgress.completed || 0 }}</span></div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">PROVED 数</div>
+            <div class="wb-status-value"><span class="progress-pill is-good">{{ batchProgress.provedCount || 0 }}</span></div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">NOT_PROVED 数</div>
+            <div class="wb-status-value"><span class="progress-pill is-bad">{{ batchProgress.notProvedCount || 0 }}</span></div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">STOP 数</div>
+            <div class="wb-status-value"><span class="progress-pill is-warn">{{ batchProgress.stopCount || 0 }}</span></div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">当前处理案例</div>
+            <div class="wb-status-value"><span class="progress-pill is-neutral">{{ batchProgress.currentCase || "-" }}</span></div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">当前处理次数</div>
+            <div class="wb-status-value"><span class="progress-pill is-neutral">{{ currentAttemptLabel }}</span></div>
+          </div>
+          <div class="wb-status-item wb-attempt-state-item">
+            <div class="wb-status-key">当前处理情况</div>
+            <div class="wb-status-value">
+              <div class="attempt-circles">
+                <span
+                  v-for="(state, idx) in normalizedCurrentAttemptStates"
+                  :key="`attempt-${idx}`"
+                  class="attempt-circle"
+                  :class="attemptCircleClass(state)"
+                  :title="`第 ${idx + 1} 轮: ${state || 'PENDING'}`"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wb-batch-path" v-if="batchResultPath">
+          批次结果文件: {{ batchResultPath }}
+        </div>
+      </div>
+
+      <div class="wb-block">
+        <div class="wb-block-title">批量结果列表</div>
+        <el-table
+          :data="batchResults"
+          :row-key="resolveBatchCaseKey"
+          :current-row-key="selectedBatchCaseKeyResolved"
+          border
+          stripe
+          style="width: 100%"
+          highlight-current-row
+          @row-click="handleBatchRowClick"
+        >
+          <el-table-column prop="caseName" label="案例名" min-width="180" show-overflow-tooltip />
+          <el-table-column prop="candidateFunction" label="候选函数" min-width="220" show-overflow-tooltip />
+          <el-table-column prop="executionStatus" label="执行状态" min-width="130" />
+          <el-table-column prop="attemptCount" label="尝试次数" min-width="120" />
+          <el-table-column label="最终状态" min-width="130">
+            <template #default="scope">
+              <span :class="toneClassByFinalStatus(scope.row.finalStatus)">{{ scope.row.finalStatus || "-" }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="验证状态" min-width="140">
+            <template #default="scope">
+              <span :class="toneClassByVerification(scope.row.verificationStatus)">{{ scope.row.verificationStatus }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="结论" min-width="140">
+            <template #default="scope">
+              <span :class="toneClassByConclusion(scope.row.conclusion)">{{ scope.row.conclusion }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="stopReason" label="停止原因" min-width="180" show-overflow-tooltip />
+          <el-table-column prop="message" label="说明" min-width="260" show-overflow-tooltip />
+        </el-table>
+      </div>
+
+      <div class="wb-block" v-if="selectedBatchCase">
+        <div class="wb-block-title">案例详情: {{ selectedBatchCase.caseName }}</div>
+        <div class="wb-status-grid">
+          <div class="wb-status-item">
+            <div class="wb-status-key">执行状态</div>
+            <div class="wb-status-value">{{ selectedBatchCase.executionStatus }}</div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">尝试次数</div>
+            <div class="wb-status-value">{{ selectedBatchCase.attemptCount || 0 }}</div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">最终状态</div>
+            <div class="wb-status-value">
+              <span :class="toneClassByFinalStatus(selectedBatchCase.finalStatus)">{{ selectedBatchCase.finalStatus || "-" }}</span>
+            </div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">验证状态</div>
+            <div class="wb-status-value">
+              <span :class="toneClassByVerification(selectedBatchCase.verificationStatus)">{{ selectedBatchCase.verificationStatus }}</span>
+            </div>
+          </div>
+          <div class="wb-status-item">
+            <div class="wb-status-key">结论</div>
+            <div class="wb-status-value">
+              <span :class="toneClassByConclusion(selectedBatchCase.conclusion)">{{ selectedBatchCase.conclusion }}</span>
+            </div>
+          </div>
+          <div class="wb-status-item wb-status-item-full" v-if="selectedBatchCase.stopReason">
+            <div class="wb-status-key">停止原因</div>
+            <div class="wb-status-value">{{ selectedBatchCase.stopReason }}</div>
+          </div>
+        </div>
+        <div class="wb-block">
+          <div class="wb-block-title">候选函数</div>
+          <pre class="wb-code-block">{{ selectedBatchCase.candidateFunction || "（空）" }}</pre>
+        </div>
+        <div class="wb-block" v-if="selectedBatchCase.counterexample">
+          <div class="wb-block-title">反例</div>
+          <pre class="wb-code-block">{{ normalizedBatchCounterexample }}</pre>
+        </div>
+        <div class="wb-block" v-if="selectedBatchCase.message">
+          <div class="wb-block-title">说明</div>
+          <pre class="wb-code-block">{{ selectedBatchCase.message }}</pre>
+        </div>
+        <details class="wb-raw-details" v-if="selectedBatchCase.checkerRawOutput">
+          <summary>stdout / stderr</summary>
+          <pre class="wb-code-block">{{ selectedBatchCase.checkerRawOutput }}</pre>
+        </details>
+        <details class="wb-raw-details" v-if="selectedBatchCase.log">
+          <summary>流程日志</summary>
+          <pre class="wb-code-block">{{ selectedBatchCase.log }}</pre>
+        </details>
       </div>
     </template>
   </el-card>
@@ -321,13 +316,11 @@ const props = defineProps({
   selectedCaseKey: { type: String, default: "" },
   knowledgePoints: { type: Array, default: () => [] },
   commonMistakes: { type: Array, default: () => [] },
-  collapsed: { type: Boolean, default: false },
-  collapsible: { type: Boolean, default: false }
+  collapsed: { type: Boolean, default: false }
 });
 const emit = defineEmits(["update:selectedCaseKey", "select-verification-line", "toggle-collapse"]);
 
 const panelTitle = computed(() => (props.mode === "learning" ? "核心要点与易错提醒" : "候选函数与验证器反馈"));
-const showCollapseToggle = computed(() => props.mode === "learning" || props.collapsible);
 const learningScrollRefs = new Set();
 let learningResizeObserver = null;
 
@@ -795,25 +788,6 @@ onBeforeUnmount(() => {
 .wb-summary-card.is-learning-mode :deep(.el-card__body) {
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-.wb-summary-card:not(.is-learning-mode) :deep(.el-card__body) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
-.wb-summary-card:not(.is-learning-mode) .wb-collapsible-wrap {
-  flex: 1;
-  min-height: 0;
-}
-
-.wb-summary-collapsible-inner {
-  min-height: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .wb-learning-shell {
