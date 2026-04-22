@@ -2737,35 +2737,9 @@ body.landing-mode {
   overflow: hidden;
 }
 
-/* Learning mode: the entire card body is scrollable */
+/* Learning mode: keep card body static, scroll only in content wrapper */
 .workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body {
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body:hover {
-  scrollbar-color: rgba(68, 125, 207, 0.3) transparent;
-}
-
-.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body::-webkit-scrollbar {
-  width: 5px;
-}
-
-.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: transparent;
-  transition: background-color 0.2s ease;
-}
-
-.workbench-main.is-nutera-route .wb-log-card.is-learning-mode > .el-card__body:hover::-webkit-scrollbar-thumb {
-  background: rgba(68, 125, 207, 0.3);
+  overflow: hidden;
 }
 
 .workbench-main.is-nutera-route .wb-block.wb-block-log-only {

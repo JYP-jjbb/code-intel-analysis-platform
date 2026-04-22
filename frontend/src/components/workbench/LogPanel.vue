@@ -198,6 +198,56 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.wb-log-card.is-learning-mode .wb-collapsible-wrap {
+  flex: 1;
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-wrap:hover {
+  scrollbar-color: rgba(68, 125, 207, 0.3) transparent;
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-wrap::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-wrap:hover::-webkit-scrollbar-thumb {
+  background: rgba(68, 125, 207, 0.3);
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-inner {
+  min-height: 100%;
+  overflow: visible;
+}
+
+.wb-log-card.is-learning-mode .wb-collapsible-wrap.is-collapsed .wb-collapsible-inner {
+  overflow: hidden;
+}
+
+.wb-log-card.is-learning-mode :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .wb-learning-block-card {
   gap: 8px;
 }
