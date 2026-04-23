@@ -180,10 +180,23 @@ const currentMode = computed({
 const isLearningMode = computed(() => currentMode.value === "learning");
 
 const learningCodeRunState = ref("idle");
-const LEARNING_RUN_SUPPORTED_LANGS = new Set(["python", "java", "cpp", "c++"]);
+const LEARNING_RUN_SUPPORTED_LANGS = new Set(["python", "java", "cpp", "c++", "c", "go"]);
 const isLearningCodeRunnable = computed(() =>
   LEARNING_RUN_SUPPORTED_LANGS.has(String(form.language || "").toLowerCase())
 );
+
+const inferLanguageFromFileName = (fileName) => {
+  const name = String(fileName || "").trim().toLowerCase();
+  if (!name.includes(".")) {
+    return "";
+  }
+  if (name.endsWith(".cpp") || name.endsWith(".cc") || name.endsWith(".cxx")) return "cpp";
+  if (name.endsWith(".c")) return "c";
+  if (name.endsWith(".java")) return "java";
+  if (name.endsWith(".py")) return "python";
+  if (name.endsWith(".go")) return "go";
+  return "";
+};
 
 watch(isLearningMode, (on) => {
   if (!on) {
@@ -314,8 +327,22 @@ const resolveLanguageLabel = () => {
 const buildKnowledgePoints = (code) => {
   const points = [];
   const source = String(code || "");
+  const language = String(form.language || "").toLowerCase();
   const languageLabel = resolveLanguageLabel();
   points.push(`当前示例采用 ${languageLabel} 语法，建议先从入口函数与主流程阅读。`);
+  if (language === "c") {
+    points.push("C 语言输入输出常见于 scanf/printf，需关注格式符与变量类型是否匹配。");
+    points.push("注意 main 函数返回值与分号、花括号配对，避免基础语法错误。");
+  } else if (language === "go") {
+    points.push("Go 单文件运行要求 package main 且包含 func main() 入口。");
+    points.push("Go 读取输入常用 fmt.Scan / fmt.Fscan，建议检查输入变量类型与数量。");
+  } else if (language === "cpp" || language === "c++") {
+    points.push("C++ 常通过 cin/cout 进行输入输出，建议留意流读取顺序和空白字符。");
+  } else if (language === "java") {
+    points.push("Java 学习模式按单文件 Main.java 运行，需保留 class Main 与 main 方法。");
+  } else if (language === "python") {
+    points.push("Python 通过缩进组织代码块，建议重点检查缩进层级是否一致。");
+  }
   if (/\b(if|else)\b/.test(source)) {
     points.push("代码包含条件分支，需要重点理解条件成立与不成立时的执行路径。");
   }
@@ -337,7 +364,14 @@ const buildCommonMistakes = (code) => {
     "变量先使用后初始化，容易出现运行结果异常。",
     "循环终止条件写错会导致死循环或少执行一次。"
   ];
+  const language = String(form.language || "").toLowerCase();
   const source = String(code || "");
+  if (language === "c") {
+    mistakes.push("scanf/printf 格式符与变量类型不匹配会导致结果错误或未定义行为。");
+  }
+  if (language === "go") {
+    mistakes.push("Go 中导入但未使用的包会直接触发编译失败。");
+  }
   if (/\b(if|for|while)\b/.test(source)) {
     mistakes.push("条件判断中把赋值符号写成比较符号是常见错误。");
   }
@@ -1344,7 +1378,12 @@ const resetForm = () => {
 
 const handleFileChange = (file) => {
   if (!file?.raw) return;
-  selectedFileName.value = file.raw.name || "";
+  const uploadedName = String(file.raw.name || "");
+  selectedFileName.value = uploadedName;
+  const inferredLanguage = inferLanguageFromFileName(uploadedName);
+  if (inferredLanguage && !caseSource.loading && !caseSource.loaded && (!form.benchmark || form.benchmark === "none")) {
+    form.language = inferredLanguage;
+  }
   const reader = new FileReader();
   reader.onload = () => {
     form.code = String(reader.result || "");
@@ -1572,7 +1611,7 @@ const handleLearningRunCode = async () => {
     return;
   }
   if (!isLearningCodeRunnable.value) {
-    ElMessage.info("学习模式当前仅支持 C++ / Java / Python 运行。");
+    ElMessage.info("学习模式当前仅支持 C / C++ / Java / Python / Go 运行。");
     return;
   }
 

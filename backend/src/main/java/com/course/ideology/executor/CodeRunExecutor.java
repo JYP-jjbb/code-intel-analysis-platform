@@ -33,10 +33,15 @@ public class CodeRunExecutor {
     private final TaskRepository taskRepository;
     private final WorkspaceManager workspaceManager;
     private final ObjectMapper objectMapper;
+    private final String gccCommand;
     private final String gppCommand;
+    private final String goCommand;
+    private final String dockerCommand;
     private final String javacCommand;
     private final String javaCommand;
     private final String pythonCommand;
+    private final String goDockerImage;
+    private final boolean goPreferDocker;
     private final long compileTimeoutSeconds;
     private final long runTimeoutSeconds;
     private final int maxOutputChars;
@@ -44,20 +49,30 @@ public class CodeRunExecutor {
     public CodeRunExecutor(TaskRepository taskRepository,
                            WorkspaceManager workspaceManager,
                            ObjectMapper objectMapper,
+                           @Value("${app.code-run.commands.gcc:gcc}") String gccCommand,
                            @Value("${app.code-run.commands.gpp:g++}") String gppCommand,
+                           @Value("${app.code-run.commands.go:go}") String goCommand,
+                           @Value("${app.code-run.commands.docker:docker}") String dockerCommand,
                            @Value("${app.code-run.commands.javac:javac}") String javacCommand,
                            @Value("${app.code-run.commands.java:java}") String javaCommand,
                            @Value("${app.code-run.commands.python:python}") String pythonCommand,
+                           @Value("${app.code-run.go.docker-image:golang:1.22-alpine}") String goDockerImage,
+                           @Value("${app.code-run.go.prefer-docker:true}") boolean goPreferDocker,
                            @Value("${app.code-run.compile-timeout-seconds:15}") long compileTimeoutSeconds,
                            @Value("${app.code-run.run-timeout-seconds:5}") long runTimeoutSeconds,
                            @Value("${app.code-run.max-output-chars:120000}") int maxOutputChars) {
         this.taskRepository = taskRepository;
         this.workspaceManager = workspaceManager;
         this.objectMapper = objectMapper;
+        this.gccCommand = gccCommand;
         this.gppCommand = gppCommand;
+        this.goCommand = goCommand;
+        this.dockerCommand = dockerCommand;
         this.javacCommand = javacCommand;
         this.javaCommand = javaCommand;
         this.pythonCommand = pythonCommand;
+        this.goDockerImage = goDockerImage;
+        this.goPreferDocker = goPreferDocker;
         this.compileTimeoutSeconds = Math.max(5L, compileTimeoutSeconds);
         this.runTimeoutSeconds = Math.max(1L, runTimeoutSeconds);
         this.maxOutputChars = Math.max(2000, maxOutputChars);
@@ -96,6 +111,12 @@ public class CodeRunExecutor {
             switch (String.valueOf(request.getLanguage()).toLowerCase(Locale.ROOT)) {
                 case "cpp":
                     runCpp(request.getSourceCode(), runDir, stdinPath, response, logPath);
+                    break;
+                case "c":
+                    runC(request.getSourceCode(), runDir, stdinPath, response, logPath);
+                    break;
+                case "go":
+                    runGo(request.getSourceCode(), runDir, stdinPath, response, logPath);
                     break;
                 case "java":
                     runJava(request.getSourceCode(), runDir, stdinPath, response, logPath);
@@ -218,6 +239,148 @@ public class CodeRunExecutor {
         applyRunResult(runResult, response);
     }
 
+    private void runC(String sourceCode,
+                      Path runDir,
+                      Path stdinPath,
+                      CodeRunTaskDetailResponse response,
+                      Path logPath) throws Exception {
+        Path sourcePath = runDir.resolve("main.c");
+        Files.writeString(sourcePath, safe(sourceCode), StandardCharsets.UTF_8);
+
+        String binaryName = isWindows() ? "main.exe" : "main";
+        Path binaryPath = runDir.resolve(binaryName).toAbsolutePath().normalize();
+        ProcessRunResult compileResult = null;
+        String compileStartFailure = "";
+        List<List<String>> candidates = resolveCCompilerCandidates();
+        for (List<String> candidate : candidates) {
+            List<String> compileCommand = new ArrayList<>(candidate);
+            compileCommand.add("main.c");
+            compileCommand.add("-O2");
+            compileCommand.add("-std=c11");
+            compileCommand.add("-o");
+            compileCommand.add(binaryPath.toString());
+            appendLog(logPath, "Compile command: " + String.join(" ", compileCommand));
+            try {
+                compileResult = runCommand(compileCommand, runDir, null, compileTimeoutSeconds);
+                appendLog(logPath, "Compile exitCode=" + compileResult.exitCode + ", timeout=" + compileResult.timedOut);
+                appendProcessOutput(logPath, "Compile stdout", compileResult.stdout);
+                appendProcessOutput(logPath, "Compile stderr", compileResult.stderr);
+                break;
+            } catch (IllegalStateException startEx) {
+                compileStartFailure = safe(startEx.getMessage());
+                appendLog(logPath, "Compile start failed, try next compiler: " + compileStartFailure);
+            }
+        }
+
+        if (compileResult == null) {
+            response.setCompileStatus("ERROR");
+            response.setRunStatus("PENDING");
+            response.setStderr(trimOutput(compileStartFailure.isBlank()
+                    ? "C compiler is not available. Please install gcc/clang or configure CODE_RUN_GCC_COMMAND."
+                    : compileStartFailure));
+            response.setMessage("编译失败");
+            response.setExitCode(-1);
+            return;
+        }
+
+        response.setCompileStatus(compileResult.timedOut ? "ERROR" : (compileResult.exitCode == 0 ? "SUCCESS" : "ERROR"));
+        if (compileResult.timedOut) {
+            response.setRunStatus("TIMEOUT");
+            response.setStderr(trimOutput("C compile timeout\n" + compileResult.stderr));
+            response.setStdout(trimOutput(compileResult.stdout));
+            response.setMessage("编译超时");
+            response.setExitCode(-1);
+            return;
+        }
+        if (compileResult.exitCode != 0) {
+            response.setRunStatus("PENDING");
+            response.setStderr(trimOutput(compileResult.stderr));
+            response.setStdout(trimOutput(compileResult.stdout));
+            response.setMessage("编译失败");
+            response.setExitCode(compileResult.exitCode);
+            return;
+        }
+
+        if (!Files.exists(binaryPath)) {
+            response.setRunStatus("PENDING");
+            response.setStdout(trimOutput(compileResult.stdout));
+            response.setStderr(trimOutput(compileResult.stderr + "\nCompiler finished but artifact is missing: " + binaryPath.getFileName()));
+            response.setMessage("编译失败");
+            response.setExitCode(-1);
+            appendLog(logPath, "Compile artifact missing: " + binaryPath);
+            return;
+        }
+
+        List<String> runCommand = List.of(binaryPath.toString());
+        appendLog(logPath, "Run command: " + String.join(" ", runCommand));
+        ProcessRunResult runResult = runCommand(runCommand, runDir, stdinPath, runTimeoutSeconds);
+        appendLog(logPath, "Run exitCode=" + runResult.exitCode + ", timeout=" + runResult.timedOut);
+        appendProcessOutput(logPath, "Run stdout", runResult.stdout);
+        appendProcessOutput(logPath, "Run stderr", runResult.stderr);
+        applyRunResult(runResult, response);
+    }
+
+    private void runGo(String sourceCode,
+                       Path runDir,
+                       Path stdinPath,
+                       CodeRunTaskDetailResponse response,
+                       Path logPath) throws Exception {
+        Path sourcePath = runDir.resolve("main.go");
+        Files.writeString(sourcePath, safe(sourceCode), StandardCharsets.UTF_8);
+
+        Path dockerBinaryPath = runDir.resolve("main").toAbsolutePath().normalize();
+        Path localBinaryPath = runDir.resolve(isWindows() ? "main.exe" : "main").toAbsolutePath().normalize();
+
+        GoCompileContext goContext = compileGo(sourcePath, runDir, localBinaryPath, logPath);
+        Path binaryPath = goContext.dockerMode ? dockerBinaryPath : localBinaryPath;
+        ProcessRunResult compileResult = goContext.compileResult;
+        response.setCompileStatus(compileResult.timedOut ? "ERROR" : (compileResult.exitCode == 0 ? "SUCCESS" : "ERROR"));
+
+        if (compileResult.timedOut) {
+            response.setRunStatus("TIMEOUT");
+            response.setStderr(trimOutput("Go compile timeout\n" + compileResult.stderr));
+            response.setStdout(trimOutput(compileResult.stdout));
+            response.setMessage("编译超时");
+            response.setExitCode(-1);
+            return;
+        }
+        if (compileResult.exitCode != 0) {
+            response.setRunStatus("PENDING");
+            response.setStderr(trimOutput(compileResult.stderr));
+            response.setStdout(trimOutput(compileResult.stdout));
+            response.setMessage("编译失败");
+            response.setExitCode(compileResult.exitCode);
+            return;
+        }
+
+        if (!Files.exists(binaryPath)) {
+            response.setRunStatus("PENDING");
+            response.setStderr(trimOutput("Go compile finished but artifact is missing: " + binaryPath.getFileName()));
+            response.setMessage("编译失败");
+            response.setExitCode(-1);
+            appendLog(logPath, "Compile artifact missing: " + binaryPath);
+            return;
+        }
+
+        ProcessRunResult runResult;
+        if (goContext.dockerMode) {
+            List<String> runCommand = buildDockerRunBaseCommand(runDir);
+            runCommand.add("sh");
+            runCommand.add("-lc");
+            runCommand.add("./main < input.txt");
+            appendLog(logPath, "Run command: " + String.join(" ", runCommand));
+            runResult = runCommand(runCommand, runDir, null, runTimeoutSeconds);
+        } else {
+            List<String> runCommand = List.of(binaryPath.toString());
+            appendLog(logPath, "Run command: " + String.join(" ", runCommand));
+            runResult = runCommand(runCommand, runDir, stdinPath, runTimeoutSeconds);
+        }
+        appendLog(logPath, "Run exitCode=" + runResult.exitCode + ", timeout=" + runResult.timedOut);
+        appendProcessOutput(logPath, "Run stdout", runResult.stdout);
+        appendProcessOutput(logPath, "Run stderr", runResult.stderr);
+        applyRunResult(runResult, response);
+    }
+
     private void runJava(String sourceCode,
                          Path runDir,
                          Path stdinPath,
@@ -294,6 +457,95 @@ public class CodeRunExecutor {
         appendProcessOutput(logPath, "Run stdout", runResult.stdout);
         appendProcessOutput(logPath, "Run stderr", runResult.stderr);
         applyRunResult(runResult, response);
+    }
+
+    private GoCompileContext compileGo(Path sourcePath,
+                                       Path runDir,
+                                       Path binaryPath,
+                                       Path logPath) throws Exception {
+        boolean localGoAvailable = isCommandAvailable(goCommand, "go");
+        String dockerInfraError = "";
+        if (goPreferDocker) {
+            try {
+                List<String> compileCommand = buildDockerRunBaseCommand(runDir);
+                compileCommand.add("go");
+                compileCommand.add("build");
+                compileCommand.add("-o");
+                compileCommand.add("./main");
+                compileCommand.add(sourcePath.getFileName().toString());
+                appendLog(logPath, "Compile command: " + String.join(" ", compileCommand));
+                ProcessRunResult compileResult = runCommand(compileCommand, runDir, null, compileTimeoutSeconds);
+                appendLog(logPath, "Compile exitCode=" + compileResult.exitCode + ", timeout=" + compileResult.timedOut);
+                appendProcessOutput(logPath, "Compile stdout", compileResult.stdout);
+                appendProcessOutput(logPath, "Compile stderr", compileResult.stderr);
+
+                if (compileResult.exitCode == 0 || compileResult.timedOut || looksLikeGoSourceCompileError(compileResult.stderr, compileResult.stdout)) {
+                    return GoCompileContext.docker(compileResult);
+                }
+                dockerInfraError = firstNonBlank(compileResult.stderr, compileResult.stdout);
+                appendLog(logPath, "Docker go compile infra error detected: " + dockerInfraError);
+            } catch (IllegalStateException startEx) {
+                dockerInfraError = safe(startEx.getMessage());
+                appendLog(logPath, "Docker go compile start failed: " + dockerInfraError);
+            }
+        }
+
+        if (!localGoAvailable) {
+            String message = goPreferDocker
+                    ? "Go runtime is unavailable. Docker mode failed and local go compiler was not found.\n"
+                    + "Please start Docker Desktop or install Go, then retry.\n"
+                    + (dockerInfraError.isBlank() ? "" : ("Docker error: " + dockerInfraError))
+                    : "Go compiler is not available. Please install Go or configure CODE_RUN_GO_COMMAND.";
+            ProcessRunResult result = new ProcessRunResult();
+            result.exitCode = -1;
+            result.timedOut = false;
+            result.stdout = "";
+            result.stderr = trimOutput(message);
+            return GoCompileContext.local(result);
+        }
+
+        List<String> compileCommand = new ArrayList<>(splitCommandOrFallback(goCommand, "go"));
+        compileCommand.add("build");
+        compileCommand.add("-o");
+        compileCommand.add(binaryPath.toString());
+        compileCommand.add(sourcePath.getFileName().toString());
+        appendLog(logPath, "Compile command: " + String.join(" ", compileCommand));
+        ProcessRunResult compileResult = runCommand(compileCommand, runDir, null, compileTimeoutSeconds);
+        appendLog(logPath, "Compile exitCode=" + compileResult.exitCode + ", timeout=" + compileResult.timedOut);
+        appendProcessOutput(logPath, "Compile stdout", compileResult.stdout);
+        appendProcessOutput(logPath, "Compile stderr", compileResult.stderr);
+        return GoCompileContext.local(compileResult);
+    }
+
+    private List<String> buildDockerRunBaseCommand(Path runDir) {
+        List<String> command = new ArrayList<>(splitCommandOrFallback(dockerCommand, "docker"));
+        command.add("run");
+        command.add("--rm");
+        command.add("-v");
+        command.add(toDockerMountSource(runDir) + ":/workspace");
+        command.add("-w");
+        command.add("/workspace");
+        command.add(safe(goDockerImage).isBlank() ? "golang:1.22-alpine" : goDockerImage);
+        return command;
+    }
+
+    private String toDockerMountSource(Path path) {
+        return path.toAbsolutePath().normalize().toString().replace("\\", "/");
+    }
+
+    private boolean looksLikeGoSourceCompileError(String stderr, String stdout) {
+        String merged = (safe(stderr) + "\n" + safe(stdout)).toLowerCase(Locale.ROOT);
+        return merged.contains("main.go:") || merged.contains("syntax error")
+                || merged.contains("undefined") || merged.contains("imported and not used")
+                || merged.contains("expected");
+    }
+
+    private String firstNonBlank(String first, String second) {
+        String v1 = safe(first).trim();
+        if (!v1.isBlank()) {
+            return v1;
+        }
+        return safe(second).trim();
     }
 
     private String validateJavaMainClass(String sourceCode) {
@@ -465,6 +717,59 @@ public class CodeRunExecutor {
         return candidates;
     }
 
+    private List<List<String>> resolveCCompilerCandidates() {
+        LinkedHashSet<String> unique = new LinkedHashSet<>();
+        String configured = safe(gccCommand).trim();
+        if (!configured.isBlank()) {
+            unique.add(configured);
+        }
+        unique.add("gcc");
+        unique.add("clang");
+        unique.add("cc");
+
+        List<List<String>> candidates = new ArrayList<>();
+        for (String raw : unique) {
+            List<String> parsed = splitCommand(raw);
+            if (!parsed.isEmpty()) {
+                candidates.add(parsed);
+            }
+        }
+        return candidates;
+    }
+
+    private boolean isCommandAvailable(String configuredCommand, String fallback) {
+        List<String> command = splitCommandOrFallback(configuredCommand, fallback);
+        if (command.isEmpty()) {
+            return false;
+        }
+        String executable = command.get(0);
+        if (executable.contains("\\") || executable.contains("/") || executable.contains(":")) {
+            Path path = Path.of(executable.replace("\"", ""));
+            if (Files.exists(path)) {
+                return true;
+            }
+        }
+        String envPath = safe(System.getenv("PATH"));
+        if (envPath.isBlank()) {
+            return false;
+        }
+        String[] entries = envPath.split(java.io.File.pathSeparator);
+        String name = executable;
+        if (isWindows() && !name.toLowerCase(Locale.ROOT).endsWith(".exe")) {
+            name = name + ".exe";
+        }
+        for (String entry : entries) {
+            if (entry == null || entry.isBlank()) {
+                continue;
+            }
+            Path candidate = Path.of(entry).resolve(name);
+            if (Files.exists(candidate) && Files.isRegularFile(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     }
@@ -513,5 +818,23 @@ public class CodeRunExecutor {
         private boolean timedOut;
         private String stdout;
         private String stderr;
+    }
+
+    private static class GoCompileContext {
+        private final ProcessRunResult compileResult;
+        private final boolean dockerMode;
+
+        private GoCompileContext(ProcessRunResult compileResult, boolean dockerMode) {
+            this.compileResult = compileResult;
+            this.dockerMode = dockerMode;
+        }
+
+        private static GoCompileContext docker(ProcessRunResult compileResult) {
+            return new GoCompileContext(compileResult, true);
+        }
+
+        private static GoCompileContext local(ProcessRunResult compileResult) {
+            return new GoCompileContext(compileResult, false);
+        }
     }
 }

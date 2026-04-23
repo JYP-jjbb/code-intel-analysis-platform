@@ -47,10 +47,15 @@ class CodeRunExecutorTest {
                 taskRepository,
                 workspaceManager,
                 objectMapper,
+                "gcc",
                 "g++",
+                "go",
+                "docker",
                 "javac",
                 "java",
                 "python",
+                "golang:1.22-alpine",
+                true,
                 20,
                 5,
                 120000
@@ -87,10 +92,15 @@ class CodeRunExecutorTest {
                 taskRepository,
                 workspaceManager,
                 objectMapper,
+                "gcc",
                 "g++",
+                "go",
+                "docker",
                 "javac",
                 "java",
                 "python",
+                "golang:1.22-alpine",
+                true,
                 20,
                 5,
                 120000
@@ -129,10 +139,15 @@ class CodeRunExecutorTest {
                 taskRepository,
                 workspaceManager,
                 objectMapper,
+                "gcc",
                 "g++",
+                "go",
+                "docker",
                 "javac",
                 "java",
                 "python",
+                "golang:1.22-alpine",
+                true,
                 20,
                 5,
                 120000
@@ -160,6 +175,147 @@ class CodeRunExecutorTest {
         Assertions.assertEquals("5", String.valueOf(detail.getStdout()).trim());
     }
 
+    @Test
+    void cRunShouldOutputSum() throws Exception {
+        Assumptions.assumeTrue(commandExists("gcc"), "gcc is required for c test");
+
+        InMemoryTaskRepository taskRepository = new InMemoryTaskRepository();
+        tempRoot = Files.createTempDirectory("coderun-test");
+        WorkspaceManager workspaceManager = new WorkspaceManager(tempRoot.toString());
+        CodeRunExecutor executor = new CodeRunExecutor(
+                taskRepository,
+                workspaceManager,
+                objectMapper,
+                "gcc",
+                "g++",
+                "go",
+                "docker",
+                "javac",
+                "java",
+                "python",
+                "golang:1.22-alpine",
+                true,
+                20,
+                5,
+                120000
+        );
+
+        String taskId = UUID.randomUUID().toString();
+        TaskRecord record = new TaskRecord(taskId, TaskType.CODE_RUN);
+        Path taskDir = workspaceManager.createTaskDir(taskId);
+        record.setSourcePath(taskDir.resolve("source.json").toString());
+        record.setResultPath(taskDir.resolve("result.json").toString());
+        record.setLogPath(taskDir.resolve("run.log").toString());
+        taskRepository.save(record);
+
+        CodeRunTaskRequest request = new CodeRunTaskRequest();
+        request.setLanguage("c");
+        request.setSourceCode("#include <stdio.h>\nint main(){int a,b;scanf(\"%d%d\",&a,&b);printf(\"%d\",a+b);return 0;}");
+        request.setStdin("2 3");
+
+        executor.execute(record, request);
+
+        CodeRunTaskDetailResponse detail = objectMapper.readValue(Path.of(record.getResultPath()).toFile(), CodeRunTaskDetailResponse.class);
+        Assertions.assertEquals("SUCCESS", detail.getTaskStatus());
+        Assertions.assertEquals("SUCCESS", detail.getCompileStatus());
+        Assertions.assertEquals("SUCCESS", detail.getRunStatus());
+        Assertions.assertEquals("5", String.valueOf(detail.getStdout()).trim());
+    }
+
+    @Test
+    void goRunShouldOutputSumWhenRuntimeAvailable() throws Exception {
+        boolean localGoAvailable = commandExists("go");
+        boolean dockerGoRuntimeAvailable = dockerDaemonReady() && dockerImageExists("golang:1.22-alpine");
+        Assumptions.assumeTrue(localGoAvailable || dockerGoRuntimeAvailable, "go runtime is required for go test");
+
+        InMemoryTaskRepository taskRepository = new InMemoryTaskRepository();
+        tempRoot = Files.createTempDirectory("coderun-test");
+        WorkspaceManager workspaceManager = new WorkspaceManager(tempRoot.toString());
+        CodeRunExecutor executor = new CodeRunExecutor(
+                taskRepository,
+                workspaceManager,
+                objectMapper,
+                "gcc",
+                "g++",
+                "go",
+                "docker",
+                "javac",
+                "java",
+                "python",
+                "golang:1.22-alpine",
+                true,
+                30,
+                8,
+                120000
+        );
+
+        String taskId = UUID.randomUUID().toString();
+        TaskRecord record = new TaskRecord(taskId, TaskType.CODE_RUN);
+        Path taskDir = workspaceManager.createTaskDir(taskId);
+        record.setSourcePath(taskDir.resolve("source.json").toString());
+        record.setResultPath(taskDir.resolve("result.json").toString());
+        record.setLogPath(taskDir.resolve("run.log").toString());
+        taskRepository.save(record);
+
+        CodeRunTaskRequest request = new CodeRunTaskRequest();
+        request.setLanguage("go");
+        request.setSourceCode("package main\nimport \"fmt\"\nfunc main(){var a,b int; fmt.Scan(&a,&b); fmt.Println(a+b)}");
+        request.setStdin("2 3");
+
+        executor.execute(record, request);
+
+        CodeRunTaskDetailResponse detail = objectMapper.readValue(Path.of(record.getResultPath()).toFile(), CodeRunTaskDetailResponse.class);
+        Assertions.assertEquals("SUCCESS", detail.getTaskStatus());
+        Assertions.assertEquals("SUCCESS", detail.getCompileStatus());
+        Assertions.assertEquals("SUCCESS", detail.getRunStatus());
+        Assertions.assertEquals("5", String.valueOf(detail.getStdout()).trim());
+    }
+
+    @Test
+    void goRunShouldReturnClearMessageWhenNoRuntimeAvailable() throws Exception {
+        InMemoryTaskRepository taskRepository = new InMemoryTaskRepository();
+        tempRoot = Files.createTempDirectory("coderun-test");
+        WorkspaceManager workspaceManager = new WorkspaceManager(tempRoot.toString());
+        CodeRunExecutor executor = new CodeRunExecutor(
+                taskRepository,
+                workspaceManager,
+                objectMapper,
+                "gcc",
+                "g++",
+                "go-missing-command",
+                "docker-missing-command",
+                "javac",
+                "java",
+                "python",
+                "golang:1.22-alpine",
+                true,
+                20,
+                5,
+                120000
+        );
+
+        String taskId = UUID.randomUUID().toString();
+        TaskRecord record = new TaskRecord(taskId, TaskType.CODE_RUN);
+        Path taskDir = workspaceManager.createTaskDir(taskId);
+        record.setSourcePath(taskDir.resolve("source.json").toString());
+        record.setResultPath(taskDir.resolve("result.json").toString());
+        record.setLogPath(taskDir.resolve("run.log").toString());
+        taskRepository.save(record);
+
+        CodeRunTaskRequest request = new CodeRunTaskRequest();
+        request.setLanguage("go");
+        request.setSourceCode("package main\nimport \"fmt\"\nfunc main(){var a,b int; fmt.Scan(&a,&b); fmt.Println(a+b)}");
+        request.setStdin("2 3");
+
+        executor.execute(record, request);
+
+        CodeRunTaskDetailResponse detail = objectMapper.readValue(Path.of(record.getResultPath()).toFile(), CodeRunTaskDetailResponse.class);
+        Assertions.assertEquals("SUCCESS", detail.getTaskStatus());
+        Assertions.assertEquals("ERROR", detail.getCompileStatus());
+        Assertions.assertEquals("PENDING", detail.getRunStatus());
+        Assertions.assertTrue(String.valueOf(detail.getStderr()).contains("Go runtime is unavailable"));
+    }
+
     private boolean commandExists(String command) {
         String path = System.getenv("PATH");
         if (path == null || path.isBlank()) {
@@ -179,5 +335,35 @@ class CodeRunExecutorTest {
             }
         }
         return false;
+    }
+
+    private boolean dockerDaemonReady() {
+        if (!commandExists("docker")) {
+            return false;
+        }
+        try {
+            Process process = new ProcessBuilder("docker", "version")
+                    .redirectErrorStream(true)
+                    .start();
+            boolean done = process.waitFor(8, java.util.concurrent.TimeUnit.SECONDS);
+            return done && process.exitValue() == 0;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean dockerImageExists(String image) {
+        if (!dockerDaemonReady()) {
+            return false;
+        }
+        try {
+            Process process = new ProcessBuilder("docker", "image", "inspect", image)
+                    .redirectErrorStream(true)
+                    .start();
+            boolean done = process.waitFor(8, java.util.concurrent.TimeUnit.SECONDS);
+            return done && process.exitValue() == 0;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 }

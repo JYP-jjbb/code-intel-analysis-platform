@@ -157,6 +157,8 @@ public class CodeRunTaskService {
         }
         switch (normalized) {
             case "cpp":
+            case "c":
+            case "go":
             case "java":
             case "python":
                 return normalized;
